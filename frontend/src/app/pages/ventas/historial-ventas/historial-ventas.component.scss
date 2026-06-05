@@ -1,0 +1,438 @@
+/* ====================================================
+   HISTORIAL DE VENTAS — Estilos Fieles a Blazor
+   ==================================================== */
+
+:host {
+  display: block;
+}
+
+.uta-page {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f4f6f9;
+    min-height: 100vh;
+    padding: 1.8rem 2rem;
+    color: #2c3e50;
+}
+
+/* HEADERS */
+.uta-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.uta-breadcrumb {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 0.35rem;
+    font-weight: 500;
+}
+
+.uta-breadcrumb__sep {
+    margin: 0 0.35rem;
+}
+
+.uta-breadcrumb__active {
+    color: #6B1A33;
+}
+
+.uta-page-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uta-page-title__icon {
+    font-size: 1.4rem;
+}
+
+.uta-page-subtitle {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* KPI CARDS (Restaurando Cuadros) */
+.uta-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.uta-stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s;
+}
+
+.uta-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.uta-stat-card__icon {
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uta-stat-card__details {
+    display: flex;
+    flex-direction: column;
+}
+
+.uta-stat-card__number {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #1a1a1a;
+}
+
+.uta-stat-card__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    margin-top: 0.2rem;
+}
+
+.uta-stat-card--dark {
+    background: #6B1A33;
+    color: #fff;
+    border-color: #521528;
+}
+
+.uta-stat-card--dark .uta-stat-card__number { color: #fff; }
+.uta-stat-card--dark .uta-stat-card__label { color: rgba(255, 255, 255, 0.8); }
+
+/* MAIN CARD & SEARCH */
+.uta-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+.uta-card__header {
+    background: #6B1A33;
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.uta-card__header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.uta-card__header-icon {
+    font-size: 1.1rem;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+/* SEARCH BAR */
+.uta-search-bar {
+    display: flex;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.uta-search-bar__select {
+    background: #f8f9fa;
+    border: none;
+    border-right: 1px solid #ced4da;
+    padding: 0 1rem;
+    font-weight: 600;
+    color: #495057;
+    outline: none;
+    font-size: 0.85rem;
+}
+
+.uta-search-bar__input {
+    flex: 1;
+    border: none;
+    padding: 0.6rem 1rem;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+/* TABLE STYLES */
+.uta-table-wrap {
+    overflow-x: auto;
+}
+
+.uta-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.uta-table th {
+    padding: 0.85rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #495057;
+    background: #f8f9fa;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.uta-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    color: #495057;
+    font-size: 0.85rem;
+}
+
+.uta-table tbody tr:hover td {
+    background: #fdf5f7;
+}
+
+.uta-table__bold {
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* PRICE & BADGES */
+.uta-price {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.1rem;
+}
+
+.uta-price__symbol {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.uta-price--right {
+  justify-content: flex-end;
+}
+
+.uta-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.uta-badge--green { background: #dcfce7; color: #16a34a; }
+.uta-badge--yellow { background: #fef9c3; color: #a16207; }
+.uta-badge--red { background: #fee2e2; color: #dc2626; }
+.uta-badge--white-outline {
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+}
+
+.uta-code-badge {
+    font-family: monospace;
+    font-size: 0.8rem;
+    background: #f1f3f5;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: #495057;
+    font-weight: 600;
+}
+
+/* BUTTONS */
+.uta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.uta-btn--primary {
+    background: #6B1A33;
+    color: #fff;
+}
+
+.uta-btn--outline {
+    background: transparent;
+    color: #6B1A33;
+    border: 1px solid #6B1A33;
+}
+
+.uta-btn--sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.uta-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.2s;
+}
+
+.uta-icon-btn--red {
+    color: #dc2626;
+}
+
+.uta-icon-btn--red:hover {
+    background: #dc2626;
+    color: #fff;
+}
+
+.uta-qty-input {
+    padding: 0.4rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    outline: none;
+}
+
+/* MODAL & OVERLAY */
+.uta-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.uta-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.uta-modal--lg { max-width: 800px; }
+
+.uta-modal__header {
+    background: #6B1A33;
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.uta-modal__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uta-modal__subtitle {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.uta-modal__close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.uta-modal__body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.uta-modal__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.uta-divider {
+    height: 1px;
+    background: #eee;
+    margin: 1rem 0;
+}
+
+.uta-client-data-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.uta-data-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.uta-data-item__label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.uta-data-item__value {
+    font-weight: 600;
+    color: #333;
+}
+
+.uta-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.uta-totals__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.uta-totals__grand {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #6B1A33;
+    border-top: 2px solid #6B1A33;
+    padding-top: 0.5rem;
+}

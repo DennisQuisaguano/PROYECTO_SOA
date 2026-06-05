@@ -1,0 +1,82 @@
+<div class="uta-bg-wrapper">
+  <div class="uta-login-container">
+    <div class="uta-login-card">
+      <!-- Logo Section -->
+      <div class="uta-login-header">
+        <div class="uta-login-logo">
+          <i class="bi bi-shop"></i>
+        </div>
+        <h1 class="uta-login-title">MI NEGOCIO</h1>
+        <p class="uta-login-subtitle">Acceso seguro a la plataforma</p>
+      </div>
+
+      <!-- Form Section -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="uta-login-form">
+        <!-- Username Field -->
+        <div class="uta-form-group">
+          <label for="username" class="uta-form-label">Usuario</label>
+          <div class="uta-input-wrapper">
+            <i class="bi bi-person uta-input-icon"></i>
+            <input 
+              pInputText 
+              id="username" 
+              formControlName="username" 
+              class="uta-form-control" 
+              placeholder="Ingrese su usuario"
+              [class.shake-animation]="loginForm.get('username')?.touched && loginForm.get('username')?.invalid" 
+            />
+          </div>
+          <small *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']" class="form-error text-danger" style="font-size: 0.78rem; margin-top: 2px;">
+            Usuario requerido
+          </small>
+        </div>
+
+        <!-- Password Field -->
+        <div class="uta-form-group">
+          <label for="password" class="uta-form-label">Contraseña</label>
+          <div class="uta-input-wrapper">
+            <i class="bi bi-lock uta-input-icon"></i>
+            <p-password 
+              id="password" 
+              formControlName="password" 
+              [feedback]="false" 
+              [toggleMask]="true" 
+              styleClass="w-full" 
+              inputStyleClass="uta-form-control"
+              placeholder="Ingrese su contraseña"
+              [class.shake-animation]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+            ></p-password>
+          </div>
+          <small *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']" class="form-error text-danger" style="font-size: 0.78rem; margin-top: 2px;">
+            Contraseña requerida
+          </small>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-error mt-2" style="padding: 10px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; background: rgba(220,38,38,0.08); color: #dc2626; border: 1px solid rgba(220,38,38,0.2);">
+          <i class="bi bi-exclamation-triangle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="uta-login-btn"
+          [disabled]="loading"
+        >
+          <i class="bi bi-arrow-repeat spin" *ngIf="loading"></i>
+          <i class="bi bi-box-arrow-in-right" *ngIf="!loading"></i>
+          <span>{{ loading ? 'Ingresando...' : 'Ingresar' }}</span>
+        </button>
+
+        <!-- Footer Text -->
+        <div class="uta-login-footer">
+          <p>
+            <i class="bi bi-shield-check text-success"></i>
+            Conexión segura SSL
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

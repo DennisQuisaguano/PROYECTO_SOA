@@ -1,0 +1,95 @@
+<ng-container *ngIf="!authService.isBodeguero()">
+  <div class="uta-page">
+    <div class="uta-page-header">
+      <div class="uta-page-header__left">
+        <h1 class="uta-page-title" style="font-size: 2rem;">
+          <i class="bi bi-hand-wave-fill text-warning"></i> ¡Bienvenido!
+        </h1>
+        <p class="uta-page-subtitle" style="font-size: 1rem; margin-top: 0.3rem;">
+          Resumen de tu jornada: <strong style="text-transform: capitalize;">{{ currentDate }}</strong>
+        </p>
+      </div>
+      <div class="uta-page-header__right">
+        <button class="uta-btn uta-btn--primary uta-btn--lg" routerLink="/ventas/nueva" *ngIf="authService.hasAnyRole(['ADMIN', 'CAJERO'])">
+          <i class="bi bi-cart-plus"></i> &nbsp;Iniciar Nueva Venta
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs Unificados -->
+    <div class="uta-stats-row mb-4">
+      <!-- KPI: Recaudación Hoy -->
+      <div class="uta-stat-card uta-stat-card--light" routerLink="/ventas/historial" style="cursor: pointer;">
+        <div class="uta-stat-card__icon text-success"><i class="bi bi-cash-stack"></i></div>
+        <div class="uta-stat-card__details">
+          <div class="uta-stat-card__number">{{ metrics.recaudadoHoy | moneda }}</div>
+          <div class="uta-stat-card__label">Recaudación Hoy</div>
+        </div>
+      </div>
+
+      <!-- KPI: Facturas Hoy -->
+      <div class="uta-stat-card uta-stat-card--light" routerLink="/ventas/historial" style="cursor: pointer;">
+        <div class="uta-stat-card__icon text-primary"><i class="bi bi-receipt"></i></div>
+        <div class="uta-stat-card__details">
+          <div class="uta-stat-card__number">{{ metrics.ventasHoy }}</div>
+          <div class="uta-stat-card__label">Facturas Emitidas</div>
+        </div>
+      </div>
+
+      <!-- KPI: Stock Crítico -->
+      <div class="uta-stat-card uta-stat-card--light" routerLink="/inventario" style="cursor: pointer;">
+        <div class="uta-stat-card__icon text-danger"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="uta-stat-card__details">
+          <div class="uta-stat-card__number">{{ metrics.stockBajo }}</div>
+          <div class="uta-stat-card__label">Productos Stock Crítico</div>
+        </div>
+      </div>
+
+      <!-- KPI: Clientes Activos -->
+      <div class="uta-stat-card uta-stat-card--dark" routerLink="/clientes" style="cursor: pointer;">
+        <div class="uta-stat-card__icon"><i class="bi bi-people-fill"></i></div>
+        <div class="uta-stat-card__details">
+          <div class="uta-stat-card__number">{{ metrics.totalClientes }}</div>
+          <div class="uta-stat-card__label">Directorio de Clientes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Access Box -->
+    <div class="uta-card mt-4">
+      <div class="uta-card__header">
+        <span class="uta-card__header-icon"><i class="bi bi-lightning-charge-fill text-warning"></i></span> 
+        Accesos Rápidos
+      </div>
+      <div class="uta-card__body">
+        <div class="uta-quick-actions">
+          <button class="uta-action-box" routerLink="/ventas/nueva" *ngIf="authService.hasAnyRole(['ADMIN', 'CAJERO'])">
+            <div class="uta-action-box__icon"><i class="bi bi-cart3"></i></div>
+            <div class="uta-action-box__title">Punto de Venta</div>
+            <div class="uta-action-box__desc">Facturar productos a clientes en caja</div>
+          </button>
+
+          <button class="uta-action-box" routerLink="/inventario" *ngIf="authService.hasAnyRole(['ADMIN', 'BODEGUERO', 'BODEGERO'])">
+            <div class="uta-action-box__icon"><i class="bi bi-box-seam"></i></div>
+            <div class="uta-action-box__title">Inventario</div>
+            <div class="uta-action-box__desc">Gestionar catálogo de productos y stock de sucursal</div>
+          </button>
+
+          <button class="uta-action-box" routerLink="/clientes" *ngIf="authService.hasAnyRole(['ADMIN', 'CAJERO'])">
+            <div class="uta-action-box__icon"><i class="bi bi-people"></i></div>
+            <div class="uta-action-box__title">Clientes</div>
+            <div class="uta-action-box__desc">Directorio de clientes registrados</div>
+          </button>
+
+          <button class="uta-action-box" routerLink="/ventas/historial" *ngIf="authService.hasAnyRole(['ADMIN', 'CAJERO'])">
+            <div class="uta-action-box__icon"><i class="bi bi-journal-text"></i></div>
+            <div class="uta-action-box__title">Facturación</div>
+            <div class="uta-action-box__desc">Consultar historial de ventas de hoy</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<app-bodega-dashboard *ngIf="authService.isBodeguero()"></app-bodega-dashboard>

@@ -1,0 +1,80 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- Descripción del Producto -->
+  <div class="uta-form-group">
+    <label class="uta-form-label">Descripción del Producto <span class="text-danger">*</span></label>
+    <div class="uta-input-icon-wrapper">
+      <i class="bi bi-tag uta-input-icon"></i>
+      <input class="uta-form-control uta-form-control--with-icon" 
+             [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
+             type="text" 
+             formControlName="nombre" 
+             placeholder="NOMBRE DESCRIPTIVO DEL PRODUCTO" />
+    </div>
+    <div *ngIf="form.get('nombre')?.touched && form.get('nombre')?.invalid" class="form-error-text">
+      <small>La descripción es obligatoria (máx. 150 caracteres)</small>
+    </div>
+  </div>
+
+  <!-- Categoría -->
+  <div class="uta-form-group">
+    <label class="uta-form-label">Categoría <span class="text-danger">*</span></label>
+    <p-dropdown [options]="categorias" formControlName="categoriaId"
+                optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría"
+                styleClass="uta-form-control p-0 border-0"
+                [class.is-invalid]="form.get('categoriaId')?.invalid && form.get('categoriaId')?.touched"></p-dropdown>
+    <div *ngIf="form.get('categoriaId')?.touched && form.get('categoriaId')?.invalid" class="form-error-text">
+      <small>Debe seleccionar una categoría</small>
+    </div>
+  </div>
+
+  <!-- Precio y Stock en grid -->
+  <div class="uta-form-grid">
+    <div class="uta-form-group">
+      <label class="uta-form-label">Precio Unitario ($) <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="bi bi-currency-dollar uta-input-icon"></i>
+        <p-inputNumber formControlName="precioVenta" mode="decimal" [minFractionDigits]="2"
+                       styleClass="w-100" inputStyleClass="uta-form-control uta-form-control--with-icon" 
+                       [class.is-invalid]="form.get('precioVenta')?.invalid && form.get('precioVenta')?.touched"
+                       placeholder="0.00"></p-inputNumber>
+      </div>
+      <div *ngIf="form.get('precioVenta')?.touched && form.get('precioVenta')?.invalid" class="form-error-text">
+        <small>El precio debe ser mayor a 0</small>
+      </div>
+    </div>
+    <div class="uta-form-group">
+      <label class="uta-form-label">Stock Inicial</label>
+      <div class="uta-input-icon-wrapper">
+        <i class="bi bi-box-seam uta-input-icon"></i>
+        <p-inputNumber formControlName="stockInicial" [min]="0"
+                       styleClass="w-100" inputStyleClass="uta-form-control uta-form-control--with-icon" 
+                       placeholder="0"></p-inputNumber>
+      </div>
+    </div>
+  </div>
+
+  <!-- Costo (oculto por defecto como campo avanzado) -->
+  <div class="uta-form-group" *ngIf="producto">
+    <label class="uta-form-label">Costo Unitario ($)</label>
+    <p-inputNumber formControlName="costoUnitario" mode="currency" currency="USD" locale="en-US"
+                   styleClass="w-100" inputStyleClass="uta-form-control"></p-inputNumber>
+  </div>
+
+  <!-- Sucursal (solo creación y solo si no es Bodeguero) -->
+  <div class="uta-form-group" *ngIf="!producto && !authService.isBodeguero()">
+    <label class="uta-form-label">Sucursal para Stock Inicial</label>
+    <p-dropdown [options]="sucursales" formControlName="sucursalId"
+                optionLabel="nombre" optionValue="id" placeholder="Seleccione sucursal"
+                styleClass="uta-form-control p-0 border-0"></p-dropdown>
+  </div>
+
+  <!-- Buttons -->
+  <div class="uta-modal__footer d-print-none" style="padding: 1.5rem 0 0 0; margin-top: 1rem; border-top: 1px solid #e9ecef; background: transparent;">
+    <button type="button" class="uta-btn uta-btn--outline" (click)="guardado.emit()">Cancelar</button>
+    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || loading">
+      <i class="bi bi-check2" *ngIf="!loading"></i>
+      <i class="bi bi-arrow-repeat" *ngIf="loading" style="animation: spin 1.5s linear infinite; display: inline-block;"></i>
+      &nbsp;Guardar Producto
+    </button>
+  </div>
+</form>

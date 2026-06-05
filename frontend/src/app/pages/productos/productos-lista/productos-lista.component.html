@@ -1,0 +1,107 @@
+<div class="uta-page">
+  <!-- ==================== PAGE HEADER ==================== -->
+  <div class="uta-page-header">
+    <div class="uta-page-header__left">
+      <div class="uta-breadcrumb">
+        <span routerLink="/">Inicio</span>
+        <i class="pi pi-chevron-right uta-breadcrumb__sep"></i>
+        <span class="uta-breadcrumb__active">Gestión de Productos</span>
+      </div>
+      <h1 class="uta-page-title">
+        <i class="pi pi-box uta-page-title__icon"></i>
+        Catálogo de Productos
+      </h1>
+      <p class="uta-page-subtitle">Administración y control del inventario maestro</p>
+    </div>
+    <div class="uta-page-header__right">
+      <button class="uta-btn uta-btn--primary" (click)="nuevoProducto()">
+        <i class="pi pi-plus"></i> NUEVO PRODUCTO
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== SEARCH SECTION ==================== -->
+  <div class="uta-card mb-4">
+    <div class="uta-card__header">
+      <span class="uta-card__header-icon"><i class="pi pi-search"></i></span>
+      Filtros de Búsqueda
+    </div>
+    <div class="uta-card__body">
+      <div class="uta-search-bar">
+        <select class="uta-search-bar__select" [(ngModel)]="searchField">
+          <option value="nombre">Descripción</option>
+          <option value="categoriaNombre">Categoría</option>
+        </select>
+        <input type="text" class="uta-search-bar__input" placeholder="Escriba para buscar..."
+               [(ngModel)]="searchTerm" (keyup.enter)="applyFilter()">
+        <button class="uta-btn uta-btn--primary uta-search-bar__btn" (click)="applyFilter()">
+          <i class="pi pi-search"></i> BUSCAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TABLE SECTION ==================== -->
+  <div class="uta-card">
+    <div class="uta-card__header">
+      <span class="uta-card__header-icon"><i class="pi pi-list"></i></span>
+      Listado de Productos
+      <span class="uta-badge uta-badge--light ml-auto">{{ filteredProductos.length }} registros</span>
+    </div>
+    <div class="uta-card__body p-0">
+      <div class="uta-table-wrap">
+        <p-table [value]="filteredProductos" [loading]="loading" [paginator]="true" [rows]="10"
+                 styleClass="p-datatable-sm uta-table">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Descripción</th>
+              <th>Categoría</th>
+              <th class="text-right">Costo</th>
+              <th class="text-right">P. Venta</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center" style="width: 5rem;">Acciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-prod>
+            <tr class="hover:bg-gray-50">
+              <td class="font-bold text-dark">{{ prod.nombre }}</td>
+              <td>
+                <span class="uta-badge uta-badge--light">{{ prod.categoriaNombre }}</span>
+              </td>
+              <td class="text-right text-600">{{ prod.costoUnitario | moneda }}</td>
+              <td class="text-right font-bold text-primary">{{ prod.precioVenta | moneda }}</td>
+              <td class="text-center">
+                <span class="uta-badge" [ngClass]="prod.activo ? 'uta-badge--green' : 'uta-badge--red'">
+                  <i class="pi" [class.pi-check-circle]="prod.activo" [class.pi-times-circle]="!prod.activo" style="font-size: 0.7rem; margin-right: 4px;"></i>
+                  {{ prod.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button class="uta-icon-btn-outline uta-icon-btn-outline--maroon" (click)="editarProducto(prod)" title="Editar producto">
+                  <i class="pi pi-pencil"></i>
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="uta-table__empty">
+                <div class="uta-empty-state">
+                  <i class="pi pi-box uta-empty-state__icon"></i>
+                  <span class="uta-empty-state__text">No se encontraron productos</span>
+                  <span class="uta-empty-state__sub">Intente ajustando los filtros de búsqueda</span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DIALOG ==================== -->
+<p-dialog [header]="productoEditando ? 'Editar Producto' : 'Nuevo Producto'" [(visible)]="displayForm" [modal]="true" [style]="{width: '500px'}"
+          [styleClass]="'premium-dialog'">
+  <app-producto-form *ngIf="displayForm" [producto]="productoEditando" (guardado)="onGuardado()"></app-producto-form>
+</p-dialog>

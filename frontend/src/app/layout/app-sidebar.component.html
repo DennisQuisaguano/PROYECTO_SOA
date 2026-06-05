@@ -1,0 +1,59 @@
+<div class="flex flex-column h-full">
+  <div class="flex align-items-center justify-content-center py-4 px-3 border-bottom-1 border-slate-700">
+    <div class="bg-white-alpha-10 p-2 border-round mr-2">
+      <i class="pi pi-shopping-bag text-2xl text-blue-400"></i>
+    </div>
+    <span class="text-xl font-bold uppercase tracking-wider text-blue-100">Mi Empresa S.A.</span>
+  </div>
+
+  <div class="flex-1 px-3 py-4">
+    <p-panelMenu [model]="menuItems" [multiple]="false"></p-panelMenu>
+  </div>
+
+  <div class="p-4 border-top-1 border-slate-700 bg-slate-900">
+    <div class="flex align-items-center text-slate-400 text-xs">
+      <i class="pi pi-info-circle mr-2"></i>
+      <span>Versión 1.0.0</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  :host ::ng-deep .p-panelmenu .p-panelmenu-header > a {
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  :host ::ng-deep .p-panelmenu .p-panelmenu-content {
+    background: transparent;
+    border: none;
+    color: #e2e8f0;
+  }
+
+  :host ::ng-deep .p-panelmenu .p-menuitem-link {
+    padding: 0.75rem 1.5rem;
+    color: #cbd5e1;
+    border-radius: 8px;
+    margin-bottom: 2px;
+  }
+
+  :host ::ng-deep .p-panelmenu .p-menuitem-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+  }
+
+  :host ::ng-deep .p-panelmenu .p-menuitem-link.router-link-active {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  :host ::ng-deep .p-panelmenu .p-menuitem-icon {
+    color: inherit;
+    margin-right: 0.75rem;
+  }
+</style>

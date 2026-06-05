@@ -1,0 +1,399 @@
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ClienteService } from '../../../core/services/cliente.service';
+import { InventarioService } from '../../../core/services/inventario.service';
+import { ProductoService } from '../../../core/services/producto.service';
+import { VentaService } from '../../../core/services/venta.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { SolicitudStockService } from '../../../core/services/solicitud-stock.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { RealtimeNotificationService } from '../../../core/services/realtime-notification.service';
+import { SucursalService } from '../../../core/services/sucursal.service';
+import { CategoriaService } from '../../../core/services/categoria.service';
+import { Cliente } from '../../../core/models/cliente.model';
+import { Inventario } from '../../../core/models/inventario.model';
+import { VentaRequest } from '../../../core/models/venta.model';
+import { Sucursal } from '../../../core/models/sucursal.model';
+import { Categoria } from '../../../core/models/categoria.model';
+import { MonedaPipe } from '../../../shared/pipes/moneda.pipe';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { TableModule } from 'primeng/table';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { Subject, takeUntil, forkJoin, map } from 'rxjs';
+
+interface ItemVenta {
+  inventario: Inventario;
+  cantidad: number;
+  subtotal: number;
+}
+
+@Component({
+  selector: 'app-nueva-venta',
+  standalone: true,
+  imports: [
+    CommonModule, FormsModule, ReactiveFormsModule, MonedaPipe,
+    CardModule, InputTextModule, ButtonModule, AutoCompleteModule, 
+    TableModule, InputNumberModule, DialogModule, ToastModule, TooltipModule, TagModule,
+    DropdownModule
+  ],
+  templateUrl: './nueva-venta.component.html',
+  styleUrl: './nueva-venta.component.scss'
+})
+export class NuevaVentaComponent implements OnInit, OnDestroy {
+  private clienteService = inject(ClienteService);
+  private inventarioService = inject(InventarioService);
+  private productoService = inject(ProductoService);
+  private ventaService = inject(VentaService);
+  private authService = inject(AuthService);
+  private solicitudStockService = inject(SolicitudStockService);
+  private notificationService = inject(NotificationService);
+  private realtimeNotificationService = inject(RealtimeNotificationService);
+  private sucursalService = inject(SucursalService);
+  private categoriaService = inject(CategoriaService);
+  private messageService = inject(MessageService);
+  private destroy$ = new Subject<void>();
+
+  cedulaBusqueda = '';
+  clienteSeleccionado: Cliente | null = null;
+  buscandoCliente = false;
+
+  sugerenciasClientes: Cliente[] = [];
+  sugerenciasInventario: Inventario[] = [];
+  itemSeleccionado: Inventario | null = null;
+  cantidadSeleccionada = 1;
+  inventarioLocal: Inventario[] = [];
+
+  productosEnVenta: ItemVenta[] = [];
+  procesandoVenta = false;
+  ventaExitosaDialog = false;
+  ultimaVentaId = '';
+  ultimaVentaNumFac = '';
+
+  displayGlobalStock = false;
+  stockGlobal: Inventario[] = [];
+  
+  displayClienteDialog = false;
+  displayProductoDialog = false;
+  listaClientes: Cliente[] = [];
+
+  customerSearchTerm = '';
+  customerSearchCriterion = 'card';
+  clientesFiltrados: Cliente[] = [];
+
+  productSearchTerm = '';
+  productSearchCriterion = 'name';
+  productosFiltrados: Inventario[] = [];
+  
+  displayCantidadDialog = false;
+  itemParaTraslado: any = null;
+  cantidadTraslado = 1;
+
+  displayBusquedaSucursalDialog = false;
+  sucursales: Sucursal[] = [];
+  categorias: Categoria[] = [];
+  sucursalDestinoSeleccionada: string = '';
+  categoriaSeleccionadaBusqueda: any = null;
+  categoriasFiltradas: any[] = [];
+  inventarioRemoto: Inventario[] = [];
+  inventarioRemotoFiltrado: Inventario[] = [];
+  termBusquedaRemota = '';
+
+  productosEnOtrasSucursales: Map<string, { sucursal: Sucursal; stock: number }[]> = new Map();
+
+  readonly IVA_PORCENTAJE = 0.15;
+  subtotalVenta = 0;
+  ivaVenta = 0;
+  totalVenta = 0;
+
+  get sucursalNombre(): string {
+    const id = this.authService.getSucursalId();
+    if (this.sucursales.length > 0 && id) {
+      const s = this.sucursales.find(suc => suc.id === id);
+      return s ? s.nombre : 'MI NEGOCIO POS';
+    }
+    return 'MI NEGOCIO POS';
+  }
+
+  ngOnInit() {
+    this.cargarDatosIniciales();
+    this.authService.sucursalActiva$.pipe(takeUntil(this.destroy$)).subscribe(sucursalId => {
+      if (sucursalId) {
+        this.nuevaVenta();
+        this.cargarInventarioLocal();
+        this.cargarDisponibilidadGlobal();
+      }
+    });
+
+    this.notificationService.solicitudes$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.cargarInventarioLocal();
+      this.cargarDisponibilidadGlobal();
+    });
+
+    this.realtimeNotificationService.onStockUpdate()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(evento => {
+        const sucursalActualId = this.authService.getSucursalId();
+        if (evento.sucursalId !== sucursalActualId) {
+          this.cargarDisponibilidadGlobal();
+        }
+        const item = this.productosEnVenta.find(p => p.inventario.productoId === evento.productoId);
+        if (item) {
+          item.inventario.stock = evento.stockActual;
+        }
+        const loc = this.inventarioLocal.find(i => i.productoId === evento.productoId);
+        if (loc) {
+          loc.stock = evento.stockActual;
+          this.filtrarProductos();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.ventaService.setVentaEnCurso(false);
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  cargarDatosIniciales() {
+    forkJoin({
+      sucursales: this.sucursalService.obtenerTodas(),
+      categorias: this.categoriaService.obtenerTodas()
+    }).subscribe(res => {
+      this.sucursales = res.sucursales;
+      this.categorias = res.categorias;
+      this.cargarInventarioLocal();
+      this.cargarDisponibilidadGlobal();
+    });
+  }
+
+  cargarInventarioLocal() {
+    const sucursalId = this.authService.getSucursalId();
+    if (sucursalId) {
+      this.inventarioService.findBySucursalId(sucursalId).subscribe(data => {
+        this.inventarioLocal = data;
+        this.filtrarProductos();
+      });
+    }
+  }
+
+  cargarDisponibilidadGlobal() {
+    const sucursalActualId = this.authService.getSucursalId();
+    if (!sucursalActualId || this.sucursales.length === 0) return;
+    const sucursalesOtras = this.sucursales.filter(s => s.id !== sucursalActualId);
+    const requests = sucursalesOtras.map(suc =>
+      this.inventarioService.findDisponiblesBySucursalId(suc.id).pipe(
+        map(items => ({ sucursal: suc, items }))
+      )
+    );
+    forkJoin(requests).subscribe(results => {
+      this.productosEnOtrasSucursales.clear();
+      results.forEach(({ sucursal, items }) => {
+        items.forEach(inv => {
+          if (!this.productosEnOtrasSucursales.has(inv.productoId)) {
+            this.productosEnOtrasSucursales.set(inv.productoId, []);
+          }
+          this.productosEnOtrasSucursales.get(inv.productoId)!.push({ sucursal, stock: inv.stock });
+        });
+      });
+    });
+  }
+
+  tieneStockEnOtrasSucursales(productoId: string): boolean {
+    const entries = this.productosEnOtrasSucursales.get(productoId);
+    return !!entries && entries.length > 0;
+  }
+
+  abrirBusquedaSucursal() {
+    this.sucursalDestinoSeleccionada = '';
+    this.categoriaSeleccionadaBusqueda = null;
+    this.inventarioRemoto = [];
+    this.inventarioRemotoFiltrado = [];
+    this.termBusquedaRemota = '';
+    this.displayBusquedaSucursalDialog = true;
+  }
+
+  onSucursalDestinoChange() {
+    if (this.sucursalDestinoSeleccionada) {
+      this.inventarioService.findBySucursalId(this.sucursalDestinoSeleccionada).subscribe(data => {
+        this.inventarioRemoto = data;
+        this.filtrarInventarioRemoto();
+      });
+    }
+  }
+
+  filtrarInventarioRemoto() {
+    if (!this.inventarioRemoto) return;
+    let filtrado = [...this.inventarioRemoto];
+    if (this.categoriaSeleccionadaBusqueda) {
+      filtrado = filtrado.filter(i => i.categoriaId === this.categoriaSeleccionadaBusqueda);
+    }
+    if (this.termBusquedaRemota) {
+      const term = this.termBusquedaRemota.toLowerCase().trim();
+      filtrado = filtrado.filter(i => i.productoNombre.toLowerCase().includes(term) || i.productoId.toLowerCase().includes(term));
+    }
+    this.inventarioRemotoFiltrado = filtrado;
+  }
+
+  filtrarClientes() {
+    if (!this.customerSearchTerm) {
+      this.clientesFiltrados = this.listaClientes;
+      return;
+    }
+    const term = this.customerSearchTerm.toLowerCase().trim();
+    this.clientesFiltrados = this.listaClientes.filter(c => {
+      if (this.customerSearchCriterion === 'card') return c.cedula.toLowerCase().includes(term);
+      if (this.customerSearchCriterion === 'name') return `${c.apellidoPaterno} ${c.nombreUno}`.toLowerCase().includes(term);
+      return false;
+    });
+  }
+
+  filtrarProductos() {
+    if (!this.productSearchTerm) {
+      this.productosFiltrados = this.inventarioLocal;
+      return;
+    }
+    const term = this.productSearchTerm.toLowerCase().trim();
+    this.productosFiltrados = this.inventarioLocal.filter(item => 
+      item.productoNombre.toLowerCase().includes(term) || item.productoId.toLowerCase().includes(term)
+    );
+  }
+
+  seleccionarCliente(cliente: Cliente) {
+    this.clienteSeleccionado = cliente;
+    this.displayClienteDialog = false;
+  }
+
+  deseleccionarCliente() {
+    this.clienteSeleccionado = null;
+  }
+
+  abrirClienteDialog() {
+    this.clienteService.obtenerTodos().subscribe(data => {
+      this.listaClientes = data;
+      this.filtrarClientes();
+      this.displayClienteDialog = true;
+    });
+  }
+
+  abrirProductoDialog() {
+    this.filtrarProductos();
+    this.displayProductoDialog = true;
+  }
+
+  consultarEnOtrasSucursales() {
+    const item = this.itemSeleccionado;
+    const sucursalActualId = this.authService.getSucursalId();
+    if (item && item.productoId && sucursalActualId) {
+      this.inventarioService.findByProductoId(item.productoId, sucursalActualId).subscribe(data => {
+        this.stockGlobal = data;
+        this.displayGlobalStock = true;
+      });
+    }
+  }
+
+  traerProducto(item: Inventario) {
+    this.itemParaTraslado = item;
+    this.cantidadTraslado = 1;
+    this.displayCantidadDialog = true;
+  }
+
+  confirmarTraslado() {
+    if (!this.itemParaTraslado || this.cantidadTraslado <= 0) return;
+    const destinoId = this.authService.getSucursalId()!;
+    this.solicitudStockService.crear(this.itemParaTraslado.sucursalId, destinoId, this.itemParaTraslado.productoId, this.cantidadTraslado).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'info', summary: 'Enviada', detail: 'Solicitud de stock enviada' });
+        this.displayCantidadDialog = false;
+        this.displayGlobalStock = false;
+        this.displayBusquedaSucursalDialog = false;
+      }
+    });
+  }
+
+  agregarProducto() {
+    if (!this.itemSeleccionado) return;
+    const itemExistente = this.productosEnVenta.find(p => p.inventario.productoId === this.itemSeleccionado!.productoId);
+    if (itemExistente) {
+      itemExistente.cantidad += 1;
+      itemExistente.subtotal = itemExistente.cantidad * itemExistente.inventario.precioVenta;
+    } else {
+      this.productosEnVenta.push({
+        inventario: { ...this.itemSeleccionado },
+        cantidad: 1,
+        subtotal: this.itemSeleccionado.precioVenta
+      });
+    }
+    this.recalcularTotales();
+    this.ventaService.setVentaEnCurso(true);
+  }
+
+  quitarProducto(productoId: string) {
+    this.productosEnVenta = this.productosEnVenta.filter(p => p.inventario.productoId !== productoId);
+    this.recalcularTotales();
+    this.ventaService.setVentaEnCurso(this.productosEnVenta.length > 0);
+  }
+
+  actualizarCantidad(item: ItemVenta, nuevaCantidad: number) {
+    item.cantidad = nuevaCantidad > item.inventario.stock ? item.inventario.stock : (nuevaCantidad < 1 ? 1 : nuevaCantidad);
+    item.subtotal = item.cantidad * item.inventario.precioVenta;
+    this.recalcularTotales();
+  }
+
+  recalcularTotales() {
+    this.subtotalVenta = this.productosEnVenta.reduce((acc, item) => acc + item.subtotal, 0);
+    this.ivaVenta = this.subtotalVenta * this.IVA_PORCENTAJE;
+    this.totalVenta = this.subtotalVenta + this.ivaVenta;
+  }
+
+  finalizarVenta() {
+    if (!this.clienteSeleccionado || this.productosEnVenta.length === 0) return;
+    this.procesandoVenta = true;
+    const request: VentaRequest = {
+      clienteId: this.clienteSeleccionado.id,
+      sucursalId: this.authService.getSucursalId()!,
+      cajeroId: this.authService.getUserId()!,
+      detalles: this.productosEnVenta.map(p => ({ productoId: p.inventario.productoId, cantidad: p.cantidad }))
+    };
+    this.ventaService.crearVenta(request).subscribe({
+      next: (res) => {
+        this.ultimaVentaNumFac = res.numFac;
+        this.ultimaVentaId = res.id;
+        this.ventaExitosaDialog = true;
+        this.procesandoVenta = false;
+      },
+      error: () => this.procesandoVenta = false
+    });
+  }
+
+  nuevaVenta() {
+    this.productosEnVenta = [];
+    this.clienteSeleccionado = null;
+    this.recalcularTotales();
+    this.ventaExitosaDialog = false;
+    this.ventaService.setVentaEnCurso(false);
+  }
+
+  descargarPdf() {
+    this.ventaService.descargarFacturaPdf(this.ultimaVentaId).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `factura_${this.ultimaVentaNumFac}.pdf`;
+      a.click();
+    });
+  }
+
+  hasStockError(): boolean {
+    return this.productosEnVenta.some(item => item.cantidad > item.inventario.stock || item.inventario.stock === 0);
+  }
+}

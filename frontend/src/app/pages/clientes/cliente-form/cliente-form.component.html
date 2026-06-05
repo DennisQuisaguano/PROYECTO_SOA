@@ -1,0 +1,104 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!-- Row 1: Cédula + Email -->
+  <div class="uta-form-grid">
+    <div class="uta-form-group">
+      <label class="uta-form-label">Cédula o RUC <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="bi bi-person-vcard uta-input-icon"></i>
+        <input class="uta-form-control uta-form-control--with-icon" 
+               [class.is-invalid]="form.get('cedula')?.invalid && form.get('cedula')?.touched"
+               type="text" 
+               formControlName="cedula" 
+               placeholder="EJ. 1700000000" maxlength="10" />
+      </div>
+      <div *ngIf="form.get('cedula')?.touched && form.get('cedula')?.invalid" class="form-error-text">
+        <small *ngIf="form.get('cedula')?.errors?.['required']">La cédula es obligatoria</small>
+        <small *ngIf="form.get('cedula')?.errors?.['cedulaInvalida']">Cédula ecuatoriana inválida</small>
+        <small *ngIf="form.get('cedula')?.errors?.['pattern']">Debe tener 10 dígitos numéricos</small>
+      </div>
+    </div>
+    <div class="uta-form-group">
+      <label class="uta-form-label">Correo Electrónico <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="bi bi-envelope uta-input-icon"></i>
+        <input class="uta-form-control uta-form-control--with-icon" 
+               [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+               type="email" 
+               formControlName="email" 
+               placeholder="correo@ejemplo.com" />
+      </div>
+      <div *ngIf="form.get('email')?.touched && form.get('email')?.invalid" class="form-error-text">
+        <small *ngIf="form.get('email')?.errors?.['required']">El correo es obligatorio</small>
+        <small *ngIf="form.get('email')?.errors?.['email']">Formato de correo inválido</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Nombres -->
+  <div class="uta-form-grid mt-3">
+    <div class="uta-form-group">
+      <label class="uta-form-label">Nombre <span class="text-danger">*</span></label>
+      <input class="uta-form-control" 
+             [class.is-invalid]="form.get('nombreUno')?.invalid && form.get('nombreUno')?.touched"
+             type="text" 
+             formControlName="nombreUno" 
+             placeholder="EJ. JOSUE" />
+      <div *ngIf="form.get('nombreUno')?.touched && form.get('nombreUno')?.invalid" class="form-error-text">
+        <small>El nombre es obligatorio</small>
+      </div>
+    </div>
+    <div class="uta-form-group">
+      <label class="uta-form-label">Apellido <span class="text-danger">*</span></label>
+      <input class="uta-form-control" 
+             [class.is-invalid]="form.get('apellidoPaterno')?.invalid && form.get('apellidoPaterno')?.touched"
+             type="text" 
+             formControlName="apellidoPaterno" 
+             placeholder="EJ. LLUMITASIG" />
+      <div *ngIf="form.get('apellidoPaterno')?.touched && form.get('apellidoPaterno')?.invalid" class="form-error-text">
+        <small>El apellido es obligatorio</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Teléfono + Dirección -->
+  <div class="uta-form-grid mt-3">
+    <div class="uta-form-group">
+      <label class="uta-form-label">Teléfono <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="bi bi-telephone uta-input-icon"></i>
+        <input class="uta-form-control uta-form-control--with-icon" 
+               [class.is-invalid]="form.get('telefono')?.invalid && form.get('telefono')?.touched"
+               type="text" 
+               formControlName="telefono" 
+               placeholder="EJ. 0999999999" maxlength="10" />
+      </div>
+      <div *ngIf="form.get('telefono')?.touched && form.get('telefono')?.invalid" class="form-error-text">
+        <small>El teléfono es obligatorio</small>
+      </div>
+    </div>
+    <div class="uta-form-group">
+      <label class="uta-form-label">Dirección</label>
+      <div class="uta-input-icon-wrapper">
+        <i class="bi bi-geo-alt uta-input-icon"></i>
+        <input class="uta-form-control uta-form-control--with-icon" 
+               type="text" 
+               formControlName="direccion" 
+               placeholder="DIRECCIÓN COMPLETA" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden secondary fields -->
+  <input type="hidden" formControlName="nombreDos">
+  <input type="hidden" formControlName="apellidoMaterno">
+
+  <!-- Buttons -->
+  <div class="uta-modal__footer d-print-none" style="padding: 1.5rem 0 0 0; margin-top: 1rem; border-top: 1px solid #e9ecef; background: transparent;">
+    <button type="button" class="uta-btn uta-btn--outline" (click)="guardado.emit()">Cancelar</button>
+    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || loading">
+      <i class="bi bi-check2" *ngIf="!loading"></i>
+      <i class="bi bi-arrow-repeat" *ngIf="loading" style="animation: spin 1.5s linear infinite; display: inline-block;"></i>
+      &nbsp;Guardar Cliente
+    </button>
+  </div>
+</form>

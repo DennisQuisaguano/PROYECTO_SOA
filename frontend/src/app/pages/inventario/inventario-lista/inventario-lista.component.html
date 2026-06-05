@@ -1,0 +1,207 @@
+<p-toast></p-toast>
+<div class="uta-page">
+  <!-- ==================== PAGE HEADER ==================== -->
+  <div class="uta-page-header">
+    <div class="uta-page-header__left">
+      <div class="uta-breadcrumb">
+        <span>Inventario</span>
+        <i class="pi pi-chevron-right uta-breadcrumb__sep"></i>
+        <span class="uta-breadcrumb__active">Existencias en Sucursal</span>
+      </div>
+      <h1 class="uta-page-title">
+        <i class="bi bi-boxes uta-page-title__icon"></i>
+        {{ authService.isBodeguero() ? 'Control de Bodega' : 'Gestión de Inventario' }}
+      </h1>
+      <p class="uta-page-subtitle">Monitoreo de stock y ajustes operativos</p>
+    </div>
+    
+    <div class="uta-page-header__right">
+      <button class="uta-btn uta-btn--primary" (click)="irAProductos()" *ngIf="authService.hasAnyRole(['ADMIN', 'BODEGUERO'])">
+        <i class="bi bi-plus-lg"></i> NUEVO PRODUCTO
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== SEARCH SECTION ==================== -->
+  <div class="uta-card mb-4">
+    <div class="uta-card__header">
+      <div class="uta-card__header-left">
+        <i class="bi bi-funnel uta-card__header-icon"></i>
+        Filtros de Inventario
+      </div>
+    </div>
+    <div class="uta-card__body">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <!-- Buscador de Categoría -->
+        <div class="uta-form-group">
+          <label class="uta-form-label">Filtrar por Categoría</label>
+          <div class="d-flex gap-2">
+            <p-autoComplete [(ngModel)]="categoriaInput" [suggestions]="categoriasFiltradas" 
+                            (completeMethod)="filtrarCategorias($event)" 
+                            field="nombre" [dropdown]="true" placeholder="Escriba categoría..."
+                            (onSelect)="seleccionarCategoria($event)" (onClear)="onClearCategoria()"
+                            styleClass="w-100" 
+                            inputStyleClass="uta-form-control"></p-autoComplete>
+            <button class="uta-btn uta-btn--primary" (click)="buscar()">
+              <i class="bi bi-search"></i> CARGAR
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro Secundario -->
+        <div class="uta-form-group" *ngIf="mostrarTabla">
+          <label class="uta-form-label">Búsqueda Rápida</label>
+          <div class="uta-search-bar">
+            <select class="uta-search-bar__select" [(ngModel)]="tipoBusqueda">
+              <option value="productoNombre">Nombre</option>
+              <option value="productoId">Código</option>
+            </select>
+            <input type="text" class="uta-search-bar__input" placeholder="Filtrar resultados..."
+                   [(ngModel)]="filtroTexto">
+            <button class="uta-btn uta-btn--outline uta-search-bar__btn" (click)="limpiarFiltros()">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TABLE SECTION ==================== -->
+  <div class="uta-card" *ngIf="mostrarTabla">
+    <div class="uta-card__header">
+      <div class="uta-card__header-left">
+        <i class="bi bi-list-columns-reverse uta-card__header-icon"></i>
+        Existencias Actuales
+      </div>
+      <span class="uta-badge uta-badge--white-outline">{{ inventarioFiltrado.length }} productos</span>
+    </div>
+
+    <div class="uta-card__body p-0">
+      <div class="uta-table-wrap">
+        <table class="uta-table">
+          <thead>
+            <tr>
+              <th style="width: 120px">Código</th>
+              <th>Descripción del Producto</th>
+              <th class="text-right" style="width: 120px">P. Venta</th>
+              <th class="text-center" style="width: 120px">Stock</th>
+              <th class="text-center" style="width: 140px">Estado</th>
+              <th class="text-center" style="width: 250px">Operaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of inventarioFiltrado" class="hover:bg-gray-50">
+              <td><span class="uta-code-badge">{{ item.productoId }}</span></td>
+              <td class="uta-table__bold">{{ item.productoNombre }}</td>
+              <td class="text-right font-bold text-700">{{ item.precioVenta | moneda }}</td>
+              <td class="text-center">
+                <span class="text-xl font-black" [class.text-danger]="item.stock < 10" [class.text-success]="item.stock >= 10">{{ item.stock }}</span>
+              </td>
+              <td class="text-center">
+                <span class="uta-badge" [ngClass]="item.stock >= 10 ? 'uta-badge--green' : 'uta-badge--red'">
+                  <i class="bi" [class.bi-check-circle]="item.stock >= 10" [class.bi-exclamation-triangle]="item.stock < 10"></i>
+                  {{ item.stock >= 10 ? 'ÓPTIMO' : 'CRÍTICO' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-2">
+                  <ng-container *ngIf="authService.isBodeguero() || authService.isAdmin()">
+                    <button class="uta-btn uta-btn--sm uta-btn--primary" (click)="abrirIngreso(item)" title="Registrar entrada de mercadería">
+                      <i class="bi bi-plus-circle"></i> INGRESO
+                    </button>
+                    <button class="uta-btn uta-btn--sm uta-btn--outline" style="color: #dc2626; border-color: #dc2626;"
+                            (click)="abrirBaja(item)"
+                            [disabled]="item.stock <= 0"
+                            title="Registrar baja de inventario">
+                      <i class="bi bi-dash-circle"></i> BAJA
+                    </button>
+                  </ng-container>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!mostrarTabla" class="uta-card py-8">
+    <div class="uta-empty-state">
+      <i class="bi bi-search uta-empty-state__icon"></i>
+      <span class="uta-empty-state__text">Inicie la gestión de stock</span>
+      <span class="uta-empty-state__sub">Seleccione una categoría para visualizar el inventario de esta sucursal.</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== DIALOGS ==================== -->
+<!-- Modal de Gestión Operativa -->
+<p-dialog [header]="ajusteForm.get('tipo')?.value === 'ingreso' ? '📥 Registro de Ingreso' : '📤 Registro de Baja'" 
+          [(visible)]="displayAjuste" [modal]="true" [style]="{width: '500px'}" 
+          class="premium-dialog" [draggable]="false" [resizable]="false">
+    
+    <div class="info-box shadow-sm mb-4">
+        <div class="icon-circle shadow-1" 
+             [style.background]="ajusteForm.get('tipo')?.value === 'ingreso' ? '#ecfdf5' : '#fef2f2'"
+             [style.color]="ajusteForm.get('tipo')?.value === 'ingreso' ? '#059669' : '#dc2626'">
+            <i [class]="ajusteForm.get('tipo')?.value === 'ingreso' ? 'pi pi-arrow-down-left' : 'pi pi-arrow-up-right'"></i>
+        </div>
+        <div class="flex-1">
+            <span class="text-xs text-500 font-bold uppercase tracking-wider block mb-1">Producto a Gestionar</span>
+            <span class="text-xl font-bold text-800 line-height-2 uppercase">{{ajusteForm.get('productoNombre')?.value}}</span>
+        </div>
+    </div>
+
+    <form [formGroup]="ajusteForm" (ngSubmit)="guardarAjuste()" class="p-fluid">
+        <div class="field mb-4">
+            <label class="font-bold text-700">Cantidad de Unidades</label>
+            <div class="custom-input-wrapper" style="border: 2px solid #f1f5f9; border-radius: 12px; padding: 0.5rem; background: #fdfdfd;">
+                <p-inputNumber formControlName="cantidad" [min]="1" [showButtons]="true" 
+                               buttonLayout="horizontal" spinnerMode="horizontal"
+                               decrementButtonClass="p-button-secondary p-button-text" 
+                               incrementButtonClass="p-button-secondary p-button-text"
+                               incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
+                               styleClass="w-full" inputStyleClass="text-center font-bold text-2xl border-none shadow-none bg-transparent" 
+                               placeholder="0"></p-inputNumber>
+            </div>
+        </div>
+
+        <div class="field mb-4" *ngIf="ajusteForm.get('tipo')?.value === 'baja'">
+            <label class="font-bold text-red-700">Justificación Técnica de la Baja</label>
+            <div class="custom-input-wrapper" style="border: 2px solid #f1f5f9; border-radius: 12px; padding: 0.5rem; background: #fdfdfd;"
+                 [style.border-color]="ajusteForm.get('motivo')?.invalid && ajusteForm.get('motivo')?.touched ? '#ef4444' : '#f1f5f9'">
+                <textarea pInputTextarea formControlName="motivo" rows="4" 
+                          class="border-none shadow-none bg-transparent w-full font-medium"
+                          placeholder="Especifique la razón de la baja..."></textarea>
+            </div>
+            <small class="text-red-500 font-bold mt-1 block" *ngIf="ajusteForm.get('motivo')?.invalid && ajusteForm.get('motivo')?.touched">
+                Justificación obligatoria (mínimo 5 caracteres).
+            </small>
+        </div>
+
+        <div class="flex gap-3 mt-4 pt-3 border-top-1 border-100">
+            <button pButton label="Cancelar" icon="pi pi-times" 
+                    type="button" class="p-button-text p-button-secondary flex-1 border-round-xl" 
+                    (click)="displayAjuste = false"></button>
+            
+            <button pButton [label]="ajusteForm.get('tipo')?.value === 'ingreso' ? 'Confirmar Ingreso' : 'Confirmar Baja'" 
+                    [icon]="ajusteForm.get('tipo')?.value === 'ingreso' ? 'pi pi-check-circle' : 'pi pi-exclamation-circle'" 
+                    [class]="ajusteForm.get('tipo')?.value === 'ingreso' ? 'p-button-success shadow-2' : 'p-button-danger shadow-2'"
+                    type="submit" class="flex-2 border-round-xl font-bold py-3"
+                    [loading]="guardandoAjuste" [disabled]="ajusteForm.invalid"></button>
+        </div>
+    </form>
+</p-dialog>
+
+<!-- Modal de Nuevo Producto -->
+<p-dialog header="🆕 Registro de Nuevo Ítem en Catálogo" [(visible)]="displayNuevoProducto"
+          [modal]="true" [style]="{width: '550px'}" class="premium-dialog"
+          [draggable]="false" [resizable]="false">
+    <div class="p-3 pt-0">
+        <app-producto-form *ngIf="displayNuevoProducto" (guardado)="onProductoGuardado()"></app-producto-form>
+    </div>
+</p-dialog>
+

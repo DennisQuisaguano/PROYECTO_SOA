@@ -1,0 +1,194 @@
+@import '../../../shared/styles/tables.scss';
+
+// Ajuste Stock / Solicitudes Specific Styles
+.solicitudes-container {
+  animation: slideIn 0.3s ease-out;
+}
+
+// Request Status Badge
+.request-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  &.status-pending {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+
+    i {
+      animation: spin 2s linear infinite;
+    }
+  }
+
+  &.status-approved {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+  }
+
+  &.status-rejected {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+
+  &.status-completed {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+  }
+
+  i {
+    font-size: 14px;
+  }
+}
+
+// Request Info
+.request-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .request-title {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .request-date {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+}
+
+// Quantity Badge
+.quantity-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #7B1F3A 0%, #9B3050 100%);
+  color: white;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+// Action Buttons in Lists
+.action-button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &.btn-approve {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+
+    &:hover {
+      background: rgba(22, 163, 74, 0.2);
+    }
+  }
+
+  &.btn-reject {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+
+    &:hover {
+      background: rgba(220, 38, 38, 0.2);
+    }
+  }
+
+  &.btn-view {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+
+    &:hover {
+      background: rgba(37, 99, 235, 0.2);
+    }
+  }
+
+  i {
+    font-size: 14px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.row-new {
+  animation: highlightNewRow 5s ease-out;
+}
+
+@keyframes highlightNewRow {
+  0% { background-color: rgba(234, 179, 8, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.badge-new-pulsing {
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 4px;
+  animation: pulseNewBadge 1.5s infinite;
+}
+
+@keyframes pulseNewBadge {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+// ── Modal info-box ──────────────────────────────────────────────────────────
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.custom-input-wrapper {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.4rem;
+  background: #fdfdfd;
+}

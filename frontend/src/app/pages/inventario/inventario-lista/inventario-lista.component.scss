@@ -1,0 +1,60 @@
+@import '../../shared/styles/tables.scss';
+
+// Inventario List Specific Styles
+.inventario-container {
+  animation: slideIn 0.3s ease-out;
+}
+
+// Stock Indicator Colors
+.stock-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.stock-critical {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+
+    i {
+      animation: pulse 1.5s infinite;
+    }
+  }
+
+  &.stock-low {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+  }
+
+  &.stock-normal {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+  }
+
+  i {
+    font-size: 14px;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

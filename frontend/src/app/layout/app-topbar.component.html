@@ -1,0 +1,57 @@
+<div class="layout-topbar">
+  <!-- Menu Toggle -->
+  <button pButton icon="pi pi-bars" class="p-button-text p-button-plain" (click)="toggleSidebar.emit()"></button>
+
+  <!-- Brand Section -->
+  <div class="brand-section">
+    <i class="pi pi-shopping-cart"></i>
+    <span class="brand-name">Sistema de Ventas</span>
+  </div>
+
+  <!-- Sucursal Selector -->
+  <div class="sucursal-selector">
+    <p-dropdown 
+      [options]="sucursales" 
+      [(ngModel)]="sucursalIdActiva" 
+      optionLabel="nombre" 
+      optionValue="id" 
+      (onChange)="cambiarSucursal($event)"
+      placeholder="Seleccionar Sucursal"
+    ></p-dropdown>
+  </div>
+
+  <!-- Right Section -->
+  <div class="right-section">
+    <!-- User Info -->
+    <div class="user-info" *ngIf="authService.getUsername()">
+      <p class="username">{{ authService.getUsername() }}</p>
+      <p-badge 
+        [value]="authService.getRol() || ''" 
+        [severity]="rolSeverity"
+      ></p-badge>
+    </div>
+
+    <!-- Notifications Button -->
+    <button 
+      class="notifications-btn"
+      (click)="toggleNotifications()"
+      *ngIf="authService.isAdmin() || authService.isBodeguero()"
+      title="Notificaciones"
+    >
+      <i class="pi pi-bell"></i>
+      <p-badge 
+        *ngIf="(notificationService.count$ | async) !== 0" 
+        [value]="(notificationService.count$ | async)?.toString()"
+      ></p-badge>
+    </button>
+
+    <!-- Logout Button -->
+    <button 
+      class="logout-btn"
+      (click)="confirmLogout()"
+      title="Cerrar sesión"
+    >
+      <i class="pi pi-power-off"></i>
+    </button>
+  </div>
+</div>

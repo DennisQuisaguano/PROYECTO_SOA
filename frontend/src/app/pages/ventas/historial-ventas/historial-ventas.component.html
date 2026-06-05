@@ -1,0 +1,242 @@
+<div class="uta-page">
+  <!-- ==================== PAGE HEADER ==================== -->
+  <div class="uta-page-header">
+    <div class="uta-page-header__left">
+      <div class="uta-breadcrumb">
+        <span>Panel Principal</span>
+        <span class="uta-breadcrumb__sep">›</span>
+        <span class="uta-breadcrumb__active">Historial de Ventas</span>
+      </div>
+      <h1 class="uta-page-title">
+        <i class="bi bi-journal-text text-warning uta-page-title__icon"></i>
+        Gestión de Comprobantes
+      </h1>
+      <p class="uta-page-subtitle">Consulta, reimpresión y auditoría de facturación electrónica</p>
+    </div>
+    <div class="uta-page-header__right">
+      <a routerLink="/ventas/nueva" class="uta-btn uta-btn--primary">
+        <i class="bi bi-cart-plus"></i> &nbsp;NUEVA VENTA
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="uta-stats-row">
+    <div class="uta-stat-card uta-stat-card--light">
+        <div class="uta-stat-card__icon text-primary"><i class="bi bi-file-earmark-text"></i></div>
+        <div class="uta-stat-card__details">
+            <div class="uta-stat-card__number">{{totalVentasContadas}}</div>
+            <div class="uta-stat-card__label">Facturas Emitidas</div>
+        </div>
+    </div>
+    <div class="uta-stat-card uta-stat-card--light">
+        <div class="uta-stat-card__icon text-warning"><i class="bi bi-cash-stack"></i></div>
+        <div class="uta-stat-card__details">
+            <div class="uta-stat-card__number">
+                <div class="uta-price">
+                    <span class="uta-price__symbol">$</span>
+                    <span class="uta-price__value">{{totalFacturado | moneda:false}}</span>
+                </div>
+            </div>
+            <div class="uta-stat-card__label">Total Facturado</div>
+        </div>
+    </div>
+    <div class="uta-stat-card uta-stat-card--light">
+        <div class="uta-stat-card__icon text-danger"><i class="bi bi-x-circle"></i></div>
+        <div class="uta-stat-card__details">
+            <div class="uta-stat-card__number">{{totalAnuladas}}</div>
+            <div class="uta-stat-card__label">Facturas Anuladas</div>
+        </div>
+    </div>
+    <div class="uta-stat-card uta-stat-card--dark">
+        <div class="uta-stat-card__icon"><i class="bi bi-percent"></i></div>
+        <div class="uta-stat-card__details">
+            <div class="uta-stat-card__number">
+                <div class="uta-price">
+                    <span class="uta-price__symbol">$</span>
+                    <span class="uta-price__value">{{totalIva | moneda:false}}</span>
+                </div>
+            </div>
+            <div class="uta-stat-card__label">IVA Recaudado (15%)</div>
+        </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN CONTENT SECTION (COMPACT) ==================== -->
+  <div class="uta-card">
+    <div class="uta-card__header">
+        <div class="uta-card__header-left">
+            <i class="bi bi-list-task uta-card__header-icon"></i>
+            Listado de Comprobantes
+        </div>
+        <span class="uta-badge uta-badge--white-outline">{{ventasFiltradas.length}} registros encontrados</span>
+    </div>
+    
+    <div class="uta-card__body bg-light border-bottom py-3">
+      <!-- Buscador Integrado en la Tarjeta -->
+      <div style="display: grid; grid-template-columns: 1fr 1.5fr 120px; gap: 1rem; align-items: end;">
+          <div class="uta-search-bar mb-0">
+            <select class="uta-search-bar__select" [(ngModel)]="searchCriterion" (change)="onSearchCriteriaChanged()">
+              <option value="number">N° Factura</option>
+              <option value="customer">Cliente</option>
+            </select>
+            <input class="uta-search-bar__input" type="text" [(ngModel)]="searchTerm" (input)="aplicarFiltros()" placeholder="Buscar..." />
+          </div>
+          
+          <div style="display: flex; gap: 0.5rem;">
+            <div style="flex: 1;">
+              <label class="uta-data-item__label mb-1" style="font-size: 0.65rem;">Desde</label>
+              <input type="date" class="uta-qty-input w-100" style="text-align: left; height: 38px;" [(ngModel)]="startDate" (change)="cargarVentas()" />
+            </div>
+            <div style="flex: 1;">
+              <label class="uta-data-item__label mb-1" style="font-size: 0.65rem;">Hasta</label>
+              <input type="date" class="uta-qty-input w-100" style="text-align: left; height: 38px;" [(ngModel)]="endDate" (change)="cargarVentas()" />
+            </div>
+          </div>
+
+          <button class="uta-btn uta-btn--outline uta-btn--sm w-100" (click)="clearFilters()" style="height: 38px;">
+            <i class="bi bi-eraser"></i> LIMPIAR
+          </button>
+      </div>
+    </div>
+
+    <div class="uta-card__body p-0">
+        <div class="uta-table-wrap">
+            <p-table [value]="ventasFiltradas" [loading]="loading" [paginator]="true" [rows]="10"
+                     styleClass="p-datatable-sm uta-table" [responsive]="true">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 140px;">N° Factura</th>
+                  <th>Fecha Emisión</th>
+                  <th>Cliente</th>
+                  <th class="text-right">Total</th>
+                  <th class="text-center">Estado</th>
+                  <th class="text-center" style="width: 150px;">Acciones</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-venta>
+                <tr [style]="venta.estado === 'ANULADA' ? 'opacity: 0.6;' : ''">
+                  <td><span class="uta-code-badge">{{venta.numFac}}</span></td>
+                  <td style="color:#666; font-size: 0.8rem;">{{venta.fecha | date:'dd/MM/yyyy HH:mm'}}</td>
+                  <td class="uta-table__bold">{{venta.clienteNombre}}</td>
+                  <td class="text-right">
+                    <div class="uta-price uta-price--right">
+                        <span class="uta-price__symbol">$</span>
+                        <span class="uta-price__value">{{venta.total | moneda:false}}</span>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span class="uta-badge" [ngClass]="{
+                      'uta-badge--green': venta.estado === 'COMPLETADA',
+                      'uta-badge--yellow': venta.estado === 'PENDIENTE',
+                      'uta-badge--red': venta.estado === 'ANULADA'
+                    }">{{venta.estado}}</span>
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex gap-1 justify-content-center">
+                      <button class="uta-icon-btn uta-btn--outline" style="border-color: #dee2e6;" title="Ver Detalle" (click)="verDetalle(venta)">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button class="uta-icon-btn" style="background: #fdf5f7; color: #6B1A33;" title="Descargar PDF" (click)="descargarPdf(venta)">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                      </button>
+                      <button class="uta-icon-btn uta-icon-btn--red" 
+                              *ngIf="venta.estado === 'COMPLETADA'" title="Anular Venta" (click)="anularVenta(venta)">
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="uta-table__empty">
+                    <div class="uta-empty-state">
+                      <div class="uta-empty-state__icon"><i class="bi bi-file-earmark-x"></i></div>
+                      <div class="uta-empty-state__text">No se encontraron facturas</div>
+                      <div class="uta-empty-state__sub">Ajuste los filtros de búsqueda o fecha</div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DETALLES MODAL ==================== -->
+<div class="uta-overlay" *ngIf="detalleDialog && ventaSeleccionada" (click)="detalleDialog = false">
+  <div class="uta-modal uta-modal--lg" (click)="$event.stopPropagation()">
+    <div class="uta-modal__header">
+      <div>
+        <h3 class="uta-modal__title"><i class="bi bi-receipt"></i> &nbsp;Detalle de Comprobante</h3>
+        <p class="uta-modal__subtitle">Revisión de artículos facturados</p>
+      </div>
+      <button class="uta-modal__close" (click)="detalleDialog = false"><i class="bi bi-x-lg"></i></button>
+    </div>
+    
+    <div class="uta-modal__body bg-white printable-area" style="padding: 2rem;">
+      <!-- ... Rest of the receipt content (kept from previous version but refined) ... -->
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <h2 style="color: #6B1A33; font-weight: 800; margin: 0;">{{sucursalNombre}} POS</h2>
+        <p style="color: #6c757d; font-size: 0.85rem;">RUC: 9999999999001 | Tel: 0999 999 999</p>
+        <div class="uta-divider"></div>
+        <h4 style="margin: 1rem 0;">FACTURA: {{ventaSeleccionada.numFac}}</h4>
+      </div>
+
+      <div class="uta-client-data-grid mb-4">
+        <div class="uta-data-item">
+            <span class="uta-data-item__label">Cliente</span>
+            <span class="uta-data-item__value">{{ventaSeleccionada.clienteNombre}}</span>
+        </div>
+        <div class="uta-data-item">
+            <span class="uta-data-item__label">Identificación</span>
+            <span class="uta-data-item__value">{{ventaSeleccionada.clienteCedula}}</span>
+        </div>
+        <div class="uta-data-item">
+            <span class="uta-data-item__label">Fecha</span>
+            <span class="uta-data-item__value">{{ventaSeleccionada.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
+        </div>
+      </div>
+
+      <table class="uta-table uta-table-wrap--bordered">
+        <thead>
+          <tr>
+            <th>Cant.</th>
+            <th>Descripción</th>
+            <th class="text-right">P. Unit</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of ventaSeleccionada.detalles">
+            <td>{{d.cantidad}}</td>
+            <td class="uta-table__bold">{{d.productoNombre}}</td>
+            <td class="text-right">{{d.precioUnitario | moneda}}</td>
+            <td class="text-right font-bold">{{d.subtotal | moneda}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="uta-totals mt-4" style="max-width: 250px; margin-left: auto;">
+        <div class="uta-totals__row">
+            <span>SUBTOTAL</span>
+            <span>{{ventaSeleccionada.subtotal | moneda}}</span>
+        </div>
+        <div class="uta-totals__row">
+            <span>IVA 15%</span>
+            <span>{{ventaSeleccionada.iva | moneda}}</span>
+        </div>
+        <div class="uta-totals__grand">
+            <span>TOTAL</span>
+            <span>{{ventaSeleccionada.total | moneda}}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="uta-modal__footer">
+      <button class="uta-btn uta-btn--outline w-100" (click)="detalleDialog = false">Cerrar Visualización</button>
+    </div>
+  </div>
+</div>
