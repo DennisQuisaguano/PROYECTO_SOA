@@ -14,7 +14,7 @@
       <p class="uta-page-subtitle">Consulta, reimpresión y auditoría de facturación electrónica</p>
     </div>
     <div class="uta-page-header__right">
-      <a routerLink="/ventas/nueva" class="uta-btn uta-btn--primary">
+      <a routerLink="/ventas/nueva" class="uta-btn uta-btn--primary" *ngIf="authService.isCajero()">
         <i class="bi bi-cart-plus"></i> &nbsp;NUEVA VENTA
       </a>
     </div>

@@ -39,6 +39,122 @@
   }
 }
 
+// ==================== AUTOCOMPLETE/COMBOBOX STYLES ====================
+:deep .p-autocomplete {
+  width: 100%;
+
+  .p-autocomplete-input {
+    width: 100% !important;
+    padding: 14px 18px !important;
+    border: 2px solid #d4c5c9 !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    color: #1a1a1a !important;
+    background: #ffffff !important;
+    transition: all 0.3s ease !important;
+    letter-spacing: 0.3px !important;
+
+    &:hover {
+      border-color: #5a1428 !important;
+      box-shadow: 0 2px 8px rgba(90, 20, 40, 0.1) !important;
+    }
+
+    &:focus {
+      border-color: #5a1428 !important;
+      box-shadow: 0 0 0 3px rgba(90, 20, 40, 0.1) !important;
+      outline: none !important;
+    }
+
+    &::placeholder {
+      color: #999999 !important;
+      font-weight: 400 !important;
+    }
+  }
+
+  .p-autocomplete-dropdown {
+    background: #5a1428 !important;
+    border-color: #5a1428 !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding: 10px 16px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+      background: #7b1f3a !important;
+    }
+
+    .p-icon {
+      color: #ffffff !important;
+      font-size: 1.2rem !important;
+    }
+  }
+
+  .p-autocomplete-panel {
+    border: 2px solid #d4c5c9 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    margin-top: 8px !important;
+    background: #ffffff !important;
+    z-index: 10000 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    .p-autocomplete-list {
+      padding: 8px 0 !important;
+      background: #ffffff !important;
+      display: block !important;
+      list-style: none !important;
+
+      .p-autocomplete-item {
+        padding: 16px 18px !important;
+        color: #000000 !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        background: #ffffff !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+        letter-spacing: 0.3px !important;
+        display: block !important;
+        margin: 0 !important;
+
+        &:last-child {
+          border-bottom: none !important;
+        }
+
+        &:hover {
+          background: #f5f0f2 !important;
+          color: #5a1428 !important;
+          font-weight: 600 !important;
+          padding-left: 24px !important;
+        }
+
+        &.p-autocomplete-item-selected {
+          background: linear-gradient(135deg, #5a1428, #7b1f3a) !important;
+          color: #ffffff !important;
+          font-weight: 600 !important;
+
+          &:hover {
+            background: linear-gradient(135deg, #7b1f3a, #5a1428) !important;
+            padding-left: 24px !important;
+          }
+        }
+      }
+    }
+
+    .p-autocomplete-empty-message {
+      padding: 20px 18px !important;
+      color: #000000 !important;
+      font-size: 1rem !important;
+      text-align: center !important;
+      font-weight: 500 !important;
+      background: #ffffff !important;
+    }
+  }
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;

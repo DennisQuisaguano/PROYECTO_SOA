@@ -31,7 +31,7 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class HistorialVentasComponent implements OnInit, OnDestroy {
   private ventaService = inject(VentaService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
   private realtimeNotificationService = inject(RealtimeNotificationService);

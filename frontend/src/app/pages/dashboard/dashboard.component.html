@@ -10,7 +10,7 @@
         </p>
       </div>
       <div class="uta-page-header__right">
-        <button class="uta-btn uta-btn--primary uta-btn--lg" routerLink="/ventas/nueva" *ngIf="authService.hasAnyRole(['ADMIN', 'CAJERO'])">
+        <button class="uta-btn uta-btn--primary uta-btn--lg" routerLink="/ventas/nueva" *ngIf="authService.isCajero()">
           <i class="bi bi-cart-plus"></i> &nbsp;Iniciar Nueva Venta
         </button>
       </div>
@@ -63,13 +63,13 @@
       </div>
       <div class="uta-card__body">
         <div class="uta-quick-actions">
-          <button class="uta-action-box" routerLink="/ventas/nueva" *ngIf="authService.hasAnyRole(['ADMIN', 'CAJERO'])">
+          <button class="uta-action-box" routerLink="/ventas/nueva" *ngIf="authService.isCajero()">
             <div class="uta-action-box__icon"><i class="bi bi-cart3"></i></div>
             <div class="uta-action-box__title">Punto de Venta</div>
             <div class="uta-action-box__desc">Facturar productos a clientes en caja</div>
           </button>
 
-          <button class="uta-action-box" routerLink="/inventario" *ngIf="authService.hasAnyRole(['ADMIN', 'BODEGUERO', 'BODEGERO'])">
+          <button class="uta-action-box" routerLink="/inventario" *ngIf="authService.isBodeguero()">
             <div class="uta-action-box__icon"><i class="bi bi-box-seam"></i></div>
             <div class="uta-action-box__title">Inventario</div>
             <div class="uta-action-box__desc">Gestionar catálogo de productos y stock de sucursal</div>

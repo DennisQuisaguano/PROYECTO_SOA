@@ -386,14 +386,17 @@
                         </td>
                         <td style="text-align:center">
                             <div class="d-flex gap-2 justify-content-center">
-                                <button class="uta-btn uta-btn--sm uta-btn--primary" (click)="itemSeleccionado = p; agregarProducto()" [disabled]="p.stock <= 0" title="Añadir al carrito">
+                                <button class="uta-btn uta-btn--sm uta-btn--primary" 
+                                        (click)="itemSeleccionado = p; agregarProducto()" 
+                                        [disabled]="p.stock <= 0" 
+                                        [title]="p.stock > 0 ? 'Añadir al carrito' : 'Sin stock local'">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
                                 <button class="uta-btn uta-btn--sm uta-btn--outline" 
-                                        [style]="tieneStockEnOtrasSucursales(p.productoId) ? 'color: #f59e0b; border-color: #f59e0b;' : ''"
+                                        [style]="p.stock === 0 && tieneStockEnOtrasSucursales(p.productoId) ? 'color: #f59e0b; border-color: #f59e0b;' : ''"
                                         (click)="itemSeleccionado = p; consultarEnOtrasSucursales()" 
-                                        [disabled]="!tieneStockEnOtrasSucursales(p.productoId)"
-                                        title="Consultar en otras sucursales">
+                                        [disabled]="p.stock > 0 || !tieneStockEnOtrasSucursales(p.productoId)"
+                                        [title]="p.stock === 0 ? 'Consultar en otras sucursales' : 'Solo disponible si stock es 0'">
                                     <i class="bi bi-signpost-split"></i>
                                 </button>
                             </div>
@@ -522,13 +525,13 @@
     </div>
 </div>
 
-<!-- Modal Cantidad de Traslado -->
+<!-- Modal Cantidad de Traslado (Solo para Stock 0) -->
 <div class="uta-overlay" *ngIf="displayCantidadDialog" style="z-index: 3000;">
     <div class="uta-modal uta-modal--md">
         <div class="uta-modal__header" style="background-color: #6B1A33;">
             <div>
                 <h3 class="uta-modal__title"><i class="bi bi-arrow-left-right"></i> &nbsp;Solicitud de Stock Externo</h3>
-                <p class="uta-modal__subtitle">Configure la cantidad de artículos a trasladar</p>
+                <p class="uta-modal__subtitle">El producto no tiene stock local. Ingrese la cantidad a traer.</p>
             </div>
             <button class="uta-modal__close" (click)="displayCantidadDialog = false"><i class="bi bi-x-lg"></i></button>
         </div>
@@ -541,11 +544,11 @@
                             <i class="bi bi-box-seam text-primary" style="font-size: 1.5rem; color: #6B1A33 !important;"></i>
                         </div>
                         <div class="flex-grow-1">
-                            <span class="uta-data-item__label">PRODUCTO SELECCIONADO</span>
+                            <span class="uta-data-item__label">PRODUCTO AGOTADO LOCALMENTE</span>
                             <h4 class="m-0" style="font-weight: 800; color: #1a1a1a;">{{itemParaTraslado?.productoNombre}}</h4>
                             <div class="d-flex gap-2 mt-1">
                                 <span class="uta-code-badge">{{itemParaTraslado?.productoId}}</span>
-                                <span class="uta-badge uta-badge--blue">{{itemParaTraslado?.sucursalNombre}}</span>
+                                <span class="uta-badge uta-badge--blue">Origen: {{itemParaTraslado?.sucursalNombre}}</span>
                             </div>
                         </div>
                     </div>
@@ -555,7 +558,7 @@
             <!-- Selector de Cantidad -->
             <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <div class="uta-form-group">
-                    <label class="uta-data-item__label mb-1">CANTIDAD DISPONIBLE</label>
+                    <label class="uta-data-item__label mb-1">DISPONIBLE EN ORIGEN</label>
                     <div class="d-flex align-items-center gap-2 p-3 bg-white border rounded-3">
                         <i class="bi bi-shop-window text-muted"></i>
                         <span style="font-size: 1.2rem; font-weight: 800;">{{itemParaTraslado?.stock}}</span>
@@ -570,19 +573,11 @@
                                   inputStyleClass="uta-qty-input w-100" [style]="{'text-align':'center', 'font-size':'1.2rem', 'height':'54px'}"></p-inputNumber>
                 </div>
             </div>
-
-            <!-- Advertencia -->
-            <div class="mt-4 p-3 rounded-3" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
-                <p class="m-0 text-xs text-secondary line-height-3">
-                    <i class="bi bi-info-circle-fill text-info"></i> 
-                    Esta acción enviará una notificación a la sucursal de origen. El stock se reservará una vez que la solicitud sea aprobada por el bodeguero responsable.
-                </p>
-            </div>
         </div>
         <div class="uta-modal__footer" style="background: #f8f9fa;">
-            <button class="uta-btn uta-btn--outline" (click)="displayCantidadDialog = false">DESCARTAR</button>
+            <button class="uta-btn uta-btn--outline" (click)="displayCantidadDialog = false">CANCELAR</button>
             <button class="uta-btn uta-btn--primary uta-btn--lg" (click)="confirmarTraslado()">
-                <i class="bi bi-send-check"></i> &nbsp;ENVIAR SOLICITUD
+                <i class="bi bi-send-check"></i> &nbsp;SOLICITAR STOCK
             </button>
         </div>
     </div>

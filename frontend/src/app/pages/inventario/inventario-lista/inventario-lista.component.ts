@@ -372,7 +372,7 @@ export class InventarioListaComponent implements OnInit, OnDestroy {
   productosGlobales: Producto[] = [];
   inventarioSucursal: Inventario[] = [];
   sucursales: Sucursal[] = [];
-  productos: Producto[] = [];
+  productos: Producto[] = []; 
   categorias: Categoria[] = [];
   
   // UI State

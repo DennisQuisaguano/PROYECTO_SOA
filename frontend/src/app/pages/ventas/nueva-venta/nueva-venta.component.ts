@@ -25,7 +25,7 @@ import { TableModule } from 'primeng/table';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
@@ -61,6 +61,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   private sucursalService = inject(SucursalService);
   private categoriaService = inject(CategoriaService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
 
   cedulaBusqueda = '';
@@ -94,6 +95,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   productSearchCriterion = 'name';
   productosFiltrados: Inventario[] = [];
   
+  cantidadFaltanteCalculada = 0;
   displayCantidadDialog = false;
   itemParaTraslado: any = null;
   cantidadTraslado = 1;
@@ -114,6 +116,8 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   subtotalVenta = 0;
   ivaVenta = 0;
   totalVenta = 0;
+
+  productosGlobales: any[] = [];
 
   get sucursalNombre(): string {
     const id = this.authService.getSucursalId();
@@ -167,10 +171,12 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   cargarDatosIniciales() {
     forkJoin({
       sucursales: this.sucursalService.obtenerTodas(),
-      categorias: this.categoriaService.obtenerTodas()
+      categorias: this.categoriaService.obtenerTodas(),
+      productos: this.productoService.findAll(0, 1000)
     }).subscribe(res => {
       this.sucursales = res.sucursales;
       this.categorias = res.categorias;
+      this.productosGlobales = res.productos.content;
       this.cargarInventarioLocal();
       this.cargarDisponibilidadGlobal();
     });
@@ -234,6 +240,11 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   filtrarInventarioRemoto() {
     if (!this.inventarioRemoto) return;
     let filtrado = [...this.inventarioRemoto];
+    
+    // FILTRO: Solo productos que NO existan en la sucursal actual
+    const idsLocales = new Set(this.inventarioLocal.map(i => i.productoId));
+    filtrado = filtrado.filter(i => !idsLocales.has(i.productoId));
+
     if (this.categoriaSeleccionadaBusqueda) {
       filtrado = filtrado.filter(i => i.categoriaId === this.categoriaSeleccionadaBusqueda);
     }
@@ -258,14 +269,25 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   }
 
   filtrarProductos() {
-    if (!this.productSearchTerm) {
-      this.productosFiltrados = this.inventarioLocal;
-      return;
-    }
+    if (!this.productosGlobales) return;
+
     const term = this.productSearchTerm.toLowerCase().trim();
-    this.productosFiltrados = this.inventarioLocal.filter(item => 
-      item.productoNombre.toLowerCase().includes(term) || item.productoId.toLowerCase().includes(term)
-    );
+    
+    this.productosFiltrados = this.productosGlobales
+      .filter(p => p.nombre.toLowerCase().includes(term) || p.id.toLowerCase().includes(term))
+      .map(p => {
+        const inv = this.inventarioLocal.find(i => i.productoId === p.id);
+        return {
+          productoId: p.id,
+          productoNombre: p.nombre,
+          precioVenta: p.precioVenta,
+          stock: inv ? inv.stock : 0,
+          sucursalId: this.authService.getSucursalId()!,
+          sucursalNombre: this.sucursalNombre,
+          categoriaId: p.categoriaId,
+          categoriaNombre: p.categoriaNombre
+        } as Inventario;
+      });
   }
 
   seleccionarCliente(cliente: Cliente) {
@@ -296,23 +318,74 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     if (item && item.productoId && sucursalActualId) {
       this.inventarioService.findByProductoId(item.productoId, sucursalActualId).subscribe(data => {
         this.stockGlobal = data;
-        this.displayGlobalStock = true;
+        if (this.stockGlobal.length === 0 || this.stockGlobal.every(s => s.stock === 0)) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Sin Stock Global',
+            detail: `El producto "${item.productoNombre}" no tiene existencias en ninguna otra sucursal.`
+          });
+          this.displayGlobalStock = false;
+        } else {
+          this.displayGlobalStock = true;
+        }
       });
     }
   }
 
   traerProducto(item: Inventario) {
-    this.itemParaTraslado = item;
-    this.cantidadTraslado = 1;
-    this.displayCantidadDialog = true;
+    // Si NO hay stock local (stock === 0), mostramos el modal para que el usuario elija cuánto traer
+    if (this.itemSeleccionado?.stock === 0) {
+      this.itemParaTraslado = item;
+      this.cantidadTraslado = 1;
+      this.displayCantidadDialog = true;
+    } else {
+      // Si HAY stock local pero es insuficiente, usamos la confirmación automática
+      let cantidadSolicitadaOriginal = this.cantidadFaltanteCalculada || 1;
+      let cantidadAPedir = cantidadSolicitadaOriginal;
+      let mensajeAdvertencia = '';
+      
+      if (cantidadAPedir > item.stock) {
+        mensajeAdvertencia = `Nota: El pedido requiere ${cantidadSolicitadaOriginal} unidades, pero la sucursal "${item.sucursalNombre}" solo cuenta con ${item.stock}. `;
+        cantidadAPedir = item.stock;
+      }
+
+      this.confirmationService.confirm({
+        message: `${mensajeAdvertencia}¿Está seguro que desea solicitar ${cantidadAPedir} unidades de "${item.productoNombre}"?`,
+        header: 'Confirmar Solicitud de Traslado',
+        icon: 'pi pi-exclamation-circle',
+        acceptLabel: 'Sí, solicitar',
+        rejectLabel: 'No, cancelar',
+        accept: () => {
+          const destinoId = this.authService.getSucursalId()!;
+          this.solicitudStockService.crear(item.sucursalId, destinoId, item.productoId, cantidadAPedir).subscribe({
+            next: () => {
+              this.messageService.add({ severity: 'info', summary: 'Enviada', detail: `Solicitud de ${cantidadAPedir} uds. enviada con éxito.` });
+              this.displayGlobalStock = false;
+              this.displayBusquedaSucursalDialog = false;
+            }
+          });
+        }
+      });
+    }
   }
 
   confirmarTraslado() {
     if (!this.itemParaTraslado || this.cantidadTraslado <= 0) return;
+    
+    // VALIDACIÓN: No pedir más de lo que tiene la sucursal de origen
+    if (this.cantidadTraslado > this.itemParaTraslado.stock) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Excede Disponibilidad',
+        detail: `La sucursal de origen solo cuenta con ${this.itemParaTraslado.stock} unidades.`
+      });
+      return;
+    }
+
     const destinoId = this.authService.getSucursalId()!;
     this.solicitudStockService.crear(this.itemParaTraslado.sucursalId, destinoId, this.itemParaTraslado.productoId, this.cantidadTraslado).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Enviada', detail: 'Solicitud de stock enviada' });
+        this.messageService.add({ severity: 'info', summary: 'Enviada', detail: `Solicitud de ${this.cantidadTraslado} uds. enviada con éxito.` });
         this.displayCantidadDialog = false;
         this.displayGlobalStock = false;
         this.displayBusquedaSucursalDialog = false;
@@ -322,8 +395,30 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
 
   agregarProducto() {
     if (!this.itemSeleccionado) return;
+    
+    if (this.itemSeleccionado.stock <= 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sin Stock Local',
+        detail: 'Este producto no tiene stock en esta sucursal. Consulte disponibilidad en otras sedes.'
+      });
+      this.cantidadFaltanteCalculada = 1; // Por defecto pedimos 1 si no hay nada
+      this.consultarEnOtrasSucursales();
+      return;
+    }
+
     const itemExistente = this.productosEnVenta.find(p => p.inventario.productoId === this.itemSeleccionado!.productoId);
     if (itemExistente) {
+      if (itemExistente.cantidad + 1 > this.itemSeleccionado.stock) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Límite alcanzado',
+          detail: 'No hay más unidades disponibles localmente.'
+        });
+        this.cantidadFaltanteCalculada = 1;
+        this.consultarEnOtrasSucursales();
+        return;
+      }
       itemExistente.cantidad += 1;
       itemExistente.subtotal = itemExistente.cantidad * itemExistente.inventario.precioVenta;
     } else {
@@ -344,7 +439,35 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   }
 
   actualizarCantidad(item: ItemVenta, nuevaCantidad: number) {
-    item.cantidad = nuevaCantidad > item.inventario.stock ? item.inventario.stock : (nuevaCantidad < 1 ? 1 : nuevaCantidad);
+    if (nuevaCantidad > item.inventario.stock) {
+      const stockDisp = item.inventario.stock;
+      const faltante = nuevaCantidad - stockDisp;
+      this.cantidadFaltanteCalculada = faltante;
+      this.itemSeleccionado = item.inventario;
+      
+      this.inventarioService.findByProductoId(item.inventario.productoId, this.authService.getSucursalId()!).subscribe(data => {
+        const tieneGlobal = data.some(s => s.stock > 0);
+        if (tieneGlobal) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Stock Insuficiente',
+            detail: `Solo hay ${stockDisp} unidades locales. Faltan ${faltante} para completar el pedido. Mostrando opciones de traslado...`
+          });
+          this.stockGlobal = data;
+          this.displayGlobalStock = true;
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Sin Stock Suficiente',
+            detail: `Solo hay ${stockDisp} unidades y no existe stock en ninguna otra sucursal.`
+          });
+        }
+      });
+      
+      item.cantidad = stockDisp > 0 ? stockDisp : 1;
+    } else {
+      item.cantidad = nuevaCantidad < 1 ? 1 : nuevaCantidad;
+    }
     item.subtotal = item.cantidad * item.inventario.precioVenta;
     this.recalcularTotales();
   }

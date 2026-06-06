@@ -65,7 +65,7 @@ import { AuthService } from '../core/services/auth.service';
         </div>
 
         <!-- LOGÍSTICA -->
-        <div class="nav-section" *ngIf="authService.hasAnyRole(['ADMIN', 'BODEGUERO', 'BODEGERO'])">
+        <div class="nav-section" *ngIf="authService.hasAnyRole(['BODEGUERO'])">
           <span class="nav-section-label" *ngIf="!collapsed">LOGÍSTICA</span>
           <a routerLink="/inventario" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="uta-nav-link">
             <div class="uta-menu-icon">
@@ -73,7 +73,7 @@ import { AuthService } from '../core/services/auth.service';
             </div>
             <span class="uta-menu-text" *ngIf="!collapsed">Control de Inventario</span>
           </a>
-          <a routerLink="/inventario/solicitudes" routerLinkActive="active" class="uta-nav-link" *ngIf="authService.isBodeguero()">
+          <a routerLink="/inventario/solicitudes" routerLinkActive="active" class="uta-nav-link">
             <div class="uta-menu-icon">
               <i class="bi bi-arrow-left-right"></i>
             </div>

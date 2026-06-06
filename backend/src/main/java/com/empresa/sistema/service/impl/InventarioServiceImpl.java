@@ -48,8 +48,6 @@ public class InventarioServiceImpl implements InventarioService {
     public List<InventarioResponseDTO> findBySucursalId(String sucursalId) {
         return inventarioRepository.findBySucursalId(sucursalId)
                 .stream()
-                // Solo mostrar productos con stock disponible en esta sucursal
-                .filter(i -> i.getStock() > 0)
                 .map(inventarioMapper::toDto)
                 .collect(Collectors.toList());
     }

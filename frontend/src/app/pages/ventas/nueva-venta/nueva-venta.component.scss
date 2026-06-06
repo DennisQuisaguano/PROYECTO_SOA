@@ -650,10 +650,22 @@
     .p-dropdown {
         display: flex !important;
         width: 100% !important;
+        overflow: visible !important;
+    }
+
+    .p-dropdown-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 2rem !important; /* Espacio para la flecha */
+        min-height: 42px;
+        display: flex;
+        align-items: center;
     }
 }
 
 ::ng-deep .p-dropdown-panel {
+    min-width: 250px !important; /* Asegura que el panel sea lo suficientemente ancho */
     border-radius: 8px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     border: 1px solid #e9ecef;
@@ -683,13 +695,22 @@
 .uta-overlay {
     position: fixed;
     inset: 0;
-    z-index: 2000;
+    z-index: 1000; /* Reducido para que PrimeNG Dialogs (z=1100+) se vean encima */
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
     backdrop-filter: blur(4px);
+}
+
+/* Forzar que el diálogo de confirmación de PrimeNG siempre esté por encima de todo */
+::ng-deep .p-confirm-dialog {
+    z-index: 3000 !important;
+}
+
+::ng-deep .p-component-overlay {
+    z-index: 2999 !important;
 }
 
 .uta-modal {

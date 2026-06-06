@@ -18,7 +18,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { FechaHoraPipe } from '../../../shared/pipes/fecha-hora.pipe';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 
@@ -41,6 +41,7 @@ export class SolicitudesStockComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   private realtimeNotificationService = inject(RealtimeNotificationService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   solicitudes: any[] = [];
   loading = false;
@@ -49,9 +50,6 @@ export class SolicitudesStockComponent implements OnInit, OnDestroy {
   nuevasSolicitudesIds: Set<string> = new Set();
 
   // ─── Modal Aprobación ───────────────────────────────────────────────────────
-  displayAprobar = false;
-  solicitudSeleccionada: any = null;
-  cantidadAprobada: number = 0;
   guardandoAprobacion = false;
 
   // ─── Modal Nueva Solicitud ──────────────────────────────────────────────────
@@ -255,34 +253,42 @@ export class SolicitudesStockComponent implements OnInit, OnDestroy {
     return this.authService.isCajero() || this.authService.isAdmin();
   }
 
-  abrirModalAprobar(sol: any) {
-    this.solicitudSeleccionada = sol;
-    this.cantidadAprobada = sol.cantidad;
-    this.displayAprobar = true;
-  }
-
-  confirmarAprobacion() {
-    if (this.cantidadAprobada <= 0 || this.cantidadAprobada > this.solicitudSeleccionada.cantidad) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Cantidad no válida' });
-      return;
-    }
-    this.guardandoAprobacion = true;
-    this.solicitudService.aprobar(this.solicitudSeleccionada.id, this.cantidadAprobada).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Traslado aprobado correctamente' });
-        this.displayAprobar = false;
-        this.guardandoAprobacion = false;
-        this.notificationService.refresh();
-      },
-      error: () => { this.guardandoAprobacion = false; }
+  aprobar(sol: any) {
+    this.confirmationService.confirm({
+      message: `¿Está seguro que desea aprobar el despacho de ${sol.cantidad} unidades de "${sol.productoNombre}"?`,
+      header: 'Confirmar Aprobación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, aprobar',
+      rejectLabel: 'No, cancelar',
+      accept: () => {
+        this.guardandoAprobacion = true;
+        this.solicitudService.aprobar(sol.id, sol.cantidad).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Traslado aprobado correctamente' });
+            this.guardandoAprobacion = false;
+            this.notificationService.refresh();
+          },
+          error: () => { this.guardandoAprobacion = false; }
+        });
+      }
     });
   }
 
   rechazar(id: string) {
-    this.solicitudService.rechazar(id).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'warn', summary: 'Rechazada', detail: 'Solicitud rechazada' });
-        this.notificationService.refresh();
+    this.confirmationService.confirm({
+      message: '¿Está seguro que desea rechazar esta solicitud?',
+      header: 'Confirmar Rechazo',
+      icon: 'pi pi-exclamation-circle',
+      acceptLabel: 'Sí, rechazar',
+      rejectLabel: 'No, mantener',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.solicitudService.rechazar(id).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'warn', summary: 'Rechazada', detail: 'Solicitud rechazada' });
+            this.notificationService.refresh();
+          }
+        });
       }
     });
   }

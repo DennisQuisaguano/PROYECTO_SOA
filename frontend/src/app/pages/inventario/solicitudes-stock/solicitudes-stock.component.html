@@ -60,13 +60,13 @@
               <td class="text-center">
                 <span class="uta-badge" [ngClass]="{
                   'uta-badge--yellow': sol.estado === 'PENDIENTE',
-                  'uta-badge--green': sol.estado === 'COMPLETADA',
+                  'uta-badge--green': sol.estado === 'APROBADA',
                   'uta-badge--red': sol.estado === 'RECHAZADA'
                 }">{{ sol.estado }}</span>
               </td>
               <td class="text-center">
                 <div class="d-flex justify-content-center gap-2" *ngIf="sol.estado === 'PENDIENTE' && puedeGestionar(sol)">
-                  <button class="uta-btn uta-btn--sm uta-btn--primary" (click)="abrirModalAprobar(sol)" title="Aprobar y despachar">
+                  <button class="uta-btn uta-btn--sm uta-btn--primary" (click)="aprobar(sol)" title="Aprobar y despachar">
                     <i class="bi bi-check-circle"></i> APROBAR
                   </button>
                   <button class="uta-btn uta-btn--sm uta-btn--outline" style="color: #dc2626; border-color: #dc2626;"
@@ -103,7 +103,14 @@
             <label class="uta-form-label"><i class="bi bi-building me-2 text-primary"></i>1. Sucursal de Origen</label>
             <p-dropdown [options]="sucursalesDisponibles" [(ngModel)]="sucursalOrigenSeleccionada"
                         optionLabel="nombre" placeholder="Seleccione origen..."
-                        styleClass="uta-form-control p-0 border-0" (onChange)="onSucursalOrigenChange($event.value)"></p-dropdown>
+                        styleClass="uta-form-control p-0 border-0" (onChange)="onSucursalOrigenChange($event.value)">
+                <ng-template pTemplate="item" let-sucursal>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-building text-primary"></i>
+                        <span class="font-bold">{{sucursal.nombre}}</span>
+                    </div>
+                </ng-template>
+            </p-dropdown>
         </div>
         <!-- Paso 2 -->
         <div class="uta-form-group">
@@ -112,9 +119,34 @@
                         [options]="productosEnOrigen" [(ngModel)]="productoSeleccionado"
                         optionLabel="productoNombre" placeholder="Seleccione producto..."
                         [filter]="true" filterBy="productoNombre"
-                        styleClass="uta-form-control p-0 border-0"></p-dropdown>
+                        styleClass="uta-form-control p-0 border-0">
+                <ng-template pTemplate="selectedItem" let-item>
+                    <div class="d-flex align-items-center gap-2" *ngIf="item">
+                        <span class="font-bold">{{item.productoNombre}}</span>
+                        <span class="uta-badge uta-badge--blue text-xs">{{item.stock}} uds.</span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-item>
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="font-bold text-dark">{{item.productoNombre}}</span>
+                            <span class="uta-badge" [ngClass]="item.stock > 10 ? 'uta-badge--green' : 'uta-badge--yellow'">
+                                {{item.stock}} uds.
+                            </span>
+                        </div>
+                        <div class="d-flex gap-2 mt-1">
+                            <span class="uta-code-badge" style="font-size: 0.65rem;">{{item.productoId}}</span>
+                            <small class="text-muted">{{item.categoriaNombre}}</small>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-dropdown>
             <div *ngIf="cargandoProductos" class="p-3 bg-light rounded-3 text-center">
                 <i class="bi bi-arrow-repeat spin d-inline-block"></i> Consultando stock...
+            </div>
+            <div *ngIf="!cargandoProductos && sucursalOrigenSeleccionada && productosEnOrigen.length === 0" 
+                 class="p-2 mt-1 border rounded bg-light text-danger text-center" style="font-size: 0.8rem;">
+                <i class="bi bi-exclamation-triangle"></i> No hay productos con stock disponible en esta sucursal.
             </div>
         </div>
         <!-- Paso 3 -->
@@ -131,68 +163,4 @@
             <button class="uta-btn uta-btn--primary flex-grow-1" [disabled]="!productoSeleccionado" (click)="confirmarNuevaSolicitud()">ENVIAR SOLICITUD</button>
         </div>
     </ng-template>
-</p-dialog>
-
-
-
-<!-- ══════════════════════════════════════════════════════════════════════════ -->
-<!--  MODAL: APROBACIÓN DE DESPACHO (Bodeguero)                                -->
-<!-- ══════════════════════════════════════════════════════════════════════════ -->
-<p-dialog header="📦 Autorización de Despacho" [(visible)]="displayAprobar"
-          [modal]="true" [style]="{width: '500px'}" class="premium-dialog"
-          [draggable]="false" [resizable]="false">
-
-    <div *ngIf="solicitudSeleccionada">
-        <div class="info-box shadow-sm">
-            <div class="icon-circle shadow-1" style="background: #eff6ff; color: #1d4ed8;">
-                <i class="pi pi-truck"></i>
-            </div>
-            <div class="flex-1">
-                <span class="text-xs text-500 font-bold uppercase tracking-wider block mb-1">Sucursal Destino</span>
-                <span class="text-lg font-bold text-800 line-height-2">{{solicitudSeleccionada.sucursalDestinoNombre}}</span>
-            </div>
-        </div>
-
-        <div class="mb-4 p-3 border-round-xl surface-100 border-1 border-200">
-            <div class="flex align-items-center gap-3">
-                <div class="flex-1">
-                    <span class="text-xs text-600 font-bold block mb-1">Producto a enviar:</span>
-                    <span class="text-xl font-black text-900">{{solicitudSeleccionada.productoNombre}}</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs text-600 font-bold block mb-1">Solicitado:</span>
-                    <span class="text-2xl font-black text-blue-600">{{solicitudSeleccionada.cantidad}}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="field mb-4">
-            <label class="font-bold text-700 block mb-2">Cantidad a Despachar Realmente</label>
-            <div class="custom-input-wrapper">
-                <p-inputNumber [(ngModel)]="cantidadAprobada"
-                               [min]="1" [max]="solicitudSeleccionada.cantidad"
-                               [showButtons]="true" buttonLayout="horizontal"
-                               decrementButtonClass="p-button-secondary p-button-text"
-                               incrementButtonClass="p-button-secondary p-button-text"
-                               decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
-                               styleClass="w-full"
-                               inputStyleClass="text-center font-bold text-2xl border-none shadow-none bg-transparent"
-                               placeholder="Cantidad">
-                </p-inputNumber>
-            </div>
-            <small class="text-600 mt-2 block italic">
-                <i class="pi pi-info-circle mr-1"></i> El sistema descontará esta cantidad de su stock actual.
-            </small>
-        </div>
-
-        <div class="flex gap-3 mt-4 pt-3 border-top-1 border-100">
-            <button pButton label="Cancelar" icon="pi pi-times"
-                    type="button" class="p-button-text p-button-secondary flex-1 border-round-xl"
-                    (click)="displayAprobar = false"></button>
-
-            <button pButton label="Confirmar Despacho" icon="pi pi-send"
-                    type="button" class="p-button-success shadow-2 flex-2 border-round-xl font-bold py-3"
-                    [loading]="guardandoAprobacion" (click)="confirmarAprobacion()"></button>
-        </div>
-    </div>
 </p-dialog>
