@@ -38,40 +38,27 @@ public class DataInitializer implements CommandLineRunner {
         syncSequence("CLI", clienteRepository);
         syncSequence("CAT", categoriaRepository);
 
-        // --- DATA MIGRATION: Activar registros existentes que no tengan el campo 'activo' ---
-        log.info("Migrando datos existentes para habilitar campo 'activo'...");
-        activarRegistrosExistentes();
-
         // 1. Asegurar que los roles básicos existen
         checkAndCreateRol("ROL001", "ADMIN");
         checkAndCreateRol("ROL002", "CAJERO");
         checkAndCreateRol("ROL003", "BODEGUERO");
 
-        // 2. Obtener todos los usuarios y verificar sus contraseñas
-        List<Usuario> usuarios = usuarioRepository.findAll();
-        
-        if (usuarios.isEmpty()) {
+        // 2. Crear admin por defecto solo si no existe ningún usuario
+        if (usuarioRepository.count() == 0) {
             log.warn("¡No hay usuarios en la base de datos! Creando admin por defecto...");
             Rol adminRol = rolRepository.findByNombre("ADMIN").orElseThrow();
             usuarioRepository.save(Usuario.builder()
                     .id("USR001")
                     .username("admin")
-                    .password(passwordEncoder.encode("admin123"))
+                    .password(passwordEncoder.encode("admin123")) // Cambiar tras el primer inicio
                     .nombreCompleto("Administrador")
                     .rol(adminRol)
                     .activo(true)
                     .build());
-        } else {
-            log.info("Resetenado contraseñas de usuarios de prueba...");
-            for (Usuario u : usuarios) {
-                // Forzamos el reset sin condiciones para admin123
-                u.setPassword(passwordEncoder.encode("admin123"));
-                log.info(">>> PASSWORD RESET: Usuario '{}' ahora usa 'admin123'", u.getUsername());
-            }
-            usuarioRepository.saveAll(usuarios);
+            log.info(">>> USUARIO CREADO: Usuario 'admin' con clave 'admin123'.");
         }
 
-        log.info(">>> SISTEMA LISTO: Todos los usuarios pueden entrar con la contraseña 'admin123'");
+        log.info(">>> SISTEMA LISTO.");
     }
 
     private void checkAndCreateRol(String id, String nombre) {
@@ -107,14 +94,5 @@ public class DataInitializer implements CommandLineRunner {
                 .lastValue(maxVal)
                 .build());
         log.info(">>> SEQUENCE SYNC: Prefijo '{}' sincronizado con el valor inicial: {}", prefix, maxVal);
-    }
-
-    private void activarRegistrosExistentes() {
-        try {
-            entityManager.createNativeQuery("UPDATE categorias SET activo = true").executeUpdate();
-            log.info(">>> MIGRATION: Todas las categorías han sido marcadas como activas.");
-        } catch (Exception e) {
-            log.warn(">>> MIGRATION WARNING: No se pudo ejecutar la activación automática: {}", e.getMessage());
-        }
     }
 }
