@@ -1,72 +1,63 @@
 <div class="uta-page">
-    <div class="uta-page-header">
-        <div class="uta-page-header__left">
-            <div class="uta-breadcrumb">
-                <span>Panel Principal</span>
-                <span class="uta-breadcrumb__sep">›</span>
-                <span class="uta-breadcrumb__active">Punto de Venta</span>
+    <div class="page-header">
+        <div class="page-header-left">
+            <div class="page-header-icon">
+                <i class="bi bi-cart-fill"></i>
             </div>
-            <h1 class="uta-page-title">
-                <i class="bi bi-cart-check text-warning uta-page-title__icon"></i>
-                Punto de Venta
-            </h1>
-            <p class="uta-page-subtitle">Registro y procesamiento de ventas al cliente</p>
+            <div>
+                <h1 class="page-title">Punto de Venta</h1>
+                <p class="page-subtitle">Registro y procesamiento de ventas al cliente</p>
+            </div>
         </div>
-        <div class="uta-page-header__right d-print-none">
-            <button *ngIf="!ventaExitosaDialog" class="uta-btn uta-btn--outline" (click)="nuevaVenta()">
-                <i class="bi bi-arrow-counterclockwise"></i> &nbsp;Nueva Venta
+        <div class="flex gap-2 d-print-none">
+            <button *ngIf="!ventaExitosaDialog" class="btn-iva-config" (click)="nuevaVenta()">
+                <i class="bi bi-arrow-counterclockwise"></i> &nbsp;NUEVA VENTA
             </button>
-            <button *ngIf="ventaExitosaDialog" class="uta-btn uta-btn--outline" (click)="nuevaVenta()">
-                <i class="bi bi-plus-circle"></i> &nbsp;Nueva Venta
+            <button *ngIf="ventaExitosaDialog" class="btn-iva-config" (click)="nuevaVenta()">
+                <i class="bi bi-plus-circle"></i> &nbsp;NUEVA VENTA
             </button>
-            <button *ngIf="ventaExitosaDialog" class="uta-btn uta-btn--success" (click)="descargarPdf()">
-                <i class="bi bi-receipt"></i> &nbsp;Ver Factura
+            <button *ngIf="ventaExitosaDialog" class="btn-primary-gradient btn-success-gradient-custom" (click)="descargarPdf()">
+                <i class="bi bi-file-earmark-pdf-fill"></i> &nbsp;VER FACTURA (PDF)
             </button>
         </div>
     </div>
 
-    <div class="uta-stats-row">
-        <div class="uta-stat-card uta-stat-card--light">
-            <div class="uta-stat-card__icon text-primary"><i class="bi bi-box-seam"></i></div>
-            <div class="uta-stat-card__details">
-                <div class="uta-stat-card__number">{{productosEnVenta.length}}</div>
-                <div class="uta-stat-card__label">Productos en Carrito</div>
+    <!-- ==================== KPI CARDS ==================== -->
+    <div class="kpi-grid mb-4">
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon--blue">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="kpi-content">
+                <span class="kpi-value">{{productosEnVenta.length}}</span>
+                <span class="kpi-label">Productos en Carrito</span>
             </div>
         </div>
-        <div class="uta-stat-card uta-stat-card--light">
-            <div class="uta-stat-card__icon text-warning"><i class="bi bi-calculator"></i></div>
-            <div class="uta-stat-card__details">
-                <div class="uta-stat-card__number">
-                    <div class="uta-price">
-                        <span class="uta-price__symbol">$</span>
-                        <span class="uta-price__value">{{subtotalVenta | moneda:false}}</span>
-                    </div>
-                </div>
-                <div class="uta-stat-card__label">Subtotal Venta</div>
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon--yellow">
+                <i class="bi bi-calculator"></i>
+            </div>
+            <div class="kpi-content">
+                <span class="kpi-value">${{subtotalVenta | moneda:false}}</span>
+                <span class="kpi-label">Subtotal Venta</span>
             </div>
         </div>
-        <div class="uta-stat-card uta-stat-card--light">
-            <div class="uta-stat-card__icon text-info"><i class="bi bi-percent"></i></div>
-            <div class="uta-stat-card__details">
-                <div class="uta-stat-card__number">
-                    <div class="uta-price">
-                        <span class="uta-price__symbol">$</span>
-                        <span class="uta-price__value">{{ivaVenta | moneda:false}}</span>
-                    </div>
-                </div>
-                <div class="uta-stat-card__label">Impuestos (IVA {{ivaPromedioEtiqueta}})</div>
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon--cyan">
+                <i class="bi bi-percent"></i>
+            </div>
+            <div class="kpi-content">
+                <span class="kpi-value">${{ivaVenta | moneda:false}}</span>
+                <span class="kpi-label">Impuestos (IVA {{ivaPromedioEtiqueta}})</span>
             </div>
         </div>
-        <div class="uta-stat-card uta-stat-card--dark">
-            <div class="uta-stat-card__icon"><i class="bi bi-cash-coin"></i></div>
-            <div class="uta-stat-card__details">
-                <div class="uta-stat-card__number">
-                    <div class="uta-price">
-                        <span class="uta-price__symbol">$</span>
-                        <span class="uta-price__value">{{totalVenta | moneda:false}}</span>
-                    </div>
-                </div>
-                <div class="uta-stat-card__label">Monto Total a Pagar</div>
+        <div class="kpi-card kpi-card--maroon-solid">
+            <div class="kpi-icon kpi-icon--white">
+                <i class="bi bi-cash-coin"></i>
+            </div>
+            <div class="kpi-content">
+                <span class="kpi-value text-white">${{totalVenta | moneda:false}}</span>
+                <span class="kpi-label text-white-opacity">Monto Total a Pagar</span>
             </div>
         </div>
     </div>
@@ -74,17 +65,17 @@
     <div class="uta-content-grid">
         <div class="uta-main-col">
             <!-- Datos del Cliente -->
-            <div class="uta-card">
-                <div class="uta-card__header">
-                    <div class="uta-card__header-left">
-                        <i class="bi bi-person-badge uta-card__header-icon"></i>
+            <div class="pos-card">
+                <div class="pos-card-header pos-card-header--brand">
+                    <div class="pos-card-title">
+                        <i class="bi bi-person-badge pos-card-icon"></i>
                         Datos del Cliente
                     </div>
-                    <button class="uta-btn uta-btn--sm uta-btn--white d-print-none" (click)="abrirClienteDialog()">
-                        <i class="bi bi-person-plus"></i> &nbsp;Agregar Cliente
+                    <button class="btn-header-action" (click)="abrirClienteDialog()">
+                        <i class="bi bi-person-plus-fill"></i> &nbsp;AGREGAR CLIENTE
                     </button>
                 </div>
-                <div class="uta-card__body">
+                <div class="pos-card-body">
                     <div class="uta-client-header">
                         <div class="uta-client-avatar">
                             {{clienteSeleccionado ? (clienteSeleccionado.nombreUno.charAt(0) + (clienteSeleccionado.apellidoPaterno ? clienteSeleccionado.apellidoPaterno.charAt(0) : '')) : 'CF'}}
@@ -93,93 +84,104 @@
                             <h4 class="uta-client-name">
                                 {{clienteSeleccionado ? (clienteSeleccionado.apellidoPaterno + ' ' + clienteSeleccionado.nombreUno) : 'CONSUMIDOR FINAL'}}
                             </h4>
-                            <span class="uta-badge uta-badge--blue">{{clienteSeleccionado ? 'Cliente Registrado' : 'Venta Estándar'}}</span>
+                            <span class="uta-badge" [ngClass]="clienteSeleccionado ? 'uta-badge--green' : 'uta-badge--blue'">
+                                {{clienteSeleccionado ? 'CLIENTE REGISTRADO' : 'CONSUMIDOR FINAL / VENTA ESTÁNDAR'}}
+                            </span>
                         </div>
                     </div>
                     
-                    <div class="uta-client-data-grid">
-                        <div class="uta-data-item">
-                            <span class="uta-data-item__label">Cédula </span>
-                            <span class="uta-data-item__value">{{clienteSeleccionado?.cedula || '9999999999999'}}</span>
-                        </div>
-                        <div class="uta-data-item">
-                            <span class="uta-data-item__label">Teléfono</span>
-                            <span class="uta-data-item__value">{{clienteSeleccionado?.telefono || '-'}}</span>
-                        </div>
-                        <div class="uta-data-item">
-                            <span class="uta-data-item__label">Correo Electrónico</span>
-                            <span class="uta-data-item__value">{{clienteSeleccionado?.email || '-'}}</span>
-                        </div>
-                        <div class="uta-data-item uta-data-item--full">
-                            <span class="uta-data-item__label">Dirección Completa</span>
-                            <span class="uta-data-item__value">{{clienteSeleccionado?.direccion || 'Consumo Local'}}</span>
+                    <div class="client-info-container">
+                        <div class="client-info-grid">
+                            <div class="client-info-item">
+                                <i class="bi bi-card-text info-icon"></i>
+                                <div class="info-details">
+                                    <span class="info-label">Cédula / RUC</span>
+                                    <span class="info-value font-mono">{{clienteSeleccionado?.cedula || '9999999999999'}}</span>
+                                </div>
+                            </div>
+                            <div class="client-info-item">
+                                <i class="bi bi-telephone info-icon"></i>
+                                <div class="info-details">
+                                    <span class="info-label">Teléfono</span>
+                                    <span class="info-value">{{clienteSeleccionado?.telefono || '-'}}</span>
+                                </div>
+                            </div>
+                            <div class="client-info-item">
+                                <i class="bi bi-envelope info-icon"></i>
+                                <div class="info-details">
+                                    <span class="info-label">Correo Electrónico</span>
+                                    <span class="info-value text-lowercase">{{clienteSeleccionado?.email || '-'}}</span>
+                                </div>
+                            </div>
+                            <div class="client-info-item info-item--full">
+                                <i class="bi bi-geo-alt info-icon"></i>
+                                <div class="info-details">
+                                    <span class="info-label">Dirección de Entrega / Completa</span>
+                                    <span class="info-value">{{clienteSeleccionado?.direccion || 'Consumo Local'}}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Detalle de Productos -->
-            <div class="uta-card">
-                <div class="uta-card__header">
-                    <div class="uta-card__header-left">
-                        <i class="bi bi-cart4 uta-card__header-icon"></i>
+            <div class="pos-card">
+                <div class="pos-card-header pos-card-header--brand">
+                    <div class="pos-card-title">
+                        <i class="bi bi-cart4 pos-card-icon"></i>
                         Detalle de Productos
-                        <span class="uta-badge uta-badge--white-outline ms-2" *ngIf="productosEnVenta.length > 0">{{productosEnVenta.length}} items</span>
+                        <span class="uta-badge uta-badge--light ms-2" *ngIf="productosEnVenta.length > 0">{{productosEnVenta.length}} items</span>
                     </div>
-                    <button class="uta-btn uta-btn--sm uta-btn--white d-print-none" (click)="abrirProductoDialog()">
-                        <i class="bi bi-plus-lg"></i> &nbsp;Agregar Producto
+                    <button class="btn-header-action" (click)="abrirProductoDialog()">
+                        <i class="bi bi-plus-circle-fill"></i> &nbsp;AGREGAR PRODUCTO
                     </button>
                 </div>
-                <div class="uta-card__body p-0">
+                <div class="pos-card-body p-0">
                     <div class="uta-table-wrap">
                         <table class="uta-table">
                             <thead>
                                 <tr>
-                                    <th style="width:80px">Código</th>
-                                    <th style="width:60px;text-align:center">Cant.</th>
-                                    <th style="width:100px;text-align:center">Stock</th>
-                                    <th>Descripción</th>
-                                    <th style="text-align:right;width:120px">P. Unitario</th>
-                                    <th style="text-align:right;width:120px">P. Total</th>
-                                    <th style="width:44px" class="d-print-none"></th>
+                                    <th style="width:100px; text-align: center;">Código</th>
+                                    <th style="width:90px; text-align:center">Cantidad</th>
+                                    <th style="width:120px; text-align:center">Stock Disp.</th>
+                                    <th>Descripción del Producto</th>
+                                    <th style="text-align:right; width:120px">P. Unitario</th>
+                                    <th style="text-align:right; width:120px">P. Total</th>
+                                    <th style="width:60px" class="d-print-none text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngIf="productosEnVenta.length === 0">
                                     <td colspan="7" class="uta-table__empty">
                                         <div class="uta-empty-state">
-                                            <div class="uta-empty-state__icon"><i class="bi bi-box-seam"></i></div>
-                                            <div class="uta-empty-state__text">El carrito está vacío</div>
-                                            <div class="uta-empty-state__sub">Presione "Agregar Producto" para comenzar a facturar</div>
+                                            <div class="uta-empty-state__icon text-slate-300"><i class="bi bi-cart-x"></i></div>
+                                            <div class="uta-empty-state__text">El carrito de compras está vacío</div>
+                                            <div class="uta-empty-state__sub">Presione "Agregar Producto" para seleccionar artículos del catálogo</div>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr *ngFor="let item of productosEnVenta">
-                                    <td><span class="uta-code-badge">{{item.inventario.productoId}}</span></td>
+                                    <td style="text-align: center;"><span class="uta-code-badge">{{item.inventario.productoId}}</span></td>
                                     <td style="text-align:center">
-                                        <input class="uta-qty-input" type="number" [(ngModel)]="item.cantidad" 
+                                        <input class="uta-qty-input text-center" type="number" [(ngModel)]="item.cantidad" 
                                                (blur)="actualizarCantidad(item, item.cantidad)" min="1" [max]="item.inventario.stock" />
                                     </td>
                                     <td style="text-align:center">
-                                        <span class="uta-badge" [ngClass]="item.inventario.stock > 10 ? 'uta-badge--green' : (item.inventario.stock > 0 ? 'uta-badge--yellow' : 'uta-badge--red')">
+                                        <span class="uta-badge" [ngClass]="item.inventario.stock > 10 ? 'uta-badge--green' : (item.inventario.stock > 0 ? 'uta-badge--orange' : 'uta-badge--red')">
+                                            <i class="bi bi-boxes" style="font-size: 0.75rem; margin-right: 4px;"></i>
                                             {{item.inventario.stock}} uds.
                                         </span>
                                     </td>
-                                    <td class="uta-table__bold">{{item.inventario.productoNombre}}</td>
-                                    <td style="text-align:right;color:#666">
-                                        <div class="uta-price uta-price--right">
-                                            <span class="uta-price__symbol">$</span>
-                                            <span class="uta-price__value">{{item.inventario.precioVenta | moneda:false}}</span>
-                                        </div>
+                                    <td class="uta-table__bold text-slate-800 uppercase-name">{{item.inventario.productoNombre}}</td>
+                                    <td style="text-align:right; color:#475569; font-weight: 600;">
+                                        ${{item.inventario.precioVenta | moneda:false}}
                                     </td>
-                                    <td style="text-align:right;font-weight:600;color:#1a1a1a">
-                                        <div class="uta-price uta-price--right">
-                                            <span class="uta-price__symbol">$</span>
-                                            <span class="uta-price__value">{{item.subtotal | moneda:false}}</span>
-                                        </div>
+                                    <td style="text-align:right; font-weight: 700; color:#1e293b;">
+                                        ${{item.subtotal | moneda:false}}
                                     </td>
                                     <td class="d-print-none" style="text-align:center">
-                                        <button class="uta-icon-btn uta-icon-btn--red" (click)="quitarProducto(item.inventario.productoId)">
+                                        <button class="btn-action-outline btn-action-outline--delete" title="Quitar Producto" (click)="quitarProducto(item.inventario.productoId)">
                                             <i class="bi bi-trash3-fill"></i>
                                         </button>
                                     </td>
@@ -192,17 +194,17 @@
         </div>
 
         <div class="uta-side-col">
-            <div class="uta-card uta-card--sticky">
-                <div class="uta-card__header">
-                    <div class="uta-card__header-left">
-                        <i class="bi bi-clipboard2-data uta-card__header-icon"></i>
+            <div class="pos-card pos-card--sticky">
+                <div class="pos-card-header">
+                    <div class="pos-card-title">
+                        <i class="bi bi-receipt pos-card-icon"></i>
                         Resumen de Transacción
                     </div>
                 </div>
-                <div class="uta-card__body">
+                <div class="pos-card-body">
                     <div class="uta-biz-info mb-3">
-                        <div class="uta-biz-name"><i class="bi bi-shop"></i> {{sucursalNombre}}</div>
-                        <div class="uta-biz-detail"><i class="bi bi-geo-alt-fill"></i> Operación Local</div>
+                        <div class="uta-biz-name"><i class="bi bi-building"></i> &nbsp;{{sucursalNombre}}</div>
+                        <div class="uta-biz-detail"><i class="bi bi-geo-alt-fill text-danger"></i> Sede de Venta Activa</div>
                     </div>
 
                     <div class="uta-divider"></div>
@@ -210,19 +212,19 @@
                     <div class="uta-invoice-meta">
                         <div class="uta-invoice-row">
                             <span class="uta-invoice-label">Documento</span>
-                            <span class="uta-invoice-value text-danger">FACTURA</span>
+                            <span class="uta-invoice-value text-danger font-bold">FACTURA ELECTRÓNICA</span>
                         </div>
                         <div class="uta-invoice-row">
                             <span class="uta-invoice-label">Número</span>
-                            <span class="uta-invoice-value uta-invoice-value--code">{{ventaExitosaDialog ? ultimaVentaNumFac : 'BORRADOR'}}</span>
+                            <span class="uta-invoice-value uta-invoice-value--code font-mono">{{ventaExitosaDialog ? ultimaVentaNumFac : 'BORRADOR'}}</span>
                         </div>
                         <div class="uta-invoice-row">
                             <span class="uta-invoice-label">Emisión</span>
-                            <span class="uta-invoice-value">{{'04/06/2026' | date:'dd/MM/yyyy HH:mm'}}</span>
+                            <span class="uta-invoice-value font-bold text-slate-700">{{'04/06/2026' | date:'dd/MM/yyyy HH:mm'}}</span>
                         </div>
-                        <div class="uta-invoice-row mt-1">
+                        <div class="uta-invoice-row mt-2">
                             <span class="uta-invoice-label">Estado Actual</span>
-                            <span class="uta-badge" [ngClass]="ventaExitosaDialog ? 'uta-badge--green' : 'uta-badge--yellow'">
+                            <span class="uta-badge" [ngClass]="ventaExitosaDialog ? 'uta-badge--green' : 'uta-badge--orange'">
                                 <i class="bi" [ngClass]="ventaExitosaDialog ? 'bi-check-circle-fill' : 'bi-hourglass-split'"></i>
                                 &nbsp;{{ventaExitosaDialog ? 'Confirmada' : 'Borrador'}}
                             </span>
@@ -233,39 +235,40 @@
 
                     <div class="uta-totals">
                         <div class="uta-totals__row">
-                            <span>Subtotal</span>
-                            <span class="uta-price uta-price--right">
+                            <span>Subtotal Neto</span>
+                            <span class="uta-price uta-price--right font-bold text-slate-600">
                                 <span class="uta-price__symbol">$</span>
                                 <span class="uta-price__value">{{subtotalVenta | moneda:false}}</span>
                             </span>
                         </div>
                         <div class="uta-totals__row">
-                            <span>IVA {{ivaPromedioEtiqueta}}</span>
-                            <span class="uta-price uta-price--right">
+                            <span>Impuestos (IVA {{ivaPromedioEtiqueta}})</span>
+                            <span class="uta-price uta-price--right font-bold text-slate-600">
                                 <span class="uta-price__symbol">$</span>
                                 <span class="uta-price__value">{{ivaVenta | moneda:false}}</span>
                             </span>
                         </div>
-                        <div class="uta-totals__grand mt-2">
-                            <span>TOTAL A PAGAR</span>
-                            <span class="uta-price uta-price--right">
-                                <span class="uta-price__symbol">$</span>
-                                <span class="uta-price__value" style="font-size: 1.4rem;">{{totalVenta | moneda:false}}</span>
-                            </span>
+                        
+                        <div class="pos-totals-grand-card mt-3">
+                            <span class="grand-label">TOTAL A PAGAR</span>
+                            <div class="grand-price">
+                                <span class="symbol">$</span>
+                                <span class="value">{{totalVenta | moneda:false}}</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="d-print-none" style="margin-top: 1.5rem">
-                        <button class="uta-btn uta-btn--success uta-btn--lg w-100 mb-2" 
+                        <button class="btn-checkout-confirm w-100 mb-2" 
                                 (click)="finalizarVenta()" 
                                 [disabled]="productosEnVenta.length === 0 || !clienteSeleccionado || hasStockError() || procesandoVenta">
-                            <i class="bi bi-cash-coin" *ngIf="!procesandoVenta"></i>
-                            <span *ngIf="procesandoVenta" class="spinner-border spinner-border-sm mr-2"></span>
+                            <i class="bi bi-cart-check-fill" *ngIf="!procesandoVenta"></i>
+                            <span *ngIf="procesandoVenta" class="spinner-border spinner-border-sm me-2"></span>
                             <span>{{procesandoVenta ? 'PROCESANDO...' : 'VENDER Y COBRAR'}}</span>
                         </button>
 
-                        <button class="uta-btn uta-btn--outline w-100" (click)="nuevaVenta()" [disabled]="productosEnVenta.length === 0">
-                            <i class="bi bi-trash"></i> DESCARTAR TODO
+                        <button class="btn-checkout-discard w-100" (click)="nuevaVenta()" [disabled]="productosEnVenta.length === 0">
+                            <i class="bi bi-trash-fill"></i> &nbsp;DESCARTAR TODO
                         </button>
                     </div>
                 </div>
