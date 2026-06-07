@@ -2,111 +2,133 @@
 
 <div class="uta-page">
   <!-- ==================== PAGE HEADER ==================== -->
-  <div class="uta-page-header">
-    <div class="uta-page-header__left">
-      <div class="uta-breadcrumb">
-        <span>Inventario</span>
-        <i class="pi pi-chevron-right uta-breadcrumb__sep"></i>
-        <span class="uta-breadcrumb__active">Traslados de Mercadería</span>
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-header-icon">
+        <i class="pi pi-truck"></i>
       </div>
-      <h1 class="uta-page-title">
-        <i class="bi bi-truck uta-page-title__icon"></i>
-        Gestión de Traslados
-      </h1>
-      <p class="uta-page-subtitle">Autorización y despacho de stock entre sucursales</p>
+      <div>
+        <h1 class="page-title">Gestión de Traslados</h1>
+        <p class="page-subtitle">Autorización y despacho de stock entre sucursales</p>
+      </div>
     </div>
     
-    <div class="uta-page-header__right">
-      <button *ngIf="puedeSolicitar()" class="uta-btn uta-btn--primary" (click)="abrirNuevaSolicitud()">
-        <i class="bi bi-plus-lg"></i> NUEVA SOLICITUD
-      </button>
-    </div>
+    <button *ngIf="puedeSolicitar()" class="btn-primary-gradient" (click)="abrirNuevaSolicitud()">
+      <i class="pi pi-plus"></i> NUEVA SOLICITUD
+    </button>
   </div>
 
   <!-- ==================== MAIN TABLE SECTION ==================== -->
-  <div class="uta-card">
-    <div class="uta-card__header">
-      <div class="uta-card__header-left">
-        <i class="bi bi-list-task uta-card__header-icon"></i>
-        Solicitudes de Movimiento
-      </div>
-      <span class="uta-badge uta-badge--white-outline">{{ solicitudes.length }} trámites</span>
+  <div class="table-container">
+    <div class="table-header-wine">
+      <h2 class="table-title-wine"><i class="pi pi-list"></i> SOLICITUDES DE MOVIMIENTO</h2>
     </div>
 
-    <div class="uta-card__body p-0">
-      <div class="uta-table-wrap">
-        <table class="uta-table">
-          <thead>
-            <tr>
-              <th>Fecha Solicitud</th>
-              <th>Producto</th>
-              <th>Origen</th>
-              <th>Destino (Solicitante)</th>
-              <th class="text-center">Cant.</th>
-              <th class="text-center">Estado</th>
-              <th class="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let sol of solicitudes" [class.row-new]="isNueva(sol.id)" class="hover:bg-gray-50">
-              <td style="font-size: 0.75rem; color: #666;">{{ sol.fechaCreacion | fechaHora }}</td>
-              <td class="uta-table__bold">
-                {{ sol.productoNombre }}
-                <span *ngIf="isNueva(sol.id)" class="uta-badge uta-badge--red ms-2">NUEVA</span>
-              </td>
-              <td><i class="bi bi-building text-muted me-1"></i> {{ sol.sucursalOrigenNombre }}</td>
-              <td><i class="bi bi-geo-alt text-primary me-1"></i> {{ sol.sucursalDestinoNombre }}</td>
-              <td class="text-center"><span class="text-lg font-black">{{ sol.cantidad }}</span></td>
-              <td class="text-center">
-                <span class="uta-badge" [ngClass]="{
-                  'uta-badge--yellow': sol.estado === 'PENDIENTE',
-                  'uta-badge--green': sol.estado === 'APROBADA',
-                  'uta-badge--red': sol.estado === 'RECHAZADA'
-                }">{{ sol.estado }}</span>
-              </td>
-              <td class="text-center">
-                <div class="d-flex justify-content-center gap-2" *ngIf="sol.estado === 'PENDIENTE' && puedeGestionar(sol)">
-                  <button class="uta-btn uta-btn--sm uta-btn--primary" (click)="aprobar(sol)" title="Aprobar y despachar">
-                    <i class="bi bi-check-circle"></i> APROBAR
-                  </button>
-                  <button class="uta-btn uta-btn--sm uta-btn--outline" style="color: #dc2626; border-color: #dc2626;"
-                          (click)="rechazar(sol.id)" title="Rechazar solicitud">
-                    <i class="bi bi-x-circle"></i> RECHAZAR
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="solicitudes.length === 0">
-              <td colspan="7" class="uta-table__empty">
-                <div class="uta-empty-state">
-                  <i class="bi bi-inbox uta-empty-state__icon"></i>
-                  <span class="uta-empty-state__text">Sin traslados pendientes</span>
-                  <span class="uta-empty-state__sub">No hay solicitudes que requieran su atención en este momento.</span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <p-table [value]="solicitudes" [loading]="loading" [paginator]="true" [rows]="10"
+             styleClass="p-datatable-sm" [responsiveLayout]="'scroll'">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 70px; text-align: center;">N°</th>
+          <th style="width: 170px;">Fecha Solicitud</th>
+          <th>Producto</th>
+          <th>Origen</th>
+          <th>Destino (Solicitante)</th>
+          <th style="width: 80px; text-align: center;">Cant.</th>
+          <th style="width: 140px; text-align: center;">Estado</th>
+          <th style="width: 240px; text-align: center;">Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-sol let-rowIndex="rowIndex">
+        <tr [class.row-new]="isNueva(sol.id)">
+          <td style="text-align: center;" class="row-index-cell">
+            {{ rowIndex + 1 }}
+          </td>
+          <td style="color: #64748b; font-weight: 500;">
+            <i class="pi pi-calendar" style="font-size: 0.85rem; margin-right: 6px; color: #94a3b8;"></i>
+            {{ sol.fechaCreacion | fechaHora }}
+          </td>
+          <td class="font-bold text-dark uppercase-name">
+            {{ sol.productoNombre }}
+            <span *ngIf="isNueva(sol.id)" class="badge-new-pulsing ms-2">NUEVA</span>
+          </td>
+          <td>
+            <i class="pi pi-building" style="font-size: 0.85rem; margin-right: 6px; color: #94a3b8;"></i>
+            {{ sol.sucursalOrigenNombre }}
+          </td>
+          <td>
+            <i class="pi pi-map-marker" style="font-size: 0.85rem; margin-right: 6px; color: #94a3b8;"></i>
+            {{ sol.sucursalDestinoNombre }}
+          </td>
+          <td style="text-align: center;" class="font-bold">
+            {{ sol.cantidad }}
+          </td>
+          <td style="text-align: center;">
+            <span class="uta-badge" [ngClass]="{
+              'uta-badge--yellow': sol.estado === 'PENDIENTE',
+              'uta-badge--green': sol.estado === 'APROBADA',
+              'uta-badge--red': sol.estado === 'RECHAZADA'
+            }">
+              <i class="pi" [ngClass]="{
+                'pi-clock': sol.estado === 'PENDIENTE',
+                'pi-check-circle': sol.estado === 'APROBADA',
+                'pi-times-circle': sol.estado === 'RECHAZADA'
+              }" style="font-size: 0.75rem; margin-right: 6px;"></i>
+              {{ sol.estado }}
+            </span>
+          </td>
+          <td style="text-align: center;">
+            <div class="flex gap-2 justify-content-center" *ngIf="sol.estado === 'PENDIENTE' && puedeGestionar(sol)">
+              <button class="btn-action-solid btn-action-solid--approve" (click)="aprobar(sol)" title="Aprobar y despachar">
+                <i class="pi pi-check-circle"></i> APROBAR
+              </button>
+              <button class="btn-action-outline-red" (click)="rechazar(sol.id)" title="Rechazar solicitud">
+                <i class="pi pi-times-circle"></i> RECHAZAR
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" style="padding: 60px; text-align: center; color: #94a3b8;">
+            <i class="pi pi-inbox" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
+            <p style="margin: 0; font-size: 1.1rem; font-weight: 600;">Sin traslados registrados</p>
+            <p style="margin: 4px 0 0 0; font-size: 0.9rem;">No hay solicitudes que requieran su atención.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
 </div>
 
+<!-- ==================== CONFIRM DIALOG ==================== -->
+<p-confirmDialog key="solicitudActionDialog" [style]="{width: '450px'}" styleClass="premium-dialog">
+    <ng-template pTemplate="header">
+        <h3 style="color: #ffffff !important; font-weight: 800; font-size: 1.25rem; margin: 0; padding: 0;">
+            CONFIRMACIÓN DE GESTIÓN
+        </h3>
+    </ng-template>
+</p-confirmDialog>
+
 <!-- Modal: Nueva Solicitud -->
-<p-dialog header="🚛 Registro de Solicitud de Traslado" [(visible)]="displayNuevaSolicitud"
-          [modal]="true" [style]="{width: '550px'}" class="premium-dialog"
+<p-dialog [(visible)]="displayNuevaSolicitud"
+          [modal]="true" [style]="{width: '550px'}" [styleClass]="'premium-dialog'"
           [draggable]="false" [resizable]="false">
-    <!-- Contenido del modal se mantiene igual pero se asegura el uso de clases uta- -->
+    <ng-template pTemplate="header">
+        <h3 style="color: #ffffff !important; font-weight: 800; font-size: 1.25rem; margin: 0; padding: 0;">
+            🚛 REGISTRO DE SOLICITUD
+        </h3>
+    </ng-template>
     <div class="flex flex-column gap-4 pt-2">
         <!-- Paso 1 -->
         <div class="uta-form-group">
-            <label class="uta-form-label"><i class="bi bi-building me-2 text-primary"></i>1. Sucursal de Origen</label>
+            <label class="uta-form-label"><i class="pi pi-building me-2 text-primary"></i>1. Sucursal de Origen</label>
             <p-dropdown [options]="sucursalesDisponibles" [(ngModel)]="sucursalOrigenSeleccionada"
                         optionLabel="nombre" placeholder="Seleccione origen..."
                         styleClass="uta-form-control p-0 border-0" (onChange)="onSucursalOrigenChange($event.value)">
                 <ng-template pTemplate="item" let-sucursal>
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-building text-primary"></i>
+                        <i class="pi pi-building text-primary"></i>
                         <span class="font-bold">{{sucursal.nombre}}</span>
                     </div>
                 </ng-template>
@@ -114,7 +136,7 @@
         </div>
         <!-- Paso 2 -->
         <div class="uta-form-group">
-            <label class="uta-form-label"><i class="bi bi-box me-2 text-primary"></i>2. Producto a Solicitar</label>
+            <label class="uta-form-label"><i class="pi pi-box me-2 text-primary"></i>2. Producto a Solicitar</label>
             <p-dropdown *ngIf="!cargandoProductos && productosEnOrigen.length > 0"
                         [options]="productosEnOrigen" [(ngModel)]="productoSeleccionado"
                         optionLabel="productoNombre" placeholder="Seleccione producto..."
@@ -142,11 +164,11 @@
                 </ng-template>
             </p-dropdown>
             <div *ngIf="cargandoProductos" class="p-3 bg-light rounded-3 text-center">
-                <i class="bi bi-arrow-repeat spin d-inline-block"></i> Consultando stock...
+                <i class="pi pi-spin pi-spinner d-inline-block"></i> Consultando stock...
             </div>
             <div *ngIf="!cargandoProductos && sucursalOrigenSeleccionada && productosEnOrigen.length === 0" 
                  class="p-2 mt-1 border rounded bg-light text-danger text-center" style="font-size: 0.8rem;">
-                <i class="bi bi-exclamation-triangle"></i> No hay productos con stock disponible en esta sucursal.
+                <i class="pi pi-exclamation-triangle"></i> No hay productos con stock disponible en esta sucursal.
             </div>
         </div>
         <!-- Paso 3 -->
@@ -157,10 +179,12 @@
                            styleClass="w-100" inputStyleClass="uta-qty-input w-100" [style]="{'text-align': 'center'}"></p-inputNumber>
         </div>
     </div>
-    <ng-template pTemplate="footer">
-        <div class="d-flex gap-2 w-100">
-            <button class="uta-btn uta-btn--outline flex-grow-1" (click)="displayNuevaSolicitud = false">CANCELAR</button>
-            <button class="uta-btn uta-btn--primary flex-grow-1" [disabled]="!productoSeleccionado" (click)="confirmarNuevaSolicitud()">ENVIAR SOLICITUD</button>
-        </div>
-    </ng-template>
+    <div class="uta-modal__footer d-flex justify-content-end gap-2 bg-white border-top-0 pt-0 mt-4">
+        <button class="btn-modal-cancel" (click)="displayNuevaSolicitud = false">CANCELAR</button>
+        <button class="btn-modal-confirm" [disabled]="!productoSeleccionado || guardandoNuevaSolicitud" (click)="confirmarNuevaSolicitud()">
+            <i class="pi pi-send" *ngIf="!guardandoNuevaSolicitud"></i>
+            <i class="pi pi-spin pi-spinner" *ngIf="guardandoNuevaSolicitud"></i>
+            &nbsp;ENVIAR SOLICITUD
+        </button>
+    </div>
 </p-dialog>

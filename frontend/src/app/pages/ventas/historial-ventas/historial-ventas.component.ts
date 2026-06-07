@@ -59,6 +59,7 @@ export class HistorialVentasComponent implements OnInit, OnDestroy {
   searchCriterion = 'number';
   startDate = '';
   endDate = '';
+  estadoFilter = 'TODAS';
 
   ventaSeleccionada: VentaResponse | null = null;
   detalleDialog = false;
@@ -123,15 +124,25 @@ export class HistorialVentasComponent implements OnInit, OnDestroy {
   }
 
   cargarVentas() {
+    const isAdmin = this.authService.isAdmin();
     const sucursalId = this.authService.getSucursalId();
-    if (!sucursalId) return;
+    
+    console.log('Cargando ventas - Rol:', isAdmin ? 'ADMIN' : 'USUARIO', 'Sucursal activa:', sucursalId);
+    
+    // Si no es admin y no tiene sucursal, no puede cargar nada
+    if (!isAdmin && !sucursalId) {
+      console.warn('No se puede cargar el historial: falta sucursalId y no es ADMIN');
+      return;
+    }
 
     this.loading = true;
 
+    // Si hay fechas, buscamos por rango
     if (this.startDate && this.endDate) {
       this.ventaService.findByFechaBetween(this.startDate, this.endDate).subscribe({
         next: (data) => {
-          this.ventas = data.filter(v => v.sucursalId === sucursalId);
+          // Filtrar por sucursal si no es admin
+          this.ventas = isAdmin ? data : data.filter(v => v.sucursalId === sucursalId);
           this.recalcularKpis();
           this.aplicarFiltros();
           this.loading = false;
@@ -139,7 +150,12 @@ export class HistorialVentasComponent implements OnInit, OnDestroy {
         error: () => this.loading = false
       });
     } else {
-      this.ventaService.findBySucursalId(sucursalId).subscribe({
+      // Búsqueda inicial por página
+      const obs = isAdmin ? 
+        this.ventaService.obtenerTodas(0, 50) : 
+        this.ventaService.findBySucursalId(sucursalId!, 0, 50);
+
+      obs.subscribe({
         next: (page) => {
           this.ventas = page.content;
           this.recalcularKpis();
@@ -160,19 +176,34 @@ export class HistorialVentasComponent implements OnInit, OnDestroy {
   }
 
   aplicarFiltros() {
-    if (!this.searchTerm) {
-      this.ventasFiltradas = this.ventas;
-      return;
-    }
-    const term = this.searchTerm.toLowerCase().trim();
-    this.ventasFiltradas = this.ventas.filter(v => {
-      if (this.searchCriterion === 'number') {
-        return v.numFac.toLowerCase().includes(term);
-      } else if (this.searchCriterion === 'customer') {
-        return v.clienteNombre.toLowerCase().includes(term);
+    let filtered = this.ventas;
+
+    if (this.estadoFilter !== 'TODAS') {
+      if (this.estadoFilter === 'BORRADOR') {
+        filtered = filtered.filter(v => v.estado === 'PENDIENTE');
+      } else {
+        filtered = filtered.filter(v => v.estado === (this.estadoFilter as any));
       }
-      return false;
-    });
+    }
+
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(v => {
+        if (this.searchCriterion === 'number') {
+          return v.numFac.toLowerCase().includes(term);
+        } else if (this.searchCriterion === 'customer') {
+          return v.clienteNombre.toLowerCase().includes(term);
+        }
+        return false;
+      });
+    }
+
+    this.ventasFiltradas = filtered;
+  }
+
+  filtrarPorEstado(estado: string) {
+    this.estadoFilter = estado;
+    this.aplicarFiltros();
   }
 
   onSearchCriteriaChanged() {
@@ -205,12 +236,14 @@ export class HistorialVentasComponent implements OnInit, OnDestroy {
 
   anularVenta(venta: VentaResponse) {
     this.confirmationService.confirm({
-      message: `¿Estás seguro de anular la factura ${venta.numFac}? Esta acción repondrá el stock automáticamente.`,
+      key: 'anularVentaDialog',
+      message: `¿Está seguro que desea anular la factura <b>${venta.numFac}</b>? Esta acción repondrá el stock automáticamente en sucursal.`,
       header: 'Confirmar Anulación',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, anular',
-      rejectLabel: 'No',
-      acceptButtonStyleClass: 'p-button-danger',
+      acceptLabel: 'SÍ, ANULAR',
+      rejectLabel: 'CANCELAR',
+      acceptButtonStyleClass: 'p-button-danger p-button-raised',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
       accept: () => {
         this.ventaService.anularVenta(venta.id).subscribe(() => {
           this.messageService.add({ severity: 'success', summary: 'Anulada', detail: 'Venta anulada correctamente' });

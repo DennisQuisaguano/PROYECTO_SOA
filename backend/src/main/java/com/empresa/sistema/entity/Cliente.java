@@ -39,10 +39,17 @@ public class Cliente {
     @Column(columnDefinition = "TEXT")
     private String direccion;
 
+    @Column(columnDefinition = "TINYINT(1)")
+    @Builder.Default
+    private Boolean activo = true;
+
     @PrePersist
     public void prePersist() {
         if (id == null) {
             id = "CLI" + UUID.randomUUID().toString().replace("-", "").substring(0, 7).toUpperCase();
+        }
+        if (activo == null) {
+            activo = true;
         }
     }
 }

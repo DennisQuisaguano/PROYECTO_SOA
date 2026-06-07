@@ -436,3 +436,310 @@
     border-top: 2px solid #6B1A33;
     padding-top: 0.5rem;
 }
+
+/* ==========================================
+   NEW STYLES ACCORDING TO SCREENSHOTS
+   ========================================== */
+
+/* State tabs row */
+.invoice-tabs-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.invoice-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1.5px solid #000000;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  &.active {
+    background-color: #6B1A33;
+    color: #ffffff;
+    border-color: #6B1A33;
+  }
+}
+
+/* Card overrides */
+.uta-card-new {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.uta-card-header-new {
+  background-color: #6B1A33;
+  color: #ffffff;
+  padding: 0.85rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #5a1428;
+}
+
+.uta-card-header-left-new {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  .uta-card-header-icon-new {
+    font-size: 1rem;
+  }
+}
+
+.uta-card-body-new {
+  padding: 1.5rem;
+}
+
+/* Filters container */
+.filters-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Search Controls Group */
+.search-controls-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #ffffff;
+  flex: 1;
+  min-width: 280px;
+
+  .search-field-select {
+    background-color: #f8f9fa;
+    border: none;
+    border-right: 1px solid #cbd5e1;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    height: 38px;
+  }
+
+  .search-text-input {
+    flex: 1;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.88rem;
+    outline: none;
+    height: 38px;
+    color: #1e293b;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  .search-action-btn {
+    background-color: #6B1A33;
+    color: #ffffff;
+    border: none;
+    width: 42px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.95rem;
+
+    &:hover {
+      background-color: #521528;
+    }
+  }
+}
+
+/* Date range inputs group */
+.date-pickers-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.date-picker-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #ffffff;
+
+  .date-picker-tag {
+    background-color: #f8f9fa;
+    color: #475569;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-right: 1px solid #cbd5e1;
+    height: 38px;
+    display: flex;
+    align-items: center;
+  }
+
+  .date-input {
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    outline: none;
+    height: 38px;
+    color: #334155;
+    background: transparent;
+  }
+}
+
+/* Clear filters button */
+.btn-clear-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid #6B1A33;
+  color: #6B1A33;
+  background-color: #ffffff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 38px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #fdf5f7;
+  }
+}
+
+/* Table styles */
+.uta-table-new {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.03em !important;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+  }
+
+  td {
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 0.88rem !important;
+  }
+
+  tbody tr:hover td {
+    background-color: #f8fafc !important;
+  }
+}
+
+/* Invoice code badge */
+.invoice-num-badge {
+  display: inline-block;
+  font-family: 'Inter', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: #fdf2f4;
+  color: #a83253;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+/* Invoice status badges */
+.invoice-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &.status-confirmada {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+
+  &.status-borrador {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+
+  &.status-anulada {
+    background-color: #fde8e8;
+    color: #e63946;
+  }
+}
+
+/* Action buttons inside table */
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+
+  &.btn-view-invoice {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border-color: #dbeafe;
+
+    &:hover {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+  }
+
+  &.btn-download-invoice {
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border-color: #dcfce7;
+
+    &:hover {
+      background-color: #16a34a;
+      color: #ffffff;
+    }
+  }
+
+  &.btn-anular-invoice {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fee2e2;
+
+    &:hover {
+      background-color: #dc2626;
+      color: #ffffff;
+    }
+  }
+}

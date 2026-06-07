@@ -11,4 +11,5 @@ public interface ClienteService {
     ClienteResponseDTO findByCedula(String cedula);
     ClienteResponseDTO create(ClienteRequestDTO dto);
     ClienteResponseDTO update(String id, ClienteRequestDTO dto);
+    void delete(String id);
 }

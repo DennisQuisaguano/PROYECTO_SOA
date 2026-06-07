@@ -7,6 +7,7 @@ import { NotificationService } from '../core/services/notification.service';
 import { WebSocketService } from '../core/services/websocket.service';
 import { Sucursal } from '../core/models/sucursal.model';
 import { DropdownModule } from 'primeng/dropdown';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { VentaService } from '../core/services/venta.service';
@@ -15,7 +16,7 @@ import { first, interval, Observable, Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownModule],
+  imports: [CommonModule, FormsModule, DropdownModule, ConfirmDialogModule],
   template: `
     <header class="uta-top-bar">
       <!-- Left -->
@@ -120,6 +121,9 @@ import { first, interval, Observable, Subject, takeUntil } from 'rxjs';
 
     <!-- Overlay to close notifications -->
     <div class="notification-overlay" *ngIf="showNotifications" (click)="showNotifications = false"></div>
+
+    <!-- ==================== LOCAL CONFIRM DIALOG ==================== -->
+    <p-confirmDialog key="topbarActionDialog" [style]="{width: '450px'}" styleClass="premium-dialog"></p-confirmDialog>
   `,
   styles: [`
     .uta-top-bar {
@@ -199,14 +203,14 @@ import { first, interval, Observable, Subject, takeUntil } from 'rxjs';
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background-color: rgba(59, 130, 246, 0.08);
-      border: 1px solid rgba(59, 130, 246, 0.2);
+      background-color: rgba(107, 26, 51, 0.04);
+      border: 1px solid rgba(107, 26, 51, 0.15);
       padding: 0.4rem 1rem;
-      border-radius: 20px;
+      border-radius: 8px;
       margin-left: 15px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: #1d4ed8;
+      color: #6B1A33;
       letter-spacing: 0.5px;
     }
 
@@ -214,46 +218,46 @@ import { first, interval, Observable, Subject, takeUntil } from 'rxjs';
     .sucursal-unified-selector {
       display: flex;
       align-items: center;
-      background-color: rgba(59, 130, 246, 0.08);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 20px;
-      padding-left: 1rem;
+      background-color: rgba(107, 26, 51, 0.04);
+      border: 1px solid rgba(107, 26, 51, 0.15);
+      border-radius: 8px;
+      padding-left: 0.85rem;
       margin-left: 15px;
       transition: all 0.2s ease;
       height: 38px;
     }
 
     .sucursal-unified-selector:hover {
-      background-color: rgba(59, 130, 246, 0.12);
+      background-color: rgba(107, 26, 51, 0.08);
       border-color: #6B1A33;
     }
 
     .sucursal-icon {
-      color: #1d4ed8;
-      font-size: 0.9rem;
+      color: #6B1A33;
+      font-size: 0.95rem;
     }
 
-    :host ::ng-deep .sucursal-unified-selector .topbar-sucursal-dropdown .p-dropdown {
+    :host ::ng-deep .sucursal-unified-selector .topbar-sucursal-dropdown {
       background: transparent !important;
       border: none !important;
       box-shadow: none !important;
-      min-width: 200px;
+      min-width: 220px;
       height: 100%;
     }
 
-    :host ::ng-deep .sucursal-unified-selector .topbar-sucursal-dropdown .p-dropdown .p-dropdown-label {
+    :host ::ng-deep .sucursal-unified-selector .topbar-sucursal-dropdown .p-dropdown-label {
       padding: 0 0.5rem;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: #1d4ed8;
+      color: #6B1A33;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
     }
 
-    :host ::ng-deep .sucursal-unified-selector .topbar-sucursal-dropdown .p-dropdown .p-dropdown-trigger {
+    :host ::ng-deep .sucursal-unified-selector .topbar-sucursal-dropdown .p-dropdown-trigger {
       width: 2rem;
-      color: #1d4ed8;
+      color: #6B1A33;
     }
 
     .uta-status-dot {
@@ -731,11 +735,13 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     this.ventaService.ventaEnCurso$.pipe(first()).subscribe(enCurso => {
       if (enCurso) {
         this.confirmationService.confirm({
+          key: 'topbarActionDialog',
           header: 'Cambio Bloqueado',
           message: 'Hay una venta en curso. Debe finalizarla o cancelarla antes de cambiar de sucursal.',
           icon: 'pi pi-lock',
           rejectVisible: false,
-          acceptLabel: 'Entendido',
+          acceptLabel: 'ENTENDIDO',
+          acceptButtonStyleClass: 'p-button-primary p-button-raised',
           accept: () => {
             this.authService.sucursalActiva$.pipe(first()).subscribe(id => {
               if (id) this.sucursalIdActiva = id;
@@ -749,11 +755,14 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
       const nombreSucursal = sucursalNueva ? sucursalNueva.nombre : 'seleccionada';
 
       this.confirmationService.confirm({
-        header: 'Confirmar Cambio',
-        message: `¿Estás seguro de que quieres cambiar a la sucursal ${nombreSucursal}? Se recargarán los datos actuales.`,
+        key: 'topbarActionDialog',
+        header: 'Confirmar Cambio de Sucursal',
+        message: `¿Está seguro que desea cambiar a la sucursal <b>${nombreSucursal}</b>? Se recargarán los datos operativos.`,
         icon: 'pi pi-exclamation-circle',
-        acceptLabel: 'Sí, cambiar',
-        rejectLabel: 'Cancelar',
+        acceptLabel: 'SÍ, CAMBIAR',
+        rejectLabel: 'CANCELAR',
+        acceptButtonStyleClass: 'p-button-primary p-button-raised',
+        rejectButtonStyleClass: 'p-button-text p-button-secondary',
         accept: () => {
           this.authService.setSucursalActiva(this.sucursalIdActiva);
           window.location.reload();
@@ -769,11 +778,14 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
 
   confirmLogout() {
     this.confirmationService.confirm({
+      key: 'topbarActionDialog',
       header: 'Cerrar Sesión',
-      message: '¿Estás seguro de que quieres cerrar sesión?',
+      message: '¿Está seguro que desea salir del sistema?',
       icon: 'pi pi-power-off',
-      acceptLabel: 'Sí, salir',
-      rejectLabel: 'No',
+      acceptLabel: 'SÍ, SALIR',
+      rejectLabel: 'CANCELAR',
+      acceptButtonStyleClass: 'p-button-danger p-button-raised',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
       accept: () => {
         this.authService.logout();
       }

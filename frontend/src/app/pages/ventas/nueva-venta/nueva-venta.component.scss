@@ -707,6 +707,14 @@
 /* Forzar que el diálogo de confirmación de PrimeNG siempre esté por encima de todo */
 ::ng-deep .p-confirm-dialog {
     z-index: 3000 !important;
+
+    .p-dialog-header {
+        background: #6B1A33 !important;
+        
+        .p-dialog-title, .p-confirm-dialog-title {
+            color: #ffffff !important;
+        }
+    }
 }
 
 ::ng-deep .p-component-overlay {
@@ -823,5 +831,215 @@
     }
     .uta-client-data-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== COMPACT TRANSFER MODAL RE-DESIGN ==================== */
+.product-info-compact {
+    background: #fdf5f7;
+    border: 1px solid #f9cbd6;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #6B1A33;
+
+    .product-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: #ffffff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6B1A33;
+        font-size: 1.4rem;
+        border: 1px solid #f9cbd6;
+        flex-shrink: 0;
+    }
+
+    .info-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #8c3b52;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .product-name-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0 0 6px 0;
+        line-height: 1.2;
+    }
+
+    .product-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge-code {
+        font-family: 'Inter', monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .meta-badge-origin {
+        font-size: 0.72rem;
+        font-weight: 700;
+        background: #e0f2fe;
+        color: #0369a1;
+        padding: 2px 8px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+
+        i {
+            font-size: 0.8rem;
+        }
+    }
+}
+
+.transfer-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+.transfer-card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+
+    &.stock-available-card {
+        border-top: 3px solid #64748b;
+        
+        .transfer-card-icon {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+    }
+
+    &.stock-request-card {
+        border-top: 3px solid #6B1A33;
+        
+        .transfer-card-icon {
+            background: #fdf5f7;
+            color: #6B1A33;
+            border: 1px solid #f9d5db;
+        }
+    }
+}
+
+.transfer-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.transfer-card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.transfer-card-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.transfer-card-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-top: 4px;
+    
+    .number-val {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1;
+    }
+    
+    .unit-val {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+}
+
+.transfer-input-wrapper {
+    margin-top: 4px;
+
+    ::ng-deep .request-qty-input {
+        display: flex;
+        align-items: center;
+        
+        .p-inputnumber-button-minus,
+        .p-inputnumber-button-plus {
+            background: #6B1A33 !important;
+            color: #ffffff !important;
+            border: none !important;
+            width: 32px !important;
+            height: 34px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s !important;
+            
+            &:hover {
+                background: #501224 !important;
+            }
+        }
+        
+        .p-inputnumber-button-minus {
+            border-top-left-radius: 6px !important;
+            border-bottom-left-radius: 6px !important;
+        }
+        
+        .p-inputnumber-button-plus {
+            border-top-right-radius: 6px !important;
+            border-bottom-right-radius: 6px !important;
+        }
+        
+        .uta-qty-input {
+            border: 1px solid #cbd5e1 !important;
+            height: 34px !important;
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            width: 50px !important;
+            padding: 0 !important;
+            text-align: center !important;
+            box-shadow: none !important;
+        }
     }
 }

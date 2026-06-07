@@ -15,85 +15,233 @@ import { MessageService } from 'primeng/api';
   standalone: true,
   imports: [CommonModule, FormsModule, CardModule, ButtonModule, DropdownModule],
   template: `
-    <div class="flex align-items-center justify-content-center min-h-screen bg-layout-grid p-4">
-      <div class="glass-card p-6 shadow-8 border-round-xl fadein animation-duration-500" style="width: 100%; max-width: 450px;">
-        <div class="text-center mb-5">
-            <div class="inline-flex align-items-center justify-content-center logo-circle mb-3" style="width: 80px; height: 80px;">
-                <i class="bi bi-geo-alt text-4xl"></i>
+    <div class="uta-bg-wrapper">
+      <div class="uta-login-container">
+        <div class="uta-login-card">
+          
+          <!-- Header with Logo -->
+          <div class="uta-login-header">
+            <div class="uta-login-logo">
+              <i class="bi bi-geo-alt"></i>
             </div>
-            <h2 class="text-900 font-bold m-0" style="font-family: 'Inter', sans-serif;">Seleccione sucursal</h2>
-            <p class="text-600 mt-2">Bienvenido, <span class="username-highlight font-semibold">{{username}}</span></p>
-        </div>
-        
-        <div class="flex flex-column gap-4">
-          <div class="flex flex-column gap-2">
-            <label class="font-medium text-700" style="font-size: 0.88rem; font-weight: 600;">Punto de Emisión</label>
-            <p-dropdown [options]="sucursales" [(ngModel)]="selectedSucursalId" 
-                        optionLabel="nombre" optionValue="id"
-                        placeholder="Elija una sucursal para operar" 
-                        styleClass="w-full custom-dropdown"></p-dropdown>
+            <h1 class="uta-login-title">Seleccione Sucursal</h1>
+            <p class="uta-login-subtitle">Bienvenido de vuelta, <span class="username-highlight">{{username}}</span></p>
+          </div>
+
+          <!-- Form Section -->
+          <div class="flex flex-column gap-4">
+            <div class="uta-form-group">
+              <label class="uta-form-label">Punto de Emisión</label>
+              <div class="custom-dropdown">
+                <p-dropdown [options]="sucursales" [(ngModel)]="selectedSucursalId" 
+                            optionLabel="nombre" optionValue="id"
+                            placeholder="Elija una sucursal para operar" 
+                            styleClass="w-full"></p-dropdown>
+              </div>
+            </div>
+            
+            <button pButton label="INGRESAR AHORA" icon="pi pi-check" 
+                    class="uta-login-btn w-full" 
+                    [disabled]="!selectedSucursalId"
+                    (click)="confirmar()"></button>
+            
+            <div class="secure-footer">
+              <i class="bi bi-shield-lock-fill"></i>
+              <span>Acceso de operador seguro</span>
+            </div>
           </div>
           
-          <button pButton label="INGRESAR AHORA" icon="pi pi-check" 
-                  class="w-full p-button-lg p-button-raised border-round-lg p-3 text-xl font-bold uta-login-btn" 
-                  [disabled]="!selectedSucursalId"
-                  (click)="confirmar()"></button>
-          
-          <div class="text-center mt-2">
-            <span class="text-400 text-xs uppercase tracking-wider">Sistema de Gestión de Ventas v2.0</span>
-          </div>
         </div>
       </div>
     </div>
 
     <style>
-      .bg-layout-grid {
-        background-color: #fdfcfc;
+      .uta-bg-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1000;
+        background-color: #f8fafc;
         background-image: radial-gradient(at 100% 0%, rgba(107, 26, 51, 0.04) 0px, transparent 50%),
-                          radial-gradient(at 0% 100%, rgba(107, 26, 51, 0.02) 0px, transparent 50%);
+                          radial-gradient(at 0% 100%, rgba(107, 26, 51, 0.03) 0px, transparent 50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
       }
-      .glass-card {
+
+      .uta-login-container {
+        width: 100%;
+        max-width: 440px;
+        padding: 1.5rem;
+        position: relative;
+        z-index: 10;
+      }
+
+      .uta-login-card {
         background: #ffffff;
         border-radius: 16px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.01), 0 20px 40px rgba(107, 26, 51, 0.02);
+        padding: 3rem 2.5rem;
+        border: 1px solid rgba(107, 26, 51, 0.06);
+        animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .logo-circle {
-        background: #fdf5f7;
+
+      @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .uta-login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .uta-login-logo {
+        width: 60px;
+        height: 60px;
+        background: rgba(107, 26, 51, 0.04);
         color: #6B1A33;
         border-radius: 14px;
-        border: 1px solid #fae6ec;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin: 0 auto 1.25rem;
+        border: 1px solid rgba(107, 26, 51, 0.1);
+        box-shadow: 0 4px 12px rgba(107, 26, 51, 0.05);
       }
+
+      .uta-login-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.5px;
+      }
+
+      .uta-login-subtitle {
+        font-size: 0.88rem;
+        color: #64748b;
+        margin: 8px 0 0 0;
+        font-weight: 500;
+      }
+
       .username-highlight {
         color: #6B1A33;
+        font-weight: 700;
       }
+
+      .uta-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .uta-form-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+      }
+
+      /* PrimeNG Dropdown styling overrides */
       :host ::ng-deep .custom-dropdown .p-dropdown {
-        background: #ffffff;
-        border: 1px solid #d1d5db;
+        width: 100%;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
         border-radius: 8px;
+        padding: 2px 4px;
         transition: all 0.2s;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02);
       }
-      :host ::ng-deep .custom-dropdown .p-dropdown:hover {
-        border-color: #6B1A33;
+
+      :host ::ng-deep .custom-dropdown .p-dropdown:not(.p-disabled):hover {
+        border-color: #cbd5e1;
       }
+
+      :host ::ng-deep .custom-dropdown .p-dropdown.p-focus {
+        border-color: #6B1A33;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(107, 26, 51, 0.1);
+      }
+
+      :host ::ng-deep .custom-dropdown .p-dropdown .p-dropdown-label {
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        color: #1e293b;
+      }
+
+      :host ::ng-deep .custom-dropdown .p-dropdown .p-dropdown-label.p-placeholder {
+        color: #94a3b8;
+      }
+
+      :host ::ng-deep .custom-dropdown .p-dropdown .p-dropdown-trigger {
+        width: 3rem;
+        color: #64748b;
+      }
+
+      /* Submit Button */
       .uta-login-btn {
         background: #6B1A33 !important;
         border: none !important;
-        color: #ffffff !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(107, 26, 51, 0.1) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        box-shadow: 0 4px 12px rgba(107, 26, 51, 0.15) !important;
+        margin-top: 10px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        height: auto !important;
       }
+
       .uta-login-btn:hover:not(:disabled) {
-        background: #8b2041 !important;
-        box-shadow: 0 4px 8px rgba(107, 26, 51, 0.15) !important;
+        background: #5A1428 !important;
+        box-shadow: 0 6px 16px rgba(107, 26, 51, 0.3) !important;
         transform: translateY(-1px) !important;
       }
+
       .uta-login-btn:disabled {
-        background: #e5e7eb !important;
-        color: #9ca3af !important;
+        background: #e2e8f0 !important;
+        color: #94a3b8 !important;
         cursor: not-allowed !important;
         box-shadow: none !important;
+      }
+
+      /* Secure SSL Footer */
+      .secure-footer {
+        margin-top: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: #94a3b8;
+        font-size: 0.78rem;
+        font-weight: 500;
+      }
+
+      .secure-footer i {
+        color: #22c55e;
+        font-size: 0.9rem;
+        margin-right: 4px;
+      }
+
+      @media (max-width: 576px) {
+        .uta-login-container {
+          padding: 1rem;
+        }
+        
+        .uta-login-card {
+          padding: 2.5rem 1.5rem;
+        }
       }
     </style>
   `
@@ -116,10 +264,9 @@ export class SelectSucursalComponent implements OnInit {
   cargarSucursales() {
     this.sucursalService.obtenerTodas().subscribe({
       next: (data: Sucursal[]) => {
-        // Permitir a TODOS ver TODAS las sucursales según nuevo requerimiento
+        // Restaurado: Todos ven todas las sucursales
         this.sucursales = data;
         
-        // Intentar pre-seleccionar la sucursal del usuario si existe
         const userSucursalId = sessionStorage.getItem('sucursalId');
         if (userSucursalId && data.some(s => s.id === userSucursalId)) {
           this.selectedSucursalId = userSucursalId;

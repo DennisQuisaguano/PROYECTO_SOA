@@ -29,7 +29,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
-import { Subject, takeUntil, forkJoin, map } from 'rxjs';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Subject, takeUntil, forkJoin, map, catchError, of } from 'rxjs';
 
 interface ItemVenta {
   inventario: Inventario;
@@ -44,8 +45,9 @@ interface ItemVenta {
     CommonModule, FormsModule, ReactiveFormsModule, MonedaPipe,
     CardModule, InputTextModule, ButtonModule, AutoCompleteModule, 
     TableModule, InputNumberModule, DialogModule, ToastModule, TooltipModule, TagModule,
-    DropdownModule
+    DropdownModule, ConfirmDialogModule
   ],
+  providers: [ConfirmationService],
   templateUrl: './nueva-venta.component.html',
   styleUrl: './nueva-venta.component.scss'
 })
@@ -54,7 +56,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   private inventarioService = inject(InventarioService);
   private productoService = inject(ProductoService);
   private ventaService = inject(VentaService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
   private solicitudStockService = inject(SolicitudStockService);
   private notificationService = inject(NotificationService);
   private realtimeNotificationService = inject(RealtimeNotificationService);
@@ -100,16 +102,18 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   itemParaTraslado: any = null;
   cantidadTraslado = 1;
 
+  // ─── Explorador Externo ──────────────────────────────────────────
   displayBusquedaSucursalDialog = false;
+  loadingRemoto = false;
+  inventarioRemotoTotal: any[] = [];
+  inventarioRemotoFiltrado: any[] = [];
+  termBusquedaRemota = '';
+  searchFieldRemoto = 'productoNombre';
+  categoriaFiltroRemoto: string | null = null;
+
   sucursales: Sucursal[] = [];
   categorias: Categoria[] = [];
-  sucursalDestinoSeleccionada: string = '';
-  categoriaSeleccionadaBusqueda: any = null;
-  categoriasFiltradas: any[] = [];
-  inventarioRemoto: Inventario[] = [];
-  inventarioRemotoFiltrado: Inventario[] = [];
-  termBusquedaRemota = '';
-
+  
   productosEnOtrasSucursales: Map<string, { sucursal: Sucursal; stock: number }[]> = new Map();
 
   readonly IVA_PORCENTAJE = 0.15;
@@ -198,7 +202,8 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     const sucursalesOtras = this.sucursales.filter(s => s.id !== sucursalActualId);
     const requests = sucursalesOtras.map(suc =>
       this.inventarioService.findDisponiblesBySucursalId(suc.id).pipe(
-        map(items => ({ sucursal: suc, items }))
+        map(items => ({ sucursal: suc, items })),
+        catchError(() => of({ sucursal: suc, items: [] }))
       )
     );
     forkJoin(requests).subscribe(results => {
@@ -211,6 +216,8 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
           this.productosEnOtrasSucursales.get(inv.productoId)!.push({ sucursal, stock: inv.stock });
         });
       });
+      // Sincronizar el inventario remoto total para el explorador
+      this.cargarInventarioRemotoGlobal();
     });
   }
 
@@ -220,39 +227,49 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   }
 
   abrirBusquedaSucursal() {
-    this.sucursalDestinoSeleccionada = '';
-    this.categoriaSeleccionadaBusqueda = null;
-    this.inventarioRemoto = [];
-    this.inventarioRemotoFiltrado = [];
-    this.termBusquedaRemota = '';
     this.displayBusquedaSucursalDialog = true;
+    this.cargarInventarioRemotoGlobal();
   }
 
-  onSucursalDestinoChange() {
-    if (this.sucursalDestinoSeleccionada) {
-      this.inventarioService.findBySucursalId(this.sucursalDestinoSeleccionada).subscribe(data => {
-        this.inventarioRemoto = data;
-        this.filtrarInventarioRemoto();
-      });
-    }
+  cargarInventarioRemotoGlobal() {
+    const sucursalActualId = this.authService.getSucursalId();
+    if (!sucursalActualId) return;
+
+    this.loadingRemoto = true;
+    const sucursalesOtras = this.sucursales.filter(s => s.id !== sucursalActualId);
+    
+    const requests = sucursalesOtras.map(suc =>
+      this.inventarioService.findDisponiblesBySucursalId(suc.id).pipe(
+        map(items => items.map(i => ({ ...i, sucursalNombre: suc.nombre }))),
+        catchError(() => of([]))
+      )
+    );
+
+    forkJoin(requests).subscribe(results => {
+      this.inventarioRemotoTotal = results.flat();
+      this.filtrarInventarioRemoto();
+      this.loadingRemoto = false;
+    });
   }
 
   filtrarInventarioRemoto() {
-    if (!this.inventarioRemoto) return;
-    let filtrado = [...this.inventarioRemoto];
-    
-    // FILTRO: Solo productos que NO existan en la sucursal actual
+    // REQUERIMIENTO: Solo productos que NO existan en la sucursal actual
     const idsLocales = new Set(this.inventarioLocal.map(i => i.productoId));
-    filtrado = filtrado.filter(i => !idsLocales.has(i.productoId));
+    let filtered = this.inventarioRemotoTotal.filter(i => !idsLocales.has(i.productoId));
 
-    if (this.categoriaSeleccionadaBusqueda) {
-      filtrado = filtrado.filter(i => i.categoriaId === this.categoriaSeleccionadaBusqueda);
+    if (this.categoriaFiltroRemoto) {
+      filtered = filtered.filter(i => i.categoriaId === this.categoriaFiltroRemoto);
     }
-    if (this.termBusquedaRemota) {
+
+    if (this.termBusquedaRemota.trim()) {
       const term = this.termBusquedaRemota.toLowerCase().trim();
-      filtrado = filtrado.filter(i => i.productoNombre.toLowerCase().includes(term) || i.productoId.toLowerCase().includes(term));
+      filtered = filtered.filter(i => {
+        const value = (i as any)[this.searchFieldRemoto];
+        return value && value.toString().toLowerCase().includes(term);
+      });
     }
-    this.inventarioRemotoFiltrado = filtrado;
+
+    this.inventarioRemotoFiltrado = filtered;
   }
 
   filtrarClientes() {
@@ -332,47 +349,33 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     }
   }
 
-  traerProducto(item: Inventario) {
-    // Si NO hay stock local (stock === 0), mostramos el modal para que el usuario elija cuánto traer
-    if (this.itemSeleccionado?.stock === 0) {
-      this.itemParaTraslado = item;
-      this.cantidadTraslado = 1;
-      this.displayCantidadDialog = true;
-    } else {
-      // Si HAY stock local pero es insuficiente, usamos la confirmación automática
-      let cantidadSolicitadaOriginal = this.cantidadFaltanteCalculada || 1;
-      let cantidadAPedir = cantidadSolicitadaOriginal;
-      let mensajeAdvertencia = '';
-      
-      if (cantidadAPedir > item.stock) {
-        mensajeAdvertencia = `Nota: El pedido requiere ${cantidadSolicitadaOriginal} unidades, pero la sucursal "${item.sucursalNombre}" solo cuenta con ${item.stock}. `;
-        cantidadAPedir = item.stock;
-      }
-
-      this.confirmationService.confirm({
-        message: `${mensajeAdvertencia}¿Está seguro que desea solicitar ${cantidadAPedir} unidades de "${item.productoNombre}"?`,
-        header: 'Confirmar Solicitud de Traslado',
-        icon: 'pi pi-exclamation-circle',
-        acceptLabel: 'Sí, solicitar',
-        rejectLabel: 'No, cancelar',
-        accept: () => {
-          const destinoId = this.authService.getSucursalId()!;
-          this.solicitudStockService.crear(item.sucursalId, destinoId, item.productoId, cantidadAPedir).subscribe({
-            next: () => {
-              this.messageService.add({ severity: 'info', summary: 'Enviada', detail: `Solicitud de ${cantidadAPedir} uds. enviada con éxito.` });
-              this.displayGlobalStock = false;
-              this.displayBusquedaSucursalDialog = false;
-            }
-          });
+  traerProducto(item: any) {
+    this.confirmationService.confirm({
+      key: 'posActionDialog',
+      header: 'Confirmar Solicitud de Traslado',
+      message: `¿Está seguro que desea solicitar unidades de <b>"${item.productoNombre}"</b> a la sucursal <b>${item.sucursalNombre}</b>?`,
+      icon: 'pi pi-truck',
+      acceptLabel: 'SÍ, SOLICITAR',
+      rejectLabel: 'CANCELAR',
+      acceptButtonStyleClass: 'p-button-primary p-button-raised',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
+      accept: () => {
+        if (this.itemSeleccionado?.stock === 0 || !this.itemSeleccionado) {
+          this.itemParaTraslado = item;
+          this.cantidadTraslado = 1;
+          this.displayCantidadDialog = true;
+        } else {
+          this.itemParaTraslado = item;
+          this.cantidadTraslado = this.cantidadFaltanteCalculada || 1;
+          this.confirmarTraslado();
         }
-      });
-    }
+      }
+    });
   }
 
   confirmarTraslado() {
     if (!this.itemParaTraslado || this.cantidadTraslado <= 0) return;
     
-    // VALIDACIÓN: No pedir más de lo que tiene la sucursal de origen
     if (this.cantidadTraslado > this.itemParaTraslado.stock) {
       this.messageService.add({
         severity: 'error',
@@ -385,7 +388,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     const destinoId = this.authService.getSucursalId()!;
     this.solicitudStockService.crear(this.itemParaTraslado.sucursalId, destinoId, this.itemParaTraslado.productoId, this.cantidadTraslado).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Enviada', detail: `Solicitud de ${this.cantidadTraslado} uds. enviada con éxito.` });
+        this.messageService.add({ severity: 'success', summary: 'Solicitud Enviada', detail: `Se ha solicitado el stock correctamente.` });
         this.displayCantidadDialog = false;
         this.displayGlobalStock = false;
         this.displayBusquedaSucursalDialog = false;
@@ -402,7 +405,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
         summary: 'Sin Stock Local',
         detail: 'Este producto no tiene stock en esta sucursal. Consulte disponibilidad en otras sedes.'
       });
-      this.cantidadFaltanteCalculada = 1; // Por defecto pedimos 1 si no hay nada
+      this.cantidadFaltanteCalculada = 1;
       this.consultarEnOtrasSucursales();
       return;
     }

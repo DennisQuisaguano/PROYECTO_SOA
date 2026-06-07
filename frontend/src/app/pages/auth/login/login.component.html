@@ -1,7 +1,8 @@
 <div class="uta-bg-wrapper">
   <div class="uta-login-container">
     <div class="uta-login-card">
-      <!-- Logo Section -->
+      
+      <!-- Header with Logo -->
       <div class="uta-login-header">
         <div class="uta-login-logo">
           <i class="bi bi-shop"></i>
@@ -26,8 +27,8 @@
               [class.shake-animation]="loginForm.get('username')?.touched && loginForm.get('username')?.invalid" 
             />
           </div>
-          <small *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']" class="form-error text-danger" style="font-size: 0.78rem; margin-top: 2px;">
-            Usuario requerido
+          <small *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']" class="form-error-text">
+            El usuario es obligatorio
           </small>
         </div>
 
@@ -42,41 +43,36 @@
               [feedback]="false" 
               [toggleMask]="true" 
               styleClass="w-full" 
-              inputStyleClass="uta-form-control"
+              inputStyleClass="uta-form-control-password"
               placeholder="Ingrese su contraseña"
               [class.shake-animation]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
             ></p-password>
           </div>
-          <small *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']" class="form-error text-danger" style="font-size: 0.78rem; margin-top: 2px;">
-            Contraseña requerida
+          <small *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']" class="form-error-text">
+            La contraseña es obligatoria
           </small>
         </div>
 
         <!-- Error Message -->
-        <div *ngIf="errorMessage" class="alert alert-error mt-2" style="padding: 10px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; background: rgba(220,38,38,0.08); color: #dc2626; border: 1px solid rgba(220,38,38,0.2);">
-          <i class="bi bi-exclamation-triangle"></i>
+        <div *ngIf="errorMessage" class="error-alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
           <span>{{ errorMessage }}</span>
         </div>
 
         <!-- Submit Button -->
-        <button 
-          type="submit" 
-          class="uta-login-btn"
-          [disabled]="loading"
-        >
-          <i class="bi bi-arrow-repeat spin" *ngIf="loading"></i>
+        <button type="submit" class="uta-login-btn" [disabled]="loading">
+          <i class="bi bi-arrow-repeat spin-loader" *ngIf="loading"></i>
           <i class="bi bi-box-arrow-in-right" *ngIf="!loading"></i>
           <span>{{ loading ? 'Ingresando...' : 'Ingresar' }}</span>
         </button>
 
         <!-- Footer Text -->
-        <div class="uta-login-footer">
-          <p>
-            <i class="bi bi-shield-check text-success"></i>
-            Conexión segura SSL
-          </p>
+        <div class="secure-footer">
+          <i class="bi bi-shield-lock-fill"></i>
+          <span>Conexión segura SSL</span>
         </div>
       </form>
+      
     </div>
   </div>
 </div>

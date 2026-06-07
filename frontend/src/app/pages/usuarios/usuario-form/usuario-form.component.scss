@@ -24,6 +24,13 @@
   gap: 6px;
 }
 
+.uta-form-label-checkbox {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #475569;
+  user-select: none;
+}
+
 .uta-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -36,7 +43,7 @@
   }
 }
 
-/* Input Wrappers & Controls */
+/* Form Inputs styling */
 .uta-input-icon-wrapper {
   position: relative;
   display: flex;
@@ -79,19 +86,41 @@
   }
 }
 
-.uta-form-control.is-invalid {
-  border-color: #dc2626 !important;
-  background-color: #fffafb;
+/* Password layout overrides */
+.uta-password-container {
+  width: 100%;
+
+  ::ng-deep {
+    .p-password {
+      width: 100%;
+    }
+
+    .uta-form-control-password {
+      width: 100%;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: #1e293b;
+      outline: none;
+      transition: all 0.2s;
+
+      &::placeholder {
+        color: #94a3b8;
+        font-size: 0.85rem;
+      }
+
+      &:focus {
+        border-color: #6B1A33 !important;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(107, 26, 51, 0.1);
+      }
+    }
+  }
 }
 
-.form-error-text {
-  color: #dc2626;
-  font-size: 0.72rem;
-  font-weight: 600;
-  margin-top: 0.25rem;
-}
-
-/* PrimeNG Dropdown & inputNumber nested overrides */
+/* PrimeNG Dropdown & Checkbox overrides */
 :host ::ng-deep {
   .uta-dropdown-control {
     width: 100%;
@@ -111,11 +140,6 @@
       box-shadow: 0 0 0 3px rgba(107, 26, 51, 0.1);
     }
 
-    &.is-invalid {
-      border-color: #dc2626 !important;
-      background-color: #fffafb;
-    }
-
     .p-dropdown-label {
       padding: 8px 12px;
       font-size: 0.9rem;
@@ -132,30 +156,34 @@
     }
   }
 
-  p-inputNumber {
-    width: 100%;
-    display: block;
-    border: none !important;
+  .p-checkbox .p-checkbox-box {
+    border-radius: 4px;
+    border: 2px solid #e2e8f0;
+    width: 18px;
+    height: 18px;
+    transition: all 0.2s;
+    
+    &.p-highlight {
+      background: #6B1A33;
+      border-color: #6B1A33;
+    }
 
-    .p-inputnumber-input {
-      width: 100%;
-      border: none !important;
-      background: transparent !important;
-      padding: 10px 14px 10px 38px !important; /* Correct offset so it doesn't overlap absolute icons */
-      font-size: 0.9rem;
-      color: #1e293b;
-      outline: none !important;
-      box-shadow: none !important;
-
-      &::placeholder {
-        color: #94a3b8;
-        font-size: 0.85rem;
-      }
+    &:not(.p-disabled):hover {
+      border-color: #cbd5e1;
     }
   }
 }
 
-/* Footer & Buttons */
+.form-error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .uta-modal__footer {
   display: flex;
   justify-content: flex-end;

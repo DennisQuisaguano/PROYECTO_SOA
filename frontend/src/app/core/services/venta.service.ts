@@ -27,6 +27,13 @@ export class VentaService {
     return this.http.get<VentaResponse>(`${this.apiUrl}/${id}`);
   }
 
+  obtenerTodas(page = 0, size = 10): Observable<Page<VentaResponse>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<Page<VentaResponse>>(this.apiUrl, { params });
+  }
+
   findBySucursalId(sucursalId: string, page = 0, size = 10): Observable<Page<VentaResponse>> {
     const params = new HttpParams()
       .set('page', page.toString())

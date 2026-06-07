@@ -29,6 +29,11 @@ public class VentaController {
         return new ResponseEntity<>(ventaService.create(dto), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<VentaResponseDTO>> findAll(Pageable pageable) {
+        return ResponseEntity.ok(ventaService.findAll(pageable));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<VentaResponseDTO> findById(@PathVariable String id) {
         return ResponseEntity.ok(ventaService.findById(id));

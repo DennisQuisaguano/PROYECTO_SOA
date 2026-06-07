@@ -9,8 +9,11 @@ public class InventarioResponseDTO {
     private String sucursalNombre;
     private String productoId;
     private String productoNombre;
+    private String descripcion;
     private String categoriaId;
     private String categoriaNombre;
+    private java.math.BigDecimal costoUnitario;
     private java.math.BigDecimal precioVenta;
     private Integer stock;
+    private Boolean activo;
 }

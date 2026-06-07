@@ -50,4 +50,11 @@ public class ClienteController {
     public ResponseEntity<ClienteResponseDTO> update(@PathVariable String id, @Valid @RequestBody ClienteRequestDTO dto) {
         return ResponseEntity.ok(clienteService.update(id, dto));
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        clienteService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

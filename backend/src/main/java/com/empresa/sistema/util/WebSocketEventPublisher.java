@@ -30,4 +30,8 @@ public class WebSocketEventPublisher {
     public void publicarCambioProducto(ProductoEvent evento) {
         messagingTemplate.convertAndSend("/topic/productos", evento);
     }
+
+    public void publicarCambioCliente(ClienteEvent evento) {
+        messagingTemplate.convertAndSend("/topic/clientes", evento);
+    }
 }

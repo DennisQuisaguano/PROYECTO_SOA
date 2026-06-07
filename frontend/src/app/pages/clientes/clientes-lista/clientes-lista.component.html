@@ -4,90 +4,107 @@
     <div class="uta-page-header__left">
       <div class="uta-breadcrumb">
         <span routerLink="/">Inicio</span>
-        <i class="pi pi-chevron-right uta-breadcrumb__sep"></i>
-        <span class="uta-breadcrumb__active">Directorio de Clientes</span>
+        <span class="uta-breadcrumb__sep">›</span>
+        <span class="uta-breadcrumb__active">Gestión de Clientes</span>
       </div>
       <h1 class="uta-page-title">
-        <i class="pi pi-users uta-page-title__icon"></i>
+        <i class="bi bi-people-fill text-warning uta-page-title__icon"></i>
         Gestión de Clientes
       </h1>
-      <p class="uta-page-subtitle">
-        {{ isAdmin ? 'Administración centralizada de la base de datos de clientes' : 'Consulta de datos para facturación' }}
-      </p>
+      <p class="uta-page-subtitle">Administre el directorio de clientes registrados en el sistema</p>
     </div>
     <div class="uta-page-header__right">
-      <button class="uta-btn uta-btn--primary" *ngIf="isAdmin" (click)="nuevoCliente()">
-        <i class="pi pi-user-plus"></i> NUEVO CLIENTE
+      <button class="uta-btn-primary-wine" *ngIf="isAdmin" (click)="nuevoCliente()">
+        <i class="bi bi-person-plus-fill"></i> &nbsp;Nuevo Cliente
       </button>
     </div>
   </div>
 
-  <!-- ==================== SEARCH SECTION ==================== -->
-  <div class="uta-card mb-4">
-    <div class="uta-card__header">
-      <span class="uta-card__header-icon"><i class="pi pi-search"></i></span>
-      Filtros de Búsqueda
+  <!-- Tabs Row -->
+  <div class="client-tabs-row">
+    <button class="client-tab-btn" [class.active]="estadoFilter === 'TODOS'" (click)="filtrarPorEstado('TODOS')">
+      <i class="bi bi-people"></i> Todos
+    </button>
+    <button class="client-tab-btn" [class.active]="estadoFilter === 'ACTIVOS'" (click)="filtrarPorEstado('ACTIVOS')">
+      <i class="bi bi-check-circle"></i> Activos
+    </button>
+    <button class="client-tab-btn" [class.active]="estadoFilter === 'INACTIVOS'" (click)="filtrarPorEstado('INACTIVOS')">
+      <i class="bi bi-x-circle"></i> Inactivos
+    </button>
+  </div>
+
+  <!-- ==================== MAIN CARD SECTION ==================== -->
+  <div class="uta-card-new">
+    <div class="uta-card-header-new">
+      <div class="uta-card-header-left-new">
+        <i class="bi bi-search uta-card-header-icon-new"></i>
+        Directorio y Búsqueda
+      </div>
     </div>
-    <div class="uta-card__body">
-      <div class="uta-search-bar">
-        <select class="uta-search-bar__select" [(ngModel)]="searchField">
+    
+    <div class="uta-card-body-new">
+      <div class="search-client-grid">
+        <select class="search-field-select-new" [(ngModel)]="searchField" (change)="applyFilter()">
           <option value="cedula">Cédula</option>
           <option value="nombre">Nombre</option>
           <option value="email">Email</option>
         </select>
-        <input type="text" class="uta-search-bar__input" placeholder="Escriba para buscar..."
-               [(ngModel)]="searchTerm" (keyup.enter)="applyFilter()">
-        <button class="uta-btn uta-btn--primary uta-search-bar__btn" (click)="applyFilter()">
-          <i class="pi pi-search"></i> BUSCAR
+        <input type="text" class="search-text-input-new" placeholder="Escriba para filtrar clientes..."
+               [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()">
+        <button class="search-action-btn-new" (click)="applyFilter()">
+          <i class="bi bi-search"></i>
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- ==================== TABLE SECTION ==================== -->
-  <div class="uta-card">
-    <div class="uta-card__header">
-      <span class="uta-card__header-icon"><i class="pi pi-list"></i></span>
-      Listado de Clientes
-      <span class="uta-badge uta-badge--light ml-auto">{{ filteredClientes.length }} registros</span>
+    <!-- List Header -->
+    <div class="list-header-row">
+      <span class="list-header-title">LISTADO DE CLIENTES</span>
+      <span class="shown-count-badge">{{ filteredClientes.length }} de {{ clientes.length }} mostrados</span>
     </div>
-    <div class="uta-card__body p-0">
+
+    <div class="uta-card-body-new p-0">
       <div class="uta-table-wrap">
         <p-table [value]="filteredClientes" [loading]="loading" [paginator]="true" [rows]="10"
-                 styleClass="p-datatable-sm uta-table">
+                 styleClass="p-datatable-sm uta-table-new" [responsive]="true">
           <ng-template pTemplate="header">
             <tr>
-              <th style="width: 140px;">Cédula</th>
-              <th>Nombre Completo</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th class="text-center" style="width: 5rem;" *ngIf="isAdmin">Acciones</th>
+              <th style="width: 100px;">ID</th>
+              <th>NOMBRES Y APELLIDOS</th>
+              <th>CÉDULA</th>
+              <th>TELÉFONO</th>
+              <th>CORREO</th>
+              <th class="text-center">ESTADO</th>
+              <th class="text-center" style="width: 120px;" *ngIf="isAdmin">ACCIONES</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-cliente>
-            <tr class="hover:bg-gray-50">
-              <td><span class="uta-code-badge">{{ cliente.cedula }}</span></td>
-              <td class="font-bold">{{ cliente | nombreCompleto }}</td>
-              <td class="text-600">
-                <i class="pi pi-envelope mr-1 text-xs"></i>
-                {{ cliente.email }}
-              </td>
-              <td class="text-600">
-                <i class="pi pi-phone mr-1 text-xs"></i>
-                {{ cliente.telefono }}
+            <tr>
+              <td><span class="client-id-badge">{{ cliente.id.substring(0, 4) }}</span></td>
+              <td class="font-bold text-dark client-name-cell">{{ cliente | nombreCompleto }}</td>
+              <td>{{ cliente.cedula }}</td>
+              <td class="text-600">{{ cliente.telefono }}</td>
+              <td class="text-600">{{ cliente.email }}</td>
+              <td class="text-center">
+                <span class="client-status-badge">Activo</span>
               </td>
               <td class="text-center" *ngIf="isAdmin">
-                <button class="uta-icon-btn-outline uta-icon-btn-outline--maroon" (click)="editarCliente(cliente)" title="Editar cliente">
-                  <i class="pi pi-pencil"></i>
-                </button>
+                <div class="d-flex gap-2 justify-content-center">
+                  <button class="action-btn btn-edit-client" (click)="editarCliente(cliente)" title="Editar cliente">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="action-btn btn-delete-client" (click)="eliminarCliente(cliente)" title="Eliminar cliente">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td [attr.colspan]="isAdmin ? 5 : 4" class="uta-table__empty">
+              <td [attr.colspan]="isAdmin ? 7 : 6" class="uta-table__empty">
                 <div class="uta-empty-state">
-                  <i class="pi pi-users uta-empty-state__icon"></i>
+                  <i class="bi bi-people uta-empty-state__icon"></i>
                   <span class="uta-empty-state__text">No se encontraron clientes</span>
                   <span class="uta-empty-state__sub">Intente con otro término de búsqueda</span>
                 </div>
@@ -99,6 +116,9 @@
     </div>
   </div>
 </div>
+
+<!-- ==================== CONFIRM DIALOG ==================== -->
+<p-confirmDialog key="clienteActionDialog" [style]="{width: '450px'}" styleClass="premium-dialog"></p-confirmDialog>
 
 <!-- ==================== DIALOG ==================== -->
 <p-dialog [header]="clienteEditando ? 'Editar Cliente' : 'Nuevo Cliente'" [(visible)]="displayForm" [modal]="true" [style]="{width: '600px'}"

@@ -704,115 +704,126 @@ textarea {
 }
 
 // =============================================================================
-// Confirmation Dialog Premium
-// =============================================================================
-.p-confirm-dialog.premium-confirm {
-  .p-dialog-header {
-    background: linear-gradient(135deg, #5A1428 0%, #8b2342 100%) !important;
-    color: white !important;
-    padding: 1.5rem 2rem !important;
-    border-top-left-radius: 16px !important;
-    border-top-right-radius: 16px !important;
-
-    .p-dialog-title {
-      color: white !important;
-      font-weight: 700 !important;
-    }
-
-    .p-dialog-header-icon {
-      color: rgba(255,255,255,0.8) !important;
-      &:hover {
-        background: rgba(255,255,255,0.1) !important;
-        color: white !important;
-      }
-    }
-  }
-
-  .p-dialog-content {
-    padding: 2rem !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 1.5rem !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-  }
-
-  .p-confirm-dialog-icon {
-    font-size: 3rem !important;
-    color: #6B1A33 !important;
-  }
-
-  .p-confirm-dialog-message {
-    font-size: 1rem !important;
-    color: #475569 !important;
-    line-height: 1.6 !important;
-    font-weight: 500 !important;
-  }
-
-  .p-dialog-footer {
-    padding: 1rem 2rem 1.5rem !important;
-    background: #f8fafc !important;
-    border-top: 1px solid #f1f5f9 !important;
-    border-bottom-left-radius: 16px !important;
-    border-bottom-right-radius: 16px !important;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-
-    .p-button-text {
-      color: #64748b !important;
-      font-weight: 600 !important;
-    }
-
-    .p-confirm-dialog-accept {
-      background: #6B1A33 !important;
-      border: none !important;
-      border-radius: 10px !important;
-      padding: 0.75rem 1.5rem !important;
-      font-weight: 700 !important;
-      box-shadow: 0 4px 12px rgba(107, 26, 51, 0.2) !important;
-
-      &:hover {
-        background: #521528 !important;
-        transform: translateY(-1px) !important;
-      }
-    }
-  }
-}
-
-// =============================================================================
-// Responsive Dialog
-// =============================================================================
 // Premium Dialog Global Styles
 // =============================================================================
 .premium-dialog {
-  .p-dialog-header {
-    background: linear-gradient(135deg, #5A1428 0%, #8b2342 100%) !important;
-    color: white !important;
-    padding: 1.5rem 2rem !important;
-    border-top-left-radius: 16px !important;
-    border-top-right-radius: 16px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border: none !important;
 
-    .p-dialog-title {
-      color: white !important;
-      font-weight: 700 !important;
+  .p-dialog-header {
+    background: linear-gradient(135deg, #5A1428 0%, #7B1F3A 100%) !important;
+    padding: 1.5rem 2rem !important;
+    border-bottom: none !important;
+
+    // Force all header text to be white
+    &, *, .p-dialog-title, .p-confirm-dialog-title {
+      color: #ffffff !important;
+    }
+
+    .p-dialog-title, .p-confirm-dialog-title {
+      font-weight: 800 !important;
       font-size: 1.25rem !important;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.025em !important;
+      color: #ffffff !important; // Re-asserting color here
+    }
+
+    span.p-dialog-title, span.p-confirm-dialog-title {
+      color: #ffffff !important; // Even more specific
     }
 
     .p-dialog-header-icon {
-      color: rgba(255, 255, 255, 0.8) !important;
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-radius: 50% !important;
+      width: 32px !important;
+      height: 32px !important;
+      transition: all 0.2s !important;
+
       &:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
         color: white !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: rotate(90deg);
       }
     }
   }
 
   .p-dialog-content {
     padding: 2rem !important;
-    border-bottom-left-radius: 16px !important;
-    border-bottom-right-radius: 16px !important;
+    background: #ffffff !important;
+  }
+
+  /* Specific styling for Confirmation Dialogs using this class */
+  &.p-confirm-dialog {
+    .p-dialog-content {
+      display: flex !important;
+      align-items: center !important;
+      gap: 1.5rem !important;
+      padding: 2.5rem 2rem !important;
+    }
+
+    .p-confirm-dialog-icon {
+      font-size: 3.5rem !important;
+      color: #7B1F3A !important;
+      flex-shrink: 0;
+    }
+
+    .p-confirm-dialog-message {
+      font-size: 1.05rem !important;
+      color: #334155 !important;
+      line-height: 1.6 !important;
+      font-weight: 500 !important;
+      
+      b, strong {
+        color: #1a1a1a;
+        font-weight: 700;
+      }
+    }
+
+    .p-dialog-footer {
+      padding: 1.25rem 2rem !important;
+      background: #f8fafc !important;
+      border-top: 1px solid #f1f5f9 !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 12px !important;
+
+      button {
+        margin: 0 !important;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.025em !important;
+        transition: all 0.2s !important;
+      }
+
+      .p-confirm-dialog-reject {
+        background: transparent !important;
+        color: #64748b !important;
+        border: 2px solid #e2e8f0 !important;
+        
+        &:hover {
+          background: #f1f5f9 !important;
+          border-color: #cbd5e1 !important;
+          color: #1e293b !important;
+        }
+      }
+
+      .p-confirm-dialog-accept {
+        background: #7B1F3A !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(123, 31, 58, 0.2) !important;
+
+        &:hover {
+          background: #5A1428 !important;
+          box-shadow: 0 6px 20px rgba(123, 31, 58, 0.4) !important;
+          transform: translateY(-2px) !important;
+        }
+      }
+    }
   }
 }
 

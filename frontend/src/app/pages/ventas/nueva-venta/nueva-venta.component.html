@@ -201,10 +201,8 @@
                 </div>
                 <div class="uta-card__body">
                     <div class="uta-biz-info mb-3">
-                        <div class="uta-biz-name"><i class="bi bi-shop"></i> MI NEGOCIO POS</div>
-                        <div class="uta-biz-detail"><i class="bi bi-geo-alt-fill"></i> Calle Principal y Secundaria</div>
-                        <div class="uta-biz-detail"><i class="bi bi-telephone-fill"></i> 0999 999 999</div>
-                        <div class="uta-biz-detail"><i class="bi bi-file-earmark-text-fill"></i> RUC: 9999999999001</div>
+                        <div class="uta-biz-name"><i class="bi bi-shop"></i> {{sucursalNombre}}</div>
+                        <div class="uta-biz-detail"><i class="bi bi-geo-alt-fill"></i> Operación Local</div>
                     </div>
 
                     <div class="uta-divider"></div>
@@ -452,71 +450,76 @@
     <div class="uta-modal uta-modal--lg">
         <div class="uta-modal__header">
             <div>
-                <h3 class="uta-modal__title"><i class="bi bi-map"></i> &nbsp;Explorador de Inventario Externo</h3>
-                <p class="uta-modal__subtitle">Solicite traslados de mercadería desde otras sucursales</p>
+                <h3 class="uta-modal__title" style="color: #ffffff !important;">
+                    <i class="bi bi-globe-americas"></i> &nbsp;Explorador de Inventario Externo
+                </h3>
+                <p class="uta-modal__subtitle" style="color: rgba(255,255,255,0.8) !important;">
+                    Consulte productos disponibles en otras sedes que no existen en su stock local
+                </p>
             </div>
             <button class="uta-modal__close" (click)="displayBusquedaSucursalDialog = false"><i class="bi bi-x-lg"></i></button>
         </div>
         <div class="uta-modal__body">
-            <!-- Sección de Filtros Alineada -->
-            <div class="uta-card mb-4" style="background: #f8f9fa; border: 1px solid #dee2e6;">
+            <!-- Buscador Unificado Premium -->
+            <div class="uta-card mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
                 <div class="uta-card__body py-3">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div>
-                            <label class="uta-data-item__label mb-2 d-block">Sucursal de Origen</label>
-                            <p-dropdown [options]="sucursales" [(ngModel)]="sucursalDestinoSeleccionada" 
-                                        optionLabel="nombre" optionValue="id" placeholder="Seleccione sucursal..."
-                                        styleClass="w-100" (onChange)="onSucursalDestinoChange()"></p-dropdown>
-                        </div>
-                        <div>
-                            <label class="uta-data-item__label mb-2 d-block">Categoría</label>
-                            <p-dropdown [options]="categorias" [(ngModel)]="categoriaSeleccionadaBusqueda" 
-                                        optionLabel="nombre" optionValue="id" placeholder="Todas las categorías"
-                                        [showClear]="true" styleClass="w-100" (onChange)="filtrarInventarioRemoto()"></p-dropdown>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="uta-data-item__label mb-2 d-block">Búsqueda de Producto</label>
-                        <div class="uta-search-bar" style="margin-bottom: 0;">
-                            <input class="uta-search-bar__input" type="text" [(ngModel)]="termBusquedaRemota" 
-                                   (input)="filtrarInventarioRemoto()" placeholder="ID o Descripción del producto..." />
-                            <button class="uta-btn uta-btn--primary uta-search-bar__btn" (click)="filtrarInventarioRemoto()">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
+                    <div class="uta-search-bar" style="margin-bottom: 0;">
+                        <select class="uta-search-bar__select" [(ngModel)]="categoriaFiltroRemoto" (change)="filtrarInventarioRemoto()">
+                            <option [ngValue]="null">Todas las Categorías</option>
+                            <option *ngFor="let cat of categorias" [value]="cat.id">{{cat.nombre}}</option>
+                        </select>
+                        <select class="uta-search-bar__select" [(ngModel)]="searchFieldRemoto" (change)="filtrarInventarioRemoto()" style="border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                            <option value="productoNombre">Producto</option>
+                            <option value="productoId">Código ID</option>
+                            <option value="sucursalNombre">Sucursal Origen</option>
+                        </select>
+                        <input class="uta-search-bar__input" type="text" [(ngModel)]="termBusquedaRemota" 
+                               (input)="filtrarInventarioRemoto()" placeholder="Escriba para filtrar en tiempo real..." />
+                        <button class="uta-btn uta-btn--primary uta-search-bar__btn" (click)="filtrarInventarioRemoto()">
+                            <i class="bi bi-search"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <p-table [value]="inventarioRemotoFiltrado" [paginator]="true" [rows]="6" styleClass="p-datatable-sm uta-table">
+            <p-table [value]="inventarioRemotoFiltrado" [paginator]="true" [rows]="6" 
+                     [loading]="loadingRemoto" styleClass="p-datatable-sm uta-table">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 120px;">Código (ID)</th>
+                        <th>Sucursal Origen</th>
+                        <th style="width: 100px;">Código</th>
+                        <th>Categoría</th>
                         <th>Descripción del Producto</th>
-                        <th style="text-align:center">Stock Disponible</th>
+                        <th style="text-align:center">Stock Disp.</th>
                         <th style="text-align:center;width:150px">Acción</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
                     <tr>
+                        <td class="font-bold"><i class="bi bi-geo-alt text-primary mr-2"></i>{{item.sucursalNombre}}</td>
                         <td><span class="uta-code-badge">{{item.productoId}}</span></td>
+                        <td><span class="uta-badge uta-badge--light text-xs">{{item.categoriaNombre}}</span></td>
                         <td class="uta-table__bold">{{item.productoNombre}}</td>
                         <td style="text-align:center">
-                            <span class="uta-badge" [ngClass]="item.stock > 0 ? 'uta-badge--green' : 'uta-badge--red'">
+                            <span class="uta-badge" [ngClass]="item.stock > 10 ? 'uta-badge--green' : 'uta-badge--yellow'">
                                 {{item.stock}} uds.
                             </span>
                         </td>
                         <td style="text-align:center">
-                            <button class="uta-btn uta-btn--sm uta-btn--primary" [disabled]="item.stock <= 0" (click)="traerProducto(item)">
-                                <i class="bi bi-send-plus"></i> &nbsp;Solicitar
+                            <button class="uta-btn uta-btn--sm uta-btn--primary" style="background: #6B1A33; border: none;"
+                                    (click)="traerProducto(item)">
+                                <i class="bi bi-send-plus"></i> &nbsp;SOLICITAR
                             </button>
                         </td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="4" class="uta-table__empty">
-                            {{sucursalDestinoSeleccionada ? 'No se encontraron productos con los filtros aplicados' : 'Seleccione una sucursal para consultar su inventario'}}
+                        <td colspan="6" class="uta-table__empty">
+                            <div class="py-4">
+                                <i class="bi bi-search" style="font-size: 2rem; color: #cbd5e1; display: block; margin-bottom: 0.5rem;"></i>
+                                No se encontraron productos externos con los filtros aplicados.
+                            </div>
                         </td>
                     </tr>
                 </ng-template>
@@ -528,55 +531,67 @@
 <!-- Modal Cantidad de Traslado (Solo para Stock 0) -->
 <div class="uta-overlay" *ngIf="displayCantidadDialog" style="z-index: 3000;">
     <div class="uta-modal uta-modal--md">
-        <div class="uta-modal__header" style="background-color: #6B1A33;">
+        <div class="uta-modal__header" style="background: linear-gradient(135deg, #5A1428 0%, #7B1F3A 100%) !important;">
             <div>
-                <h3 class="uta-modal__title"><i class="bi bi-arrow-left-right"></i> &nbsp;Solicitud de Stock Externo</h3>
-                <p class="uta-modal__subtitle">El producto no tiene stock local. Ingrese la cantidad a traer.</p>
+                <h3 class="uta-modal__title" style="color: #ffffff !important;">
+                    <i class="bi bi-arrow-left-right"></i> &nbsp;Cantidad a Solicitar
+                </h3>
+                <p class="uta-modal__subtitle" style="color: rgba(255,255,255,0.8) !important;">
+                    Defina cuántas unidades desea traer de la sucursal externa
+                </p>
             </div>
             <button class="uta-modal__close" (click)="displayCantidadDialog = false"><i class="bi bi-x-lg"></i></button>
         </div>
-        <div class="uta-modal__body py-4">
-            <!-- Info del Producto -->
-            <div class="uta-card mb-4" style="border-left: 4px solid #6B1A33; background: #fdf5f7;">
-                <div class="uta-card__body p-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="uta-client-avatar" style="background: #fff; border-color: #f3e1e6;">
-                            <i class="bi bi-box-seam text-primary" style="font-size: 1.5rem; color: #6B1A33 !important;"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <span class="uta-data-item__label">PRODUCTO AGOTADO LOCALMENTE</span>
-                            <h4 class="m-0" style="font-weight: 800; color: #1a1a1a;">{{itemParaTraslado?.productoNombre}}</h4>
-                            <div class="d-flex gap-2 mt-1">
-                                <span class="uta-code-badge">{{itemParaTraslado?.productoId}}</span>
-                                <span class="uta-badge uta-badge--blue">Origen: {{itemParaTraslado?.sucursalNombre}}</span>
-                            </div>
+        <div class="uta-modal__body py-3">
+            <!-- Info del Producto Compacta -->
+            <div class="product-info-compact">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="product-icon-wrapper">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <span class="info-label">PRODUCTO A SOLICITAR</span>
+                        <h4 class="product-name-title">{{itemParaTraslado?.productoNombre}}</h4>
+                        <div class="product-meta-row">
+                            <span class="meta-badge-code">ID: {{itemParaTraslado?.productoId}}</span>
+                            <span class="meta-badge-origin"><i class="bi bi-building"></i> Origen: {{itemParaTraslado?.sucursalNombre}}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Selector de Cantidad -->
-            <div class="grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div class="uta-form-group">
-                    <label class="uta-data-item__label mb-1">DISPONIBLE EN ORIGEN</label>
-                    <div class="d-flex align-items-center gap-2 p-3 bg-white border rounded-3">
-                        <i class="bi bi-shop-window text-muted"></i>
-                        <span style="font-size: 1.2rem; font-weight: 800;">{{itemParaTraslado?.stock}}</span>
-                        <small class="text-muted font-bold">UDS.</small>
+            <!-- Panel de Transferencia Compacto -->
+            <div class="transfer-panel-grid">
+                <!-- Tarjeta Stock Disponible -->
+                <div class="transfer-card stock-available-card">
+                    <div class="transfer-card-icon"><i class="bi bi-boxes"></i></div>
+                    <div class="transfer-card-content">
+                        <span class="transfer-card-label">Disponible en Origen</span>
+                        <div class="transfer-card-value">
+                            <span class="number-val">{{itemParaTraslado?.stock}}</span>
+                            <span class="unit-val">uds.</span>
+                        </div>
                     </div>
                 </div>
-                <div class="uta-form-group">
-                    <label class="uta-data-item__label mb-1">CANTIDAD A SOLICITAR</label>
-                    <p-inputNumber [(ngModel)]="cantidadTraslado" [min]="1" [max]="itemParaTraslado?.stock || 1" 
-                                  styleClass="w-100" [showButtons]="true" buttonLayout="horizontal"
-                                  incrementButtonIcon="bi bi-plus-lg" decrementButtonIcon="bi bi-dash-lg"
-                                  inputStyleClass="uta-qty-input w-100" [style]="{'text-align':'center', 'font-size':'1.2rem', 'height':'54px'}"></p-inputNumber>
+
+                <!-- Tarjeta Cantidad a Pedir -->
+                <div class="transfer-card stock-request-card">
+                    <div class="transfer-card-icon"><i class="bi bi-plus-slash-minus"></i></div>
+                    <div class="transfer-card-content">
+                        <span class="transfer-card-label">Cantidad a Solicitar</span>
+                        <div class="transfer-input-wrapper">
+                            <p-inputNumber [(ngModel)]="cantidadTraslado" [min]="1" [max]="itemParaTraslado?.stock || 1" 
+                                          styleClass="w-100 request-qty-input" [showButtons]="true" buttonLayout="horizontal"
+                                          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"
+                                          inputStyleClass="uta-qty-input text-center font-bold"></p-inputNumber>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="uta-modal__footer" style="background: #f8f9fa;">
-            <button class="uta-btn uta-btn--outline" (click)="displayCantidadDialog = false">CANCELAR</button>
-            <button class="uta-btn uta-btn--primary uta-btn--lg" (click)="confirmarTraslado()">
+        <div class="uta-modal__footer" style="background: #f8fafc; padding: 1.25rem 1.5rem; border-top: 1px solid #e2e8f0;">
+            <button class="uta-btn uta-btn--outline" (click)="displayCantidadDialog = false" style="border-radius: 10px; font-weight: 700;">CANCELAR</button>
+            <button class="uta-btn uta-btn--primary" (click)="confirmarTraslado()" style="background: #6B1A33; border: none; border-radius: 10px; font-weight: 700; padding: 0.75rem 1.5rem;">
                 <i class="bi bi-send-check"></i> &nbsp;SOLICITAR STOCK
             </button>
         </div>
@@ -586,19 +601,28 @@
 <!-- Modal Venta Exitosa -->
 <div class="uta-overlay" *ngIf="ventaExitosaDialog">
     <div class="uta-modal uta-modal--md">
-        <div class="uta-modal__header" style="background-color: #6B1A33;">
-            <h3 class="uta-modal__title"><i class="bi bi-check2-circle"></i> Venta Procesada</h3>
+        <div class="uta-modal__header" style="background: linear-gradient(135deg, #5A1428 0%, #7B1F3A 100%) !important;">
+            <h3 class="uta-modal__title" style="color: #ffffff !important;"><i class="bi bi-check2-circle"></i> Venta Procesada</h3>
         </div>
         <div class="uta-modal__body text-center py-5">
-            <i class="bi bi-check2-circle" style="font-size: 4rem; color: #6B1A33; margin-bottom: 1.5rem; display: block;"></i>
+            <i class="bi bi-check2-circle" style="font-size: 4rem; color: #7B1F3A; margin-bottom: 1.5rem; display: block;"></i>
             <h2 style="font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">Factura N° {{ultimaVentaNumFac}}</h2>
             <p style="color: #64748b;">La transacción se ha completado correctamente y el stock ha sido actualizado.</p>
         </div>
-        <div class="uta-modal__footer" style="background: #f8f9fa;">
-            <button class="uta-btn uta-btn--outline" (click)="nuevaVenta()">NUEVA VENTA</button>
-            <button class="uta-btn uta-btn--primary" (click)="descargarPdf()">
+        <div class="uta-modal__footer" style="background: #f8fafc; padding: 1.5rem; border-top: 1px solid #e2e8f0;">
+            <button class="uta-btn uta-btn--outline" (click)="nuevaVenta()" style="border-radius: 10px; font-weight: 700;">NUEVA VENTA</button>
+            <button class="uta-btn uta-btn--primary" (click)="descargarPdf()" style="border-radius: 10px; font-weight: 700;">
                 <i class="bi bi-file-earmark-pdf"></i> &nbsp;VER FACTURA (PDF)
             </button>
         </div>
     </div>
 </div>
+
+<!-- ==================== LOCAL CONFIRM DIALOG ==================== -->
+<p-confirmDialog key="posActionDialog" [style]="{width: '500px'}" styleClass="premium-dialog">
+    <ng-template pTemplate="header">
+        <h3 style="color: #ffffff !important; font-weight: 800; font-size: 1.25rem; margin: 0; padding: 0;">
+            CONFIRMAR ACCIÓN
+        </h3>
+    </ng-template>
+</p-confirmDialog>

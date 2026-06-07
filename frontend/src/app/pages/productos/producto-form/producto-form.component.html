@@ -1,10 +1,10 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="uta-form">
   <!-- Descripción del Producto -->
   <div class="uta-form-group">
     <label class="uta-form-label">Descripción del Producto <span class="text-danger">*</span></label>
     <div class="uta-input-icon-wrapper">
       <i class="bi bi-tag uta-input-icon"></i>
-      <input class="uta-form-control uta-form-control--with-icon" 
+      <input class="uta-form-control" 
              [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
              type="text" 
              formControlName="nombre" 
@@ -20,7 +20,7 @@
     <label class="uta-form-label">Categoría <span class="text-danger">*</span></label>
     <p-dropdown [options]="categorias" formControlName="categoriaId"
                 optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría"
-                styleClass="uta-form-control p-0 border-0"
+                styleClass="uta-dropdown-control"
                 [class.is-invalid]="form.get('categoriaId')?.invalid && form.get('categoriaId')?.touched"></p-dropdown>
     <div *ngIf="form.get('categoriaId')?.touched && form.get('categoriaId')?.invalid" class="form-error-text">
       <small>Debe seleccionar una categoría</small>
@@ -34,7 +34,7 @@
       <div class="uta-input-icon-wrapper">
         <i class="bi bi-currency-dollar uta-input-icon"></i>
         <p-inputNumber formControlName="precioVenta" mode="decimal" [minFractionDigits]="2"
-                       styleClass="w-100" inputStyleClass="uta-form-control uta-form-control--with-icon" 
+                       styleClass="w-full border-0" inputStyleClass="uta-form-control-number" 
                        [class.is-invalid]="form.get('precioVenta')?.invalid && form.get('precioVenta')?.touched"
                        placeholder="0.00"></p-inputNumber>
       </div>
@@ -42,12 +42,13 @@
         <small>El precio debe ser mayor a 0</small>
       </div>
     </div>
+    
     <div class="uta-form-group">
       <label class="uta-form-label">Stock Inicial</label>
       <div class="uta-input-icon-wrapper">
         <i class="bi bi-box-seam uta-input-icon"></i>
         <p-inputNumber formControlName="stockInicial" [min]="0"
-                       styleClass="w-100" inputStyleClass="uta-form-control uta-form-control--with-icon" 
+                       styleClass="w-full border-0" inputStyleClass="uta-form-control-number" 
                        placeholder="0"></p-inputNumber>
       </div>
     </div>
@@ -56,8 +57,12 @@
   <!-- Costo (oculto por defecto como campo avanzado) -->
   <div class="uta-form-group" *ngIf="producto">
     <label class="uta-form-label">Costo Unitario ($)</label>
-    <p-inputNumber formControlName="costoUnitario" mode="currency" currency="USD" locale="en-US"
-                   styleClass="w-100" inputStyleClass="uta-form-control"></p-inputNumber>
+    <div class="uta-input-icon-wrapper">
+      <i class="bi bi-cash uta-input-icon"></i>
+      <p-inputNumber formControlName="costoUnitario" mode="currency" currency="USD" locale="en-US"
+                     styleClass="w-full border-0" inputStyleClass="uta-form-control-number" 
+                     placeholder="0.00"></p-inputNumber>
+    </div>
   </div>
 
   <!-- Sucursal (solo creación y solo si no es Bodeguero) -->
@@ -65,15 +70,15 @@
     <label class="uta-form-label">Sucursal para Stock Inicial</label>
     <p-dropdown [options]="sucursales" formControlName="sucursalId"
                 optionLabel="nombre" optionValue="id" placeholder="Seleccione sucursal"
-                styleClass="uta-form-control p-0 border-0"></p-dropdown>
+                styleClass="uta-dropdown-control"></p-dropdown>
   </div>
 
   <!-- Buttons -->
-  <div class="uta-modal__footer d-print-none" style="padding: 1.5rem 0 0 0; margin-top: 1rem; border-top: 1px solid #e9ecef; background: transparent;">
+  <div class="uta-modal__footer">
     <button type="button" class="uta-btn uta-btn--outline" (click)="guardado.emit()">Cancelar</button>
     <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || loading">
-      <i class="bi bi-check2" *ngIf="!loading"></i>
-      <i class="bi bi-arrow-repeat" *ngIf="loading" style="animation: spin 1.5s linear infinite; display: inline-block;"></i>
+      <i class="pi pi-check" *ngIf="!loading"></i>
+      <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
       &nbsp;Guardar Producto
     </button>
   </div>

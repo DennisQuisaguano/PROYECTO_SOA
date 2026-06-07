@@ -11,6 +11,7 @@ import java.util.List;
 public interface VentaService {
     VentaResponseDTO create(VentaRequestDTO dto);
     VentaResponseDTO findById(String id);
+    Page<VentaResponseDTO> findAll(Pageable pageable);
     Page<VentaResponseDTO> findBySucursalId(String sucursalId, Pageable pageable);
     List<VentaResponseDTO> findByFechaBetween(LocalDateTime desde, LocalDateTime hasta);
     VentaResponseDTO anularVenta(String id);

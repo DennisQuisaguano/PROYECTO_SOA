@@ -56,18 +56,25 @@ public class VentaServiceImpl implements VentaService {
         Cliente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
 
-        // Seguridad: Si el usuario no es ADMIN, forzar su propia sucursal y su propio ID como cajero
+        // Priorizar la sucursal del DTO (la seleccionada por el usuario al entrar)
         String sucursalId = dto.getSucursalId();
         Usuario cajero = usuarioAutenticado;
 
-        if (!usuarioAutenticado.getRol().getNombre().equals("ADMIN")) {
-            if (usuarioAutenticado.getSucursal() == null) {
-                throw new ValidacionException("El usuario no tiene una sucursal asignada");
+        // Si no viene sucursal en el DTO, intentar usar la asignada al usuario
+        if (sucursalId == null || sucursalId.isEmpty()) {
+            if (usuarioAutenticado.getSucursal() != null) {
+                sucursalId = usuarioAutenticado.getSucursal().getId();
+            } else if (!usuarioAutenticado.getRol().getNombre().equals("ADMIN")) {
+                throw new ValidacionException("Debe especificar una sucursal para realizar la venta");
             }
-            sucursalId = usuarioAutenticado.getSucursal().getId();
-        } else {
-            // Si es ADMIN, puede registrar para otro cajero si se especifica, 
-            // pero por defecto usamos el autenticado si no se encuentra el del DTO
+        }
+
+        if (sucursalId == null || sucursalId.isEmpty()) {
+            throw new ValidacionException("Sucursal no especificada");
+        }
+
+        // Si es ADMIN, puede registrar para otro cajero si se especifica
+        if (usuarioAutenticado.getRol().getNombre().equals("ADMIN")) {
             if (dto.getCajeroId() != null && !dto.getCajeroId().isEmpty()) {
                 cajero = securityHelper.findById(dto.getCajeroId())
                         .orElse(usuarioAutenticado);
@@ -204,8 +211,15 @@ public class VentaServiceImpl implements VentaService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<VentaResponseDTO> findAll(Pageable pageable) {
+        return ventaRepository.findAllOrderByFechaDesc(pageable)
+                .map(ventaMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<VentaResponseDTO> findBySucursalId(String sucursalId, Pageable pageable) {
-        return ventaRepository.findBySucursalId(sucursalId, pageable)
+        return ventaRepository.findBySucursalIdOrderByFechaDesc(sucursalId, pageable)
                 .map(ventaMapper::toDto);
     }
 

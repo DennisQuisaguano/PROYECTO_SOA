@@ -48,3 +48,11 @@ export interface ProductoEvent {
   categoriaId: string;
   timestamp: string;
 }
+
+export interface ClienteEvent {
+  tipo: 'CLIENTE_CREADO' | 'CLIENTE_ACTUALIZADO' | 'CLIENTE_ELIMINADO';
+  clienteId: string;
+  cedula: string;
+  nombreCompleto: string;
+  timestamp: string;
+}

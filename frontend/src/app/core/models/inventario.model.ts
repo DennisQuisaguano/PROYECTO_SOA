@@ -6,10 +6,13 @@ export interface Inventario {
   sucursalNombre: string;
   productoId: string;
   productoNombre: string;
+  descripcion: string;
   categoriaId: string;
   categoriaNombre: string;
+  costoUnitario: number;
   precioVenta: number;
   stock: number;
+  activo: boolean;
 }
 
 export interface AjusteStockRequest {

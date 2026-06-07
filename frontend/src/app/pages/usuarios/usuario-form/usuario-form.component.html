@@ -1,0 +1,84 @@
+<form [formGroup]="form" (ngSubmit)="guardar()" class="uta-form">
+  <!-- Información Personal -->
+  <div class="uta-form-group">
+    <label class="uta-form-label">Nombre Completo <span class="text-danger">*</span></label>
+    <div class="uta-input-icon-wrapper">
+      <i class="pi pi-id-card uta-input-icon"></i>
+      <input type="text" pInputText formControlName="nombreCompleto" class="uta-form-control" 
+             placeholder="NOMBRE Y APELLIDOS DEL USUARIO" 
+             [class.is-invalid]="form.get('nombreCompleto')?.invalid && form.get('nombreCompleto')?.touched">
+    </div>
+    <div *ngIf="form.get('nombreCompleto')?.touched && form.get('nombreCompleto')?.invalid" class="form-error-text">
+      <small>El nombre completo es obligatorio</small>
+    </div>
+  </div>
+
+  <div class="uta-form-grid">
+    <!-- Username -->
+    <div class="uta-form-group">
+      <label class="uta-form-label">Nombre de Usuario <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="pi pi-user uta-input-icon"></i>
+        <input type="text" pInputText formControlName="username" class="uta-form-control" 
+               placeholder="ej: jdoe" 
+               [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched">
+      </div>
+      <div *ngIf="form.get('username')?.touched && form.get('username')?.invalid" class="form-error-text">
+        <small>Mínimo 4 caracteres</small>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="uta-form-group">
+      <label class="uta-form-label">Contraseña <span class="text-danger" *ngIf="!usuario">*</span><span class="text-secondary" *ngIf="usuario">(Opcional)</span></label>
+      <div class="uta-password-container">
+        <p-password formControlName="password" [feedback]="false" [toggleMask]="true" styleClass="w-full" 
+                    inputStyleClass="uta-form-control-password" placeholder="******" 
+                    [style]="{'width': '100%'}"></p-password>
+      </div>
+      <div *ngIf="form.get('password')?.touched && form.get('password')?.invalid" class="form-error-text">
+        <small>Mínimo 6 caracteres</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="uta-form-grid">
+    <!-- Rol -->
+    <div class="uta-form-group">
+      <label class="uta-form-label">Rol del Sistema <span class="text-danger">*</span></label>
+      <p-dropdown [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id" 
+                  placeholder="Seleccione un rol" styleClass="uta-dropdown-control"
+                  [class.is-invalid]="form.get('rolId')?.invalid && form.get('rolId')?.touched"></p-dropdown>
+      <div *ngIf="form.get('rolId')?.touched && form.get('rolId')?.invalid" class="form-error-text">
+        <small>Debe asignar un rol</small>
+      </div>
+    </div>
+
+    <!-- Sucursal -->
+    <div class="uta-form-group">
+      <label class="uta-form-label">Sucursal Asignada</label>
+      <p-dropdown [options]="sucursales" formControlName="sucursalId" optionLabel="nombre" optionValue="id" 
+                  [showClear]="true" placeholder="Todas (Para ADMIN)" styleClass="uta-dropdown-control"></p-dropdown>
+    </div>
+  </div>
+
+  <!-- Estado -->
+  <div class="uta-form-group mt-2" *ngIf="usuario">
+    <div class="flex align-items-center gap-3 p-3 bg-gray-50 border-round-xl border-1 border-gray-200">
+      <p-checkbox formControlName="activo" [binary]="true" inputId="activo"></p-checkbox>
+      <label for="activo" class="uta-form-label-checkbox m-0 cursor-pointer">
+        Usuario habilitado para entrar al sistema
+      </label>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="uta-modal__footer">
+    <button type="button" class="uta-btn uta-btn--outline" (click)="guardado.emit()">Cancelar</button>
+    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || loading">
+      <i class="pi pi-check" *ngIf="!loading"></i>
+      <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
+      &nbsp;{{ usuario ? 'Guardar Cambios' : 'Crear Usuario' }}
+    </button>
+  </div>
+</form>

@@ -15,6 +15,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -27,7 +28,7 @@ import { Subject, takeUntil, forkJoin } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
-    TooltipModule, ToastModule, DialogModule, InputNumberModule,
+    TooltipModule, ToastModule, DialogModule, ConfirmDialogModule, InputNumberModule,
     DropdownModule, ProgressSpinnerModule, FechaHoraPipe
   ],
   templateUrl: './solicitudes-stock.component.html',
@@ -255,11 +256,14 @@ export class SolicitudesStockComponent implements OnInit, OnDestroy {
 
   aprobar(sol: any) {
     this.confirmationService.confirm({
-      message: `¿Está seguro que desea aprobar el despacho de ${sol.cantidad} unidades de "${sol.productoNombre}"?`,
+      key: 'solicitudActionDialog',
+      message: `¿Está seguro que desea aprobar el despacho de <b>${sol.cantidad}</b> unidades de <b>"${sol.productoNombre}"</b>?`,
       header: 'Confirmar Aprobación',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, aprobar',
-      rejectLabel: 'No, cancelar',
+      acceptLabel: 'SÍ, APROBAR',
+      rejectLabel: 'CANCELAR',
+      acceptButtonStyleClass: 'p-button-success p-button-raised',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
       accept: () => {
         this.guardandoAprobacion = true;
         this.solicitudService.aprobar(sol.id, sol.cantidad).subscribe({
@@ -276,12 +280,14 @@ export class SolicitudesStockComponent implements OnInit, OnDestroy {
 
   rechazar(id: string) {
     this.confirmationService.confirm({
-      message: '¿Está seguro que desea rechazar esta solicitud?',
+      key: 'solicitudActionDialog',
+      message: '¿Está seguro que desea rechazar esta solicitud de traslado? Esta acción no se puede deshacer.',
       header: 'Confirmar Rechazo',
       icon: 'pi pi-exclamation-circle',
-      acceptLabel: 'Sí, rechazar',
-      rejectLabel: 'No, mantener',
-      acceptButtonStyleClass: 'p-button-danger',
+      acceptLabel: 'SÍ, RECHAZAR',
+      rejectLabel: 'CANCELAR',
+      acceptButtonStyleClass: 'p-button-danger p-button-raised',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
       accept: () => {
         this.solicitudService.rechazar(id).subscribe({
           next: () => {

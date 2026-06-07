@@ -10,7 +10,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   template: `
     <router-outlet></router-outlet>
     <p-toast></p-toast>
-    <p-confirmDialog [style]="{width: '450px'}" styleClass="premium-confirm"></p-confirmDialog>
+    <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
   `,
   styles: []
 })

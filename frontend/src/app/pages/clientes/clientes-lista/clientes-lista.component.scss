@@ -1,59 +1,323 @@
-@import '../../shared/styles/tables.scss';
+@import '../../../shared/styles/tables.scss';
 
-// Clientes List Specific Styles
-.clientes-container {
-  animation: slideIn 0.3s ease-out;
+/* ====================================================
+   CLIENTES LISTA — Estilos Premium
+   ==================================================== */
+
+:host {
+  display: block;
 }
 
-// Client Status Badge
-.client-status {
+.uta-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4f6f9;
+  min-height: 100vh;
+  padding: 1.8rem 2rem;
+  color: #2c3e50;
+}
+
+/* Page Header & Breadcrumbs */
+.uta-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.uta-breadcrumb {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 0.35rem;
+  font-weight: 500;
+}
+
+.uta-breadcrumb__sep {
+  margin: 0 0.35rem;
+}
+
+.uta-breadcrumb__active {
+  color: #6B1A33;
+}
+
+.uta-page-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uta-page-title__icon {
+  font-size: 1.4rem;
+}
+
+.uta-page-subtitle {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.uta-btn-primary-wine {
+  background-color: #6B1A33;
+  color: #ffffff;
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-
-  &.status-active {
-    background: rgba(22, 163, 74, 0.1);
-    color: #16a34a;
-  }
-
-  &.status-inactive {
-    background: rgba(100, 116, 139, 0.1);
-    color: #64748b;
-  }
-
-  i {
-    font-size: 14px;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: #521528;
   }
 }
 
-// Client Info Cell
-.client-info {
+/* Underline style tabs */
+.client-tabs-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 2rem;
+  border-bottom: 1px solid #cbd5e1;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0px;
+}
 
-  .client-name {
-    font-weight: 600;
-    color: #1e293b;
+.client-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  outline: none;
+  
+  i {
+    font-size: 1rem;
   }
-
-  .client-email {
-    font-size: 12px;
-    color: #94a3b8;
+  
+  &:hover {
+    color: #6B1A33;
+  }
+  
+  &.active {
+    color: #6B1A33;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2.5px;
+      background-color: #6B1A33;
+    }
   }
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+/* Card layout */
+.uta-card-new {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.uta-card-header-new {
+  background-color: #6B1A33;
+  color: #ffffff;
+  padding: 0.85rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #5a1428;
+}
+
+.uta-card-header-left-new {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  .uta-card-header-icon-new {
+    font-size: 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+}
+
+.uta-card-body-new {
+  padding: 1.5rem;
+}
+
+/* Search input controls matching screenshot */
+.search-client-grid {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #ffffff;
+  max-width: 600px;
+
+  .search-field-select-new {
+    background-color: #f8f9fa;
+    border: none;
+    border-right: 1px solid #cbd5e1;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    height: 38px;
+  }
+
+  .search-text-input-new {
+    flex: 1;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.88rem;
+    outline: none;
+    height: 38px;
+    color: #1e293b;
+    
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  .search-action-btn-new {
+    background-color: #6B1A33;
+    color: #ffffff;
+    border: none;
+    width: 42px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.95rem;
+
+    &:hover {
+      background-color: #521528;
+    }
+  }
+}
+
+/* Table header list row */
+.list-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.list-header-title {
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #475569;
+  letter-spacing: 0.05em;
+}
+
+.shown-count-badge {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Table overrides */
+.uta-table-new {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.03em !important;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+  }
+
+  td {
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 0.88rem !important;
+  }
+
+  tbody tr:hover td {
+    background-color: #f8fafc !important;
+  }
+}
+
+/* Badges */
+.client-id-badge {
+  font-family: 'Inter', monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.client-name-cell {
+  text-transform: uppercase;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+
+.client-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Actions styling */
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+
+  &.btn-edit-client {
+    background-color: #fdf5f7;
+    color: #6B1A33;
+    border: 1px solid #f9d5db;
+    &:hover { background-color: #6B1A33; color: white; border-color: #6B1A33; }
+  }
+
+  &.btn-delete-client {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    &:hover { background-color: #dc2626; color: white; border-color: #dc2626; }
   }
 }

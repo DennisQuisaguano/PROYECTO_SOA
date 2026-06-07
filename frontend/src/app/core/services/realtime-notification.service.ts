@@ -6,7 +6,8 @@ import {
   AlertaStockEvent, 
   VentaEvent, 
   SolicitudEvent, 
-  ProductoEvent 
+  ProductoEvent,
+  ClienteEvent
 } from '../models/realtime.model';
 
 @Injectable({
@@ -20,6 +21,7 @@ export class RealtimeNotificationService {
   private ventaEvent$ = new Subject<VentaEvent>();
   private solicitudEvent$ = new Subject<SolicitudEvent>();
   private productoEvent$ = new Subject<ProductoEvent>();
+  private clienteEvent$ = new Subject<ClienteEvent>();
 
   onStockUpdate(): Observable<StockUpdateEvent> {
     return this.stockUpdate$.asObservable();
@@ -39,6 +41,10 @@ export class RealtimeNotificationService {
 
   onProductoEvent(): Observable<ProductoEvent> {
     return this.productoEvent$.asObservable();
+  }
+
+  onClienteEvent(): Observable<ClienteEvent> {
+    return this.clienteEvent$.asObservable();
   }
 
   inicializarParaSucursal(sucursalId: string): void {
@@ -62,6 +68,10 @@ export class RealtimeNotificationService {
 
     this.wsService.suscribir<ProductoEvent>('/topic/productos', (evento) => {
       this.productoEvent$.next(evento);
+    });
+
+    this.wsService.suscribir<ClienteEvent>('/topic/clientes', (evento) => {
+      this.clienteEvent$.next(evento);
     });
   }
 
