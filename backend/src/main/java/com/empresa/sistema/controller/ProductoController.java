@@ -37,17 +37,26 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.buscar(nombre, categoriaId));
     }
 
+    @GetMapping("/categoria/{categoriaId}")
+    public ResponseEntity<List<ProductoResponseDTO>> findByCategoriaId(@PathVariable String categoriaId) {
+        // Para administración, devolvemos todos los productos vinculados sin filtrar por 'activo'
+        return ResponseEntity.ok(productoService.findAllByCategoriaId(categoriaId));
+    }
+
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('BODEGUERO')")
     public ResponseEntity<ProductoResponseDTO> create(@Valid @RequestBody ProductoRequestDTO dto) {
         return new ResponseEntity<>(productoService.create(dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('BODEGUERO')")
     public ResponseEntity<ProductoResponseDTO> update(@PathVariable String id, @Valid @RequestBody ProductoRequestDTO dto) {
         return ResponseEntity.ok(productoService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or hasRole('BODEGUERO')")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         productoService.delete(id);
         return ResponseEntity.noContent().build();

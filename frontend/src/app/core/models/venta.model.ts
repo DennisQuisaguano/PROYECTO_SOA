@@ -30,9 +30,13 @@ export interface VentaResponse {
   clienteId: string;
   clienteNombre: string;
   clienteCedula: string;
+  clienteTelefono?: string;
+  clienteDireccion?: string;
+  clienteEmail?: string;
   sucursalId: string;
   sucursalNombre: string;
   cajeroId: string;
   cajeroNombre: string;
   detalles: DetalleVentaResponse[];
+  desgloseIva?: { [key: string]: number };
 }

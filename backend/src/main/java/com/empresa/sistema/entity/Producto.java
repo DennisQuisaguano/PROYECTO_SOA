@@ -6,7 +6,10 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "productos")
+@Table(name = "productos", indexes = {
+    @Index(name = "idx_producto_nombre", columnList = "nombre"),
+    @Index(name = "idx_producto_activo", columnList = "activo")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

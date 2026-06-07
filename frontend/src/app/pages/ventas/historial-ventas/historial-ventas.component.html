@@ -155,60 +155,133 @@
     </div>
     
     <div class="uta-modal__body bg-white printable-area" style="padding: 2rem;">
-      <!-- ... Rest of the receipt content (kept from previous version but refined) ... -->
-      <div style="text-align: center; margin-bottom: 2rem;">
-        <h2 style="color: #6B1A33; font-weight: 800; margin: 0;">{{sucursalNombre}} POS</h2>
-        <p style="color: #6c757d; font-size: 0.85rem;">RUC: 9999999999001 | Tel: 0999 999 999</p>
-        <div class="uta-divider"></div>
-        <h4 style="margin: 1rem 0;">FACTURA: {{ventaSeleccionada.numFac}}</h4>
+      <!-- Secciones del Encabezado: Dos Paneles -->
+      <div class="comprobante-header-panels">
+        
+        <!-- Panel Izquierdo: Info de la Empresa -->
+        <div class="panel-left">
+          <div class="logo-box">
+            <i class="bi bi-bag-check-fill logo-icon"></i>
+          </div>
+          <h2 class="negocio-titulo">{{sucursalNombre | uppercase}}</h2>
+          <div class="negocio-detalles">
+            <p><span class="label">Dirección Matriz:</span> Calle Principal y Secundaria</p>
+            <p><span class="label">Teléfono:</span> 0999 999 999</p>
+            <p class="obligado">OBLIGADO A LLEVAR CONTABILIDAD: NO</p>
+          </div>
+        </div>
+        
+        <!-- Panel Derecho: Info de Factura y SRI -->
+        <div class="panel-right">
+          <div class="ruc-tag">R.U.C.: 9999999999001</div>
+          <h1 class="comprobante-tipo">F A C T U R A</h1>
+          <div class="comprobante-numero">No. <span class="num-red">{{ventaSeleccionada.numFac}}</span></div>
+          <div class="autorizacion-label">NÚMERO DE AUTORIZACIÓN / CLAVE DE ACCESO</div>
+          <div class="clave-acceso-box">
+            {{ getClaveAcceso(ventaSeleccionada) }}
+          </div>
+          
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">FECHA Y HORA:</span>
+              <span class="info-val">{{ventaSeleccionada.fecha | date:'dd/MM/yyyy HH:mm:ss'}}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">AMBIENTE:</span>
+              <span class="info-val">PRODUCCIÓN</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">EMISIÓN:</span>
+              <span class="info-val">NORMAL</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">CAJERO:</span>
+              <span class="info-val">{{ventaSeleccionada.cajeroNombre | uppercase}}</span>
+            </div>
+            <div class="info-row flex-row-badge">
+              <span class="info-label">ESTADO:</span>
+              <span class="info-val">
+                <span class="estado-badge-comprobante" [ngClass]="{
+                  'estado-confirmada': ventaSeleccionada.estado === 'COMPLETADA',
+                  'estado-anulada': ventaSeleccionada.estado === 'ANULADA'
+                }">
+                  <i class="bi bi-check-circle-fill" *ngIf="ventaSeleccionada.estado === 'COMPLETADA'"></i>
+                  <i class="bi bi-x-circle-fill" *ngIf="ventaSeleccionada.estado === 'ANULADA'"></i>
+                  &nbsp;{{ ventaSeleccionada.estado === 'COMPLETADA' ? 'Confirmada' : 'Anulada' }}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+        
       </div>
-
-      <div class="uta-client-data-grid mb-4">
-        <div class="uta-data-item">
-            <span class="uta-data-item__label">Cliente</span>
-            <span class="uta-data-item__value">{{ventaSeleccionada.clienteNombre}}</span>
-        </div>
-        <div class="uta-data-item">
-            <span class="uta-data-item__label">Identificación</span>
-            <span class="uta-data-item__value">{{ventaSeleccionada.clienteCedula}}</span>
-        </div>
-        <div class="uta-data-item">
-            <span class="uta-data-item__label">Fecha</span>
-            <span class="uta-data-item__value">{{ventaSeleccionada.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
+      
+      <!-- Información del Cliente -->
+      <div class="comprobante-cliente-card">
+        <div class="cliente-grid">
+          <div>
+            <strong>CLIENTE:</strong> {{ventaSeleccionada.clienteNombre | uppercase}}
+          </div>
+          <div>
+            <strong>IDENTIFICACIÓN:</strong> {{ventaSeleccionada.clienteCedula}}
+          </div>
+          <div>
+            <strong>TELÉFONO:</strong> {{ventaSeleccionada.clienteTelefono || 'N/A'}}
+          </div>
+          <div>
+            <strong>FECHA EMISIÓN:</strong> {{ventaSeleccionada.fecha | date:'dd/MM/yyyy HH:mm:ss'}}
+          </div>
+          <div class="col-span-2">
+            <strong>DIRECCIÓN:</strong> {{(ventaSeleccionada.clienteDireccion || 'N/A') | uppercase}}
+          </div>
+          <div class="col-span-2">
+            <strong>CORREO:</strong> {{ventaSeleccionada.clienteEmail || 'N/A'}}
+          </div>
         </div>
       </div>
-
-      <table class="uta-table uta-table-wrap--bordered">
+      
+      <!-- Tabla de Productos -->
+      <table class="comprobante-tabla">
         <thead>
           <tr>
-            <th>Cant.</th>
+            <th style="width: 12%;">Cod.</th>
+            <th style="width: 10%;">Cant</th>
             <th>Descripción</th>
-            <th class="text-right">P. Unit</th>
-            <th class="text-right">Total</th>
+            <th style="width: 18%; text-align: right;">P. Unitario</th>
+            <th style="width: 18%; text-align: right;">Total</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let d of ventaSeleccionada.detalles">
+            <td>{{d.productoId | slice:-4}}</td>
             <td>{{d.cantidad}}</td>
-            <td class="uta-table__bold">{{d.productoNombre}}</td>
-            <td class="text-right">{{d.precioUnitario | moneda}}</td>
-            <td class="text-right font-bold">{{d.subtotal | moneda}}</td>
+            <td class="desc-col">{{d.productoNombre | uppercase}}</td>
+            <td style="text-align: right;">{{d.precioUnitario | moneda}}</td>
+            <td style="text-align: right; font-weight: bold;">{{d.subtotal | moneda}}</td>
           </tr>
         </tbody>
       </table>
+      
+      <!-- Sección de Totales -->
+      <div class="comprobante-totales">
+        <div class="totales-tabla">
+          <div class="totales-row">
+            <span class="tot-label">SUBTOTAL</span>
+            <span class="tot-val">{{ventaSeleccionada.subtotal | moneda}}</span>
+          </div>
+          
+          <!-- Desglose dinámico de IVA -->
+          <ng-container *ngIf="ventaSeleccionada.desgloseIva">
+            <div class="totales-row" *ngFor="let item of (ventaSeleccionada.desgloseIva | keyvalue)">
+              <span class="tot-label">IVA {{ item.key }}%</span>
+              <span class="tot-val">{{ item.value | moneda }}</span>
+            </div>
+          </ng-container>
 
-      <div class="uta-totals mt-4" style="max-width: 250px; margin-left: auto;">
-        <div class="uta-totals__row">
-            <span>SUBTOTAL</span>
-            <span>{{ventaSeleccionada.subtotal | moneda}}</span>
-        </div>
-        <div class="uta-totals__row">
-            <span>IVA 15%</span>
-            <span>{{ventaSeleccionada.iva | moneda}}</span>
-        </div>
-        <div class="uta-totals__grand">
-            <span>TOTAL</span>
-            <span>{{ventaSeleccionada.total | moneda}}</span>
+          <div class="totales-row grand-total-row">
+            <span class="tot-label">VALOR TOTAL</span>
+            <span class="tot-val">{{ventaSeleccionada.total | moneda}}</span>
+          </div>
         </div>
       </div>
     </div>

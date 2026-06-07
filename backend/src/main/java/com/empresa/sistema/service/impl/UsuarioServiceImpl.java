@@ -29,6 +29,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final SucursalRepository sucursalRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
+    private final com.empresa.sistema.util.SequenceGenerator sequenceGenerator;
 
     @Override
     @Transactional(readOnly = true)
@@ -71,6 +72,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setRol(rol);
         usuario.setSucursal(sucursal);
         usuario.setActivo(true);
+        
+        // Generar ID correlativo
+        usuario.setId(sequenceGenerator.nextId("USR"));
 
         return usuarioMapper.toDto(usuarioRepository.save(usuario));
     }

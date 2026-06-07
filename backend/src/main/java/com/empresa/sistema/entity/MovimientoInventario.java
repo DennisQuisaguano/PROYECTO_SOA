@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "movimientos_inventario")
+@Table(name = "movimientos_inventario", indexes = {
+    @Index(name = "idx_movimiento_fecha", columnList = "fecha"),
+    @Index(name = "idx_movimiento_sucursal_producto", columnList = "sucursal_id, producto_id")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

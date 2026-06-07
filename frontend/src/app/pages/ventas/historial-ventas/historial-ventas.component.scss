@@ -743,3 +743,291 @@
     }
   }
 }
+
+/* ====================================================
+   NUEVOS ESTILOS FACTURA / COMPROBANTE DE COMPRA (MAQUETA)
+   ==================================================== */
+
+.comprobante-header-panels {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel-left, .panel-right {
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panel Izquierdo: Datos Negocio */
+.panel-left {
+  align-items: center;
+  text-align: center;
+
+  .logo-box {
+    background-color: #6B1A33;
+    width: 80px;
+    height: 80px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+
+    .logo-icon {
+      font-size: 2.8rem;
+      color: #ffffff;
+    }
+  }
+
+  .negocio-titulo {
+    color: #6B1A33;
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0 0 1rem;
+    letter-spacing: 0.5px;
+  }
+
+  .negocio-detalles {
+    p {
+      margin: 0.35rem 0;
+      font-size: 0.82rem;
+      color: #475569;
+
+      .label {
+        font-weight: 700;
+        color: #1e293b;
+      }
+    }
+
+    .obligado {
+      margin-top: 0.75rem;
+      font-weight: 800;
+      color: #334155;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+/* Panel Derecho: Datos Factura */
+.panel-right {
+  .ruc-tag {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+  }
+
+  .comprobante-tipo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    color: #1e293b;
+    margin: 0.2rem 0;
+  }
+
+  .comprobante-numero {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1rem;
+
+    .num-red {
+      color: #b22222;
+    }
+  }
+
+  .autorizacion-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #475569;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+  }
+
+  .clave-acceso-box {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin-bottom: 1rem;
+    word-break: break-all;
+  }
+
+  .info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.3rem;
+    border-bottom: 1.5px dotted #cbd5e1;
+    font-size: 0.82rem;
+
+    .info-label {
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .info-val {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    &.flex-row-badge {
+      border-bottom: none;
+      padding-top: 0.3rem;
+    }
+  }
+}
+
+/* Badge de Estado */
+.estado-badge-comprobante {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  &.estado-confirmada {
+    background-color: #e6fcf5;
+    color: #0ca678;
+    border: 1px solid #c3fae8;
+  }
+
+  &.estado-anulada {
+    background-color: #fff5f5;
+    color: #fa5252;
+    border: 1px solid #ffe3e3;
+  }
+}
+
+/* Tarjeta Información del Cliente */
+.comprobante-cliente-card {
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+
+  .cliente-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1.2fr;
+    gap: 0.65rem 1.5rem;
+    font-size: 0.82rem;
+    color: #334155;
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .col-span-2 {
+      grid-column: span 2;
+
+      @media (max-width: 576px) {
+        grid-column: span 1;
+      }
+    }
+
+    strong {
+      color: #1e293b;
+    }
+  }
+}
+
+/* Tabla Comprobante */
+.comprobante-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+  font-size: 0.85rem;
+
+  th, td {
+    border: 1.5px solid #cbd5e1;
+    padding: 10px 12px;
+    color: #1e293b;
+  }
+
+  th {
+    background-color: #ffffff;
+    font-weight: 700;
+    text-align: center;
+    color: #334155;
+  }
+
+  td {
+    text-align: center;
+    background-color: #ffffff;
+  }
+
+  td.desc-col {
+    text-align: left;
+    font-weight: 600;
+  }
+}
+
+/* Totales en Tabla */
+.comprobante-totales {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.totales-tabla {
+  width: 100%;
+  border-collapse: collapse;
+
+  .totales-row {
+    display: flex;
+    border: 1.5px solid #cbd5e1;
+    border-top: none;
+    background-color: #ffffff;
+
+    .tot-label {
+      flex: 1;
+      padding: 10px 12px;
+      border-right: 1.5px solid #cbd5e1;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: left;
+    }
+
+    .tot-val {
+      width: 18%;
+      min-width: 120px;
+      padding: 10px 12px;
+      text-align: right;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    &.grand-total-row {
+      .tot-label, .tot-val {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #6B1A33;
+      }
+    }
+  }
+}

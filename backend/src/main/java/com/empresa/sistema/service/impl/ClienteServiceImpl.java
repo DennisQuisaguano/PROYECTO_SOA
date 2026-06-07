@@ -27,6 +27,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteMapper clienteMapper;
     private final ValidadorCedula validadorCedula;
     private final WebSocketEventPublisher eventPublisher;
+    private final com.empresa.sistema.util.SequenceGenerator sequenceGenerator;
 
     @Override
     @Transactional(readOnly = true)
@@ -61,6 +62,10 @@ public class ClienteServiceImpl implements ClienteService {
         }
         Cliente cliente = clienteMapper.toEntity(dto);
         cliente.setActivo(true);
+        
+        // Generar ID correlativo
+        cliente.setId(sequenceGenerator.nextId("CLI"));
+        
         Cliente saved = clienteRepository.save(cliente);
 
         // Notificar via WebSocket

@@ -17,9 +17,13 @@ public class VentaResponseDTO {
     private String clienteId;
     private String clienteNombre;
     private String clienteCedula;
+    private String clienteTelefono;
+    private String clienteDireccion;
+    private String clienteEmail;
     private String sucursalId;
     private String sucursalNombre;
     private String cajeroId;
     private String cajeroNombre;
     private List<DetalleVentaDTO> detalles;
+    private java.util.Map<String, java.math.BigDecimal> desgloseIva; // Ej: {"15.00": 2.25, "0.00": 0.00}
 }

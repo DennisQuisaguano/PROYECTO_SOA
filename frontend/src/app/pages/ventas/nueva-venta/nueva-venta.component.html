@@ -54,7 +54,7 @@
                         <span class="uta-price__value">{{ivaVenta | moneda:false}}</span>
                     </div>
                 </div>
-                <div class="uta-stat-card__label">Impuestos (IVA 15%)</div>
+                <div class="uta-stat-card__label">Impuestos (IVA {{ivaPromedioEtiqueta}})</div>
             </div>
         </div>
         <div class="uta-stat-card uta-stat-card--dark">
@@ -240,7 +240,7 @@
                             </span>
                         </div>
                         <div class="uta-totals__row">
-                            <span>IVA 15%</span>
+                            <span>IVA {{ivaPromedioEtiqueta}}</span>
                             <span class="uta-price uta-price--right">
                                 <span class="uta-price__symbol">$</span>
                                 <span class="uta-price__value">{{ivaVenta | moneda:false}}</span>

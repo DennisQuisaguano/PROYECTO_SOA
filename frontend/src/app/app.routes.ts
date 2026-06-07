@@ -69,6 +69,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/usuarios/usuarios-lista/usuarios-lista.component').then(m => m.UsuariosListaComponent),
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] }
+      },
+      {
+        path: 'categorias',
+        loadComponent: () => import('./pages/categorias/categorias-lista/categorias-lista.component').then(m => m.CategoriasListaComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] }
       }
     ]
   },

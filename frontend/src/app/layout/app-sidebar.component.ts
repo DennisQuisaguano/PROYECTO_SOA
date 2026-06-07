@@ -68,6 +68,12 @@ import { AuthService } from '../core/services/auth.service';
             </div>
             <span class="uta-menu-text" *ngIf="!collapsed">Usuarios y Accesos</span>
           </a>
+          <a routerLink="/categorias" routerLinkActive="active" class="uta-nav-link" *ngIf="authService.isAdmin()">
+            <div class="uta-menu-icon">
+              <i class="bi bi-tags"></i>
+            </div>
+            <span class="uta-menu-text" *ngIf="!collapsed">Categorías</span>
+          </a>
         </div>
 
         <!-- LOGÍSTICA -->

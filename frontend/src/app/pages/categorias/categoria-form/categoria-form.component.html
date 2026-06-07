@@ -1,0 +1,39 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="category-form-container">
+  <div class="form-group-custom">
+    <label class="form-label-custom">Nombre de Categoría <span class="text-danger">*</span></label>
+    <div class="input-row-custom">
+      <i class="bi bi-tag field-icon-outside"></i>
+      <input type="text" formControlName="nombre" placeholder="EJ: ELECTRÓNICA" />
+    </div>
+  </div>
+
+  <div class="form-group-custom">
+    <label class="form-label-custom">Descripción</label>
+    <div class="input-row-custom" style="align-items: flex-start;">
+      <i class="bi bi-card-text field-icon-outside" style="margin-top: 8px;"></i>
+      <textarea formControlName="descripcion" rows="3" placeholder="BREVE DESCRIPCIÓN DE LA CATEGORÍA"></textarea>
+    </div>
+  </div>
+
+  <!-- Estado (Solo visible si está INACTIVA para reactivarla) -->
+  <div class="form-group-custom" *ngIf="categoria && !categoria.activo">
+    <label class="form-label-custom">Estado de la Categoría</label>
+    <div class="status-toggle-container" [ngClass]="{'status-active': form.get('activo')?.value, 'status-inactive': !form.get('activo')?.value}">
+      <p-inputSwitch formControlName="activo"></p-inputSwitch>
+      <span class="status-toggle-label">
+        <i class="bi bi-shield-fill-check" *ngIf="form.get('activo')?.value"></i>
+        <i class="bi bi-exclamation-triangle-fill" *ngIf="!form.get('activo')?.value"></i>
+        &nbsp;{{ form.get('activo')?.value ? 'REACTIVAR CATEGORÍA Y PRODUCTOS' : 'MANTENER INACTIVA' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="form-buttons-row">
+    <button type="button" class="btn-cancel-custom" (click)="guardado.emit()">Cancelar</button>
+    <button type="submit" class="btn-save-custom" [disabled]="form.invalid || loading">
+      <i class="pi pi-check" *ngIf="!loading"></i>
+      <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
+      Guardar Categoría
+    </button>
+  </div>
+</form>

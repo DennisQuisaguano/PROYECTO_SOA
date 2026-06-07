@@ -29,7 +29,7 @@ public class Sucursal {
     @PrePersist
     public void prePersist() {
         if (id == null) {
-            id = "SUC" + UUID.randomUUID().toString().replace("-", "").substring(0, 7).toUpperCase();
+            id = "SUC" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 7).toUpperCase();
         }
     }
 }

@@ -14,11 +14,13 @@ import java.util.List;
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, String> {
     
-    Page<Venta> findBySucursalIdOrderByFechaDesc(String sucursalId, Pageable pageable);
+    @Query("SELECT v FROM Venta v JOIN FETCH v.cliente JOIN FETCH v.sucursal JOIN FETCH v.cajero WHERE v.sucursal.id = :sucursalId ORDER BY v.fecha DESC")
+    Page<Venta> findBySucursalIdOrderByFechaDesc(@Param("sucursalId") String sucursalId, Pageable pageable);
 
-    @Query("SELECT v FROM Venta v ORDER BY v.fecha DESC")
+    @Query(value = "SELECT v FROM Venta v JOIN FETCH v.cliente JOIN FETCH v.sucursal JOIN FETCH v.cajero ORDER BY v.fecha DESC",
+           countQuery = "SELECT count(v) FROM Venta v")
     Page<Venta> findAllOrderByFechaDesc(Pageable pageable);
 
-    @Query("SELECT v FROM Venta v WHERE v.fecha BETWEEN :desde AND :hasta ORDER BY v.fecha DESC")
+    @Query("SELECT v FROM Venta v JOIN FETCH v.cliente JOIN FETCH v.sucursal JOIN FETCH v.cajero WHERE v.fecha BETWEEN :desde AND :hasta ORDER BY v.fecha DESC")
     List<Venta> findByFechaBetween(@Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 }

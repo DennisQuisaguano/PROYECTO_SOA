@@ -1,9 +1,9 @@
 package com.empresa.sistema.repository;
 
-import com.empresa.sistema.entity.Sucursal;
+import com.empresa.sistema.entity.GlobalSequence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SucursalRepository extends JpaRepository<Sucursal, String> {
+public interface GlobalSequenceRepository extends JpaRepository<GlobalSequence, String> {
 }

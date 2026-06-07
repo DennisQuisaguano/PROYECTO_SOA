@@ -11,6 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { RealtimeNotificationService } from '../../../core/services/realtime-notification.service';
 import { SucursalService } from '../../../core/services/sucursal.service';
 import { CategoriaService } from '../../../core/services/categoria.service';
+import { ConfigService } from '../../../core/services/config.service';
 import { Cliente } from '../../../core/models/cliente.model';
 import { Inventario } from '../../../core/models/inventario.model';
 import { VentaRequest } from '../../../core/models/venta.model';
@@ -62,6 +63,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   private realtimeNotificationService = inject(RealtimeNotificationService);
   private sucursalService = inject(SucursalService);
   private categoriaService = inject(CategoriaService);
+  private configService = inject(ConfigService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
@@ -116,10 +118,10 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   
   productosEnOtrasSucursales: Map<string, { sucursal: Sucursal; stock: number }[]> = new Map();
 
-  readonly IVA_PORCENTAJE = 0.15;
   subtotalVenta = 0;
   ivaVenta = 0;
   totalVenta = 0;
+  ivaPromedioEtiqueta = '15%'; // Etiqueta dinámica para el resumen
 
   productosGlobales: any[] = [];
 
@@ -476,9 +478,21 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   }
 
   recalcularTotales() {
-    this.subtotalVenta = this.productosEnVenta.reduce((acc, item) => acc + item.subtotal, 0);
-    this.ivaVenta = this.subtotalVenta * this.IVA_PORCENTAJE;
-    this.totalVenta = this.subtotalVenta + this.ivaVenta;
+    this.subtotalVenta = 0;
+    this.ivaVenta = 0;
+    
+    // Obtener IVA global desde el servicio de configuración
+    this.configService.getConfig().subscribe(config => {
+      const porcentajeIva = config.ivaPorcentaje || 15;
+      this.ivaPromedioEtiqueta = porcentajeIva + '%';
+
+      this.productosEnVenta.forEach(item => {
+        this.subtotalVenta += item.subtotal;
+        this.ivaVenta += item.subtotal * (porcentajeIva / 100);
+      });
+
+      this.totalVenta = this.subtotalVenta + this.ivaVenta;
+    });
   }
 
   finalizarVenta() {

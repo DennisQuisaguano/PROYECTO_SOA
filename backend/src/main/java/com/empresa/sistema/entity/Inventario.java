@@ -6,7 +6,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "inventarios", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"sucursal_id", "producto_id"})
+    @UniqueConstraint(name = "uk_sucursal_producto", columnNames = {"sucursal_id", "producto_id"})
+}, indexes = {
+    @Index(name = "idx_inventario_stock", columnList = "stock")
 })
 @Data
 @NoArgsConstructor

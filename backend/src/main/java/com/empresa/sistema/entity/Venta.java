@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "ventas")
+@Table(name = "ventas", indexes = {
+    @Index(name = "idx_venta_fecha", columnList = "fecha"),
+    @Index(name = "idx_venta_sucursal_fecha", columnList = "sucursal_id, fecha")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -49,6 +52,23 @@ public class Venta {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cajero_id", nullable = false)
     private Usuario cajero;
+
+    // --- SNAPSHOTS DE CLIENTE (PARA INTEGRIDAD HISTORICA) ---
+    @Column(name = "cliente_nombre_completo", nullable = false)
+    private String clienteNombreCompleto;
+
+    @Column(name = "cliente_cedula", nullable = false, length = 15)
+    private String clienteCedula;
+
+    @Column(name = "cliente_direccion")
+    private String clienteDireccion;
+
+    @Column(name = "cliente_telefono", length = 20)
+    private String clienteTelefono;
+
+    @Column(name = "cliente_email")
+    private String clienteEmail;
+    // -------------------------------------------------------
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -11,6 +11,8 @@ public interface ProductoService {
     Page<ProductoResponseDTO> findAll(Pageable pageable);
     ProductoResponseDTO findById(String id);
     List<ProductoResponseDTO> buscar(String nombre, String categoriaId);
+    List<ProductoResponseDTO> findByCategoriaId(String categoriaId);
+    List<ProductoResponseDTO> findAllByCategoriaId(String categoriaId);
     ProductoResponseDTO create(ProductoRequestDTO dto);
     ProductoResponseDTO update(String id, ProductoRequestDTO dto);
     void delete(String id);

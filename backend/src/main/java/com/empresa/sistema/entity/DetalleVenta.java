@@ -29,8 +29,14 @@ public class DetalleVenta {
     @Column(nullable = false)
     private Integer cantidad;
 
+    @Column(name = "producto_nombre", nullable = false, length = 150)
+    private String productoNombre;
+
     @Column(name = "precio_unitario", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
+
+    @Column(name = "porcentaje_iva", precision = 5, scale = 2)
+    private BigDecimal porcentajeIva;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;

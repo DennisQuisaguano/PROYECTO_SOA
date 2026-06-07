@@ -90,12 +90,27 @@ public class VentaServiceImpl implements VentaService {
                 .cajero(cajero)
                 .estado(EstadoVenta.COMPLETADA)
                 .detalles(new ArrayList<>())
+                // SNAPSHOTS DE CLIENTE
+                .clienteNombreCompleto(cliente.getNombreUno() + " " + (cliente.getNombreDos() != null ? cliente.getNombreDos() + " " : "") + cliente.getApellidoPaterno() + " " + (cliente.getApellidoMaterno() != null ? cliente.getApellidoMaterno() : ""))
+                .clienteCedula(cliente.getCedula())
+                .clienteDireccion(cliente.getDireccion())
+                .clienteTelefono(cliente.getTelefono())
+                .clienteEmail(cliente.getEmail())
                 .build();
 
         BigDecimal subtotalVenta = BigDecimal.ZERO;
+        BigDecimal ivaMonto = BigDecimal.ZERO;
+
+        // Pre-cargar todos los productos de la venta en una sola consulta para optimizar
+        List<String> productoIds = dto.getDetalles().stream()
+                .map(DetalleVentaItemDTO::getProductoId)
+                .toList();
+        List<Producto> productosCargados = productoRepository.findAllById(productoIds);
 
         for (DetalleVentaItemDTO item : dto.getDetalles()) {
-            Producto producto = productoRepository.findById(item.getProductoId())
+            Producto producto = productosCargados.stream()
+                    .filter(p -> p.getId().equals(item.getProductoId()))
+                    .findFirst()
                     .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado: " + item.getProductoId()));
             
             inventarioService.verificarYDescontarStock(producto.getId(), sucursal.getId(), item.getCantidad());
@@ -103,17 +118,26 @@ public class VentaServiceImpl implements VentaService {
             BigDecimal subtotalLinea = producto.getPrecioVenta().multiply(new BigDecimal(item.getCantidad()));
             subtotalVenta = subtotalVenta.add(subtotalLinea);
 
+            // --- LÓGICA DE IVA GLOBAL ---
+            BigDecimal porcentajeIvaAplicar = new BigDecimal(ivaCalculator.getPorcentaje());
+
+            BigDecimal factorIva = porcentajeIvaAplicar.divide(new BigDecimal(100), 4, java.math.RoundingMode.HALF_UP);
+            BigDecimal ivaLinea = subtotalLinea.multiply(factorIva).setScale(2, java.math.RoundingMode.HALF_UP);
+            ivaMonto = ivaMonto.add(ivaLinea);
+            // --------------------------------
+
             DetalleVenta detalle = DetalleVenta.builder()
                     .producto(producto)
+                    .productoNombre(producto.getNombre()) // Snapshot del nombre
                     .cantidad(item.getCantidad())
-                    .precioUnitario(producto.getPrecioVenta())
+                    .precioUnitario(producto.getPrecioVenta()) // Snapshot del precio
+                    .porcentajeIva(porcentajeIvaAplicar) // Snapshot del IVA
                     .subtotal(subtotalLinea)
                     .build();
 
             venta.addDetalle(detalle);
         }
 
-        BigDecimal ivaMonto = ivaCalculator.calcularIva(subtotalVenta);
         BigDecimal total = subtotalVenta.add(ivaMonto);
 
         venta.setSubtotal(subtotalVenta);

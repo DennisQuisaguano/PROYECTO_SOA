@@ -54,14 +54,23 @@
     </div>
   </div>
 
-  <!-- Costo (oculto por defecto como campo avanzado) -->
-  <div class="uta-form-group" *ngIf="producto">
-    <label class="uta-form-label">Costo Unitario ($)</label>
+  <!-- Costo Unitario -->
+  <div class="uta-form-group">
+    <label class="uta-form-label">Costo Unitario ($) <span class="text-danger">*</span></label>
     <div class="uta-input-icon-wrapper">
       <i class="bi bi-cash uta-input-icon"></i>
-      <p-inputNumber formControlName="costoUnitario" mode="currency" currency="USD" locale="en-US"
+      <p-inputNumber formControlName="costoUnitario" mode="decimal" [minFractionDigits]="2"
                      styleClass="w-full border-0" inputStyleClass="uta-form-control-number" 
+                     [class.is-invalid]="form.get('costoUnitario')?.invalid && form.get('costoUnitario')?.touched"
                      placeholder="0.00"></p-inputNumber>
+    </div>
+    <div *ngIf="form.get('costoUnitario')?.touched && form.get('costoUnitario')?.invalid" class="form-error-text">
+      <small>El costo debe ser mayor a 0</small>
+    </div>
+    <!-- Advertencia de precio menor al costo -->
+    <div *ngIf="form.get('precioVenta')?.value! < form.get('costoUnitario')?.value!" class="mt-1 flex align-items-center" style="color: #f59e0b; font-size: 0.8rem;">
+      <i class="bi bi-exclamation-triangle-fill mr-1"></i>
+      <span>¡Atención! El precio de venta es menor al costo unitario.</span>
     </div>
   </div>
 

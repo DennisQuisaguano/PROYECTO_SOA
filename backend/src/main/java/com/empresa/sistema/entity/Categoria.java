@@ -21,10 +21,14 @@ public class Categoria {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+
     @PrePersist
     public void prePersist() {
-        if (id == null) {
-            id = "CAT" + UUID.randomUUID().toString().replace("-", "").substring(0, 7).toUpperCase();
+        if (activo == null) {
+            activo = true;
         }
     }
 }

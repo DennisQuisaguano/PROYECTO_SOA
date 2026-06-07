@@ -31,6 +31,7 @@ public class ProductoServiceImpl implements ProductoService {
     private final com.empresa.sistema.repository.InventarioRepository inventarioRepository;
     private final ProductoMapper productoMapper;
     private final WebSocketEventPublisher eventPublisher;
+    private final com.empresa.sistema.util.SequenceGenerator sequenceGenerator;
 
     @Override
     @Transactional(readOnly = true)
@@ -56,6 +57,24 @@ public class ProductoServiceImpl implements ProductoService {
                 .collect(Collectors.toList());
     }
     @Override
+    @Transactional(readOnly = true)
+    public List<ProductoResponseDTO> findByCategoriaId(String categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId)
+                .stream()
+                .map(productoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoResponseDTO> findAllByCategoriaId(String categoriaId) {
+        return productoRepository.findAllByCategoriaId(categoriaId)
+                .stream()
+                .map(productoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public ProductoResponseDTO create(ProductoRequestDTO dto) {
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
@@ -63,6 +82,10 @@ public class ProductoServiceImpl implements ProductoService {
         
         Producto producto = productoMapper.toEntity(dto);
         producto.setCategoria(categoria);
+        
+        // Generar ID correlativo (ej: PRD054)
+        producto.setId(sequenceGenerator.nextId("PRD"));
+        
         Producto savedProduct = productoRepository.save(producto);
 
         // Inicializar inventario SOLO para la sucursal especificada (si se proporciona)
