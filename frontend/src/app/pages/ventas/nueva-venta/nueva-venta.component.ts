@@ -134,6 +134,8 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     return 'MI NEGOCIO POS';
   }
 
+  ivaGlobalCache: number | null = null;
+
   ngOnInit() {
     this.cargarDatosIniciales();
     this.authService.sucursalActiva$.pipe(takeUntil(this.destroy$)).subscribe(sucursalId => {
@@ -144,10 +146,8 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.notificationService.solicitudes$.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.cargarInventarioLocal();
-      this.cargarDisponibilidadGlobal();
-    });
+    // Eliminamos la suscripción a notificationService.solicitudes$ que causaba recargas cada 3 segundos.
+    // El stock ya se actualiza mediante WebSockets (onStockUpdate).
 
     this.realtimeNotificationService.onStockUpdate()
       .pipe(takeUntil(this.destroy$))
@@ -481,18 +481,27 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
     this.subtotalVenta = 0;
     this.ivaVenta = 0;
     
-    // Obtener IVA global desde el servicio de configuración
-    this.configService.getConfig().subscribe(config => {
-      const porcentajeIva = config.ivaPorcentaje || 15;
-      this.ivaPromedioEtiqueta = porcentajeIva + '%';
-
-      this.productosEnVenta.forEach(item => {
-        this.subtotalVenta += item.subtotal;
-        this.ivaVenta += item.subtotal * (porcentajeIva / 100);
+    if (this.ivaGlobalCache !== null) {
+      this.aplicarTotales(this.ivaGlobalCache);
+    } else {
+      this.configService.getConfig().subscribe(config => {
+        this.ivaGlobalCache = config.ivaPorcentaje || 15;
+        this.aplicarTotales(this.ivaGlobalCache!);
       });
+    }
+  }
 
-      this.totalVenta = this.subtotalVenta + this.ivaVenta;
+  private aplicarTotales(porcentajeIva: number) {
+    this.ivaPromedioEtiqueta = porcentajeIva + '%';
+    this.subtotalVenta = 0;
+    this.ivaVenta = 0;
+
+    this.productosEnVenta.forEach(item => {
+      this.subtotalVenta += item.subtotal;
+      this.ivaVenta += item.subtotal * (porcentajeIva / 100);
     });
+
+    this.totalVenta = this.subtotalVenta + this.ivaVenta;
   }
 
   finalizarVenta() {
