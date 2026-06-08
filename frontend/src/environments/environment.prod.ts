@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-servidor-produccion.com/api',
-  wsUrl: 'https://tu-servidor-produccion.com/ws'
+  apiUrl: 'https://proyectosoa-production.up.railway.app/api',
+  wsUrl: 'https://proyectosoa-production.up.railway.app/ws'
 };
