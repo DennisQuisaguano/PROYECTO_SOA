@@ -31,10 +31,11 @@ export class UsuarioFormComponent implements OnInit {
   form: FormGroup = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(4)]],
     password: [''],
-    nombreCompleto: ['', Validators.required],
+    nombreCompleto: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
     rolId: ['', Validators.required],
     sucursalId: [null],
-    activo: [true]
+    activo: [true],
+    telefono: ['', [Validators.pattern(/^\d{10}$/)]]
   });
 
   roles: Rol[] = [];

@@ -2,6 +2,7 @@ package com.empresa.sistema.service.impl;
 
 import com.empresa.sistema.entity.Categoria;
 import com.empresa.sistema.exception.ResourceNotFoundException;
+import com.empresa.sistema.exception.ValidacionException;
 import com.empresa.sistema.repository.CategoriaRepository;
 import com.empresa.sistema.service.CategoriaService;
 import com.empresa.sistema.util.SequenceGenerator;
@@ -42,6 +43,9 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional
     public Categoria create(Categoria categoria) {
+        if (categoriaRepository.existsByNombreIgnoreCase(categoria.getNombre())) {
+            throw new ValidacionException("La categoría con el nombre '" + categoria.getNombre() + "' ya existe.");
+        }
         categoria.setId(sequenceGenerator.nextId("CAT"));
         categoria.setActivo(true);
         return categoriaRepository.save(categoria);
@@ -53,6 +57,12 @@ public class CategoriaServiceImpl implements CategoriaService {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con id: " + id));
         
+        // Verificar si el nombre cambió y si el nuevo nombre ya existe
+        if (!categoria.getNombre().equalsIgnoreCase(data.getNombre()) && 
+            categoriaRepository.existsByNombreIgnoreCase(data.getNombre())) {
+            throw new ValidacionException("La categoría con el nombre '" + data.getNombre() + "' ya existe.");
+        }
+
         boolean estadoAnterior = categoria.getActivo();
         boolean nuevoEstado = data.getActivo();
 

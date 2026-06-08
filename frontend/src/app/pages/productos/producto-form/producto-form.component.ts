@@ -11,13 +11,14 @@ import { AuthService } from '../../../core/services/auth.service';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-producto-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputNumberModule, DropdownModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputNumberModule, DropdownModule, AutoCompleteModule, ButtonModule],
   templateUrl: './producto-form.component.html',
   styleUrl: './producto-form.component.scss'
 })
@@ -33,6 +34,7 @@ export class ProductoFormComponent implements OnInit {
   private messageService = inject(MessageService);
 
   categorias: Categoria[] = [];
+  categoriasFiltradas: Categoria[] = [];
   sucursales: Sucursal[] = [];
   loading = false;
 
@@ -41,13 +43,21 @@ export class ProductoFormComponent implements OnInit {
     descripcion: [''],
     costoUnitario: [0.01, [Validators.required, Validators.min(0.01)]],
     precioVenta: [0.01, [Validators.required, Validators.min(0.01)]],
-    categoriaId: ['', Validators.required],
+    categoria: [null as Categoria | null, Validators.required],
     stockInicial: [0, [Validators.min(0)]],
     sucursalId: ['']
   });
 
   ngOnInit() {
-    this.categoriaService.obtenerTodas().subscribe(data => this.categorias = data);
+    this.categoriaService.obtenerTodas().subscribe(data => {
+      this.categorias = data;
+      if (this.producto && this.categorias.length > 0) {
+        const cat = this.categorias.find(c => c.id === this.producto?.categoriaId);
+        if (cat) {
+          this.form.patchValue({ categoria: cat });
+        }
+      }
+    });
     this.sucursalService.obtenerTodas().subscribe(data => this.sucursales = data);
 
     const sucursalIdActiva = this.authService.getSucursalId();
@@ -57,8 +67,7 @@ export class ProductoFormComponent implements OnInit {
         nombre: this.producto.nombre,
         descripcion: this.producto.descripcion,
         costoUnitario: this.producto.costoUnitario,
-        precioVenta: this.producto.precioVenta,
-        categoriaId: this.producto.categoriaId
+        precioVenta: this.producto.precioVenta
       });
       this.form.get('stockInicial')?.disable();
       this.form.get('sucursalId')?.disable();
@@ -68,11 +77,23 @@ export class ProductoFormComponent implements OnInit {
     }
   }
 
+  filtrarCategorias(event: AutoCompleteCompleteEvent) {
+    const query = event.query.toLowerCase();
+    this.categoriasFiltradas = this.categorias.filter(c => 
+      c.nombre.toLowerCase().includes(query)
+    );
+  }
+
   onSubmit() {
     if (this.form.invalid) return;
 
     this.loading = true;
-    const request = this.form.getRawValue() as any;
+    const formValue = this.form.getRawValue();
+    const request: any = {
+      ...formValue,
+      categoriaId: formValue.categoria?.id
+    };
+    delete request.categoria;
 
     const obs = this.producto ?
       this.productoService.actualizar(this.producto.id, request) :

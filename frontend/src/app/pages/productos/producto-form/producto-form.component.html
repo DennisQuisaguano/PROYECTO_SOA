@@ -18,12 +18,20 @@
   <!-- Categoría -->
   <div class="uta-form-group">
     <label class="uta-form-label">Categoría <span class="text-danger">*</span></label>
-    <p-dropdown [options]="categorias" formControlName="categoriaId"
-                optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría"
-                styleClass="uta-dropdown-control"
-                [class.is-invalid]="form.get('categoriaId')?.invalid && form.get('categoriaId')?.touched"></p-dropdown>
-    <div *ngIf="form.get('categoriaId')?.touched && form.get('categoriaId')?.invalid" class="form-error-text">
-      <small>Debe seleccionar una categoría</small>
+    <p-autoComplete 
+        formControlName="categoria" 
+        [suggestions]="categoriasFiltradas" 
+        (completeMethod)="filtrarCategorias($event)" 
+        field="nombre"
+        [dropdown]="true" 
+        placeholder="Escriba o seleccione una categoría"
+        styleClass="w-full"
+        inputStyleClass="uta-form-control"
+        [forceSelection]="true"
+        [class.is-invalid]="form.get('categoria')?.invalid && form.get('categoria')?.touched">
+    </p-autoComplete>
+    <div *ngIf="form.get('categoria')?.touched && form.get('categoria')?.invalid" class="form-error-text">
+      <small>Debe seleccionar una categoría válida de la lista</small>
     </div>
   </div>
 

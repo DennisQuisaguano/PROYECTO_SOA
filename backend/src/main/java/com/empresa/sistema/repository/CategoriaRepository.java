@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, String> {
     
+    boolean existsByNombreIgnoreCase(String nombre);
+    
     @org.springframework.data.jpa.repository.Query("SELECT c FROM Categoria c WHERE c.activo = true OR c.activo IS NULL")
     java.util.List<Categoria> findAllActive();
     

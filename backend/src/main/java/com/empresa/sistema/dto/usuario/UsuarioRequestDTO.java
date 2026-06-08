@@ -1,6 +1,7 @@
 package com.empresa.sistema.dto.usuario;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ public class UsuarioRequestDTO {
     private String password;
 
     @NotBlank(message = "El nombre completo es requerido")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El nombre completo solo puede contener letras, tildes y la letra ñ")
     private String nombreCompleto;
 
     @NotBlank(message = "El ID del rol es requerido")
@@ -22,4 +24,7 @@ public class UsuarioRequestDTO {
     private String sucursalId;
     
     private Boolean activo;
+
+    @Pattern(regexp = "^\\d{10}$", message = "El teléfono debe contener exactamente 10 dígitos numéricos")
+    private String telefono;
 }

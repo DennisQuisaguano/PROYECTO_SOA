@@ -24,12 +24,12 @@ export class ClienteFormComponent implements OnInit {
 
   form = this.fb.group({
     cedula: ['', [Validators.required, Validators.pattern(/^\d{10}$/), this.validarCedulaEc]],
-    nombreUno: ['', [Validators.required, Validators.maxLength(50)]],
-    nombreDos: ['', [Validators.maxLength(50)]],
-    apellidoPaterno: ['', [Validators.required, Validators.maxLength(50)]],
-    apellidoMaterno: ['', [Validators.maxLength(50)]],
+    nombreUno: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+    nombreDos: ['', [Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/)]],
+    apellidoPaterno: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+    apellidoMaterno: ['', [Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/)]],
     email: ['', [Validators.required, Validators.email]],
-    telefono: ['', [Validators.required, Validators.maxLength(20)]],
+    telefono: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
     direccion: ['']
   });
 
