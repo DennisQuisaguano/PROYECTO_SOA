@@ -17,6 +17,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, String> {
     @Query("SELECT c FROM Cliente c WHERE c.cedula = :cedula AND c.activo = true")
     Optional<Cliente> findByCedula(String cedula);
 
+    Optional<Cliente> findAnyByCedula(String cedula);
+
     @Query("SELECT c FROM Cliente c WHERE c.id = :id AND c.activo = true")
     Optional<Cliente> findActiveById(String id);
 }

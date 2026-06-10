@@ -39,4 +39,6 @@ public class ClienteRequestDTO {
     private String telefono;
 
     private String direccion;
+
+    private Boolean activo;
 }

@@ -1,15 +1,30 @@
 <form [formGroup]="form" (ngSubmit)="guardar()" class="uta-form">
-  <!-- Información Personal -->
-  <div class="uta-form-group">
-    <label class="uta-form-label">Nombre Completo <span class="text-danger">*</span></label>
-    <div class="uta-input-icon-wrapper">
-      <i class="pi pi-id-card uta-input-icon"></i>
-      <input type="text" pInputText formControlName="nombreCompleto" class="uta-form-control" 
-             placeholder="NOMBRE Y APELLIDOS DEL USUARIO" 
-             [class.is-invalid]="form.get('nombreCompleto')?.invalid && form.get('nombreCompleto')?.touched">
+  
+  <div class="uta-form-grid">
+    <div class="uta-form-group">
+      <label class="uta-form-label">Nombre <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="pi pi-id-card uta-input-icon"></i>
+        <input type="text" pInputText formControlName="nombre" class="uta-form-control" 
+               placeholder="NOMBRE" 
+               [class.ng-invalid]="isFieldInvalid('nombre')" [class.ng-dirty]="isFieldInvalid('nombre')">
+      </div>
+      <div *ngIf="isFieldInvalid('nombre')" class="form-error-text">
+        <small>El nombre es obligatorio</small>
+      </div>
     </div>
-    <div *ngIf="form.get('nombreCompleto')?.touched && form.get('nombreCompleto')?.invalid" class="form-error-text">
-      <small>El nombre completo es obligatorio</small>
+
+    <div class="uta-form-group">
+      <label class="uta-form-label">Apellido <span class="text-danger">*</span></label>
+      <div class="uta-input-icon-wrapper">
+        <i class="pi pi-id-card uta-input-icon"></i>
+        <input type="text" pInputText formControlName="apellido" class="uta-form-control" 
+               placeholder="APELLIDO" 
+               [class.ng-invalid]="isFieldInvalid('apellido')" [class.ng-dirty]="isFieldInvalid('apellido')">
+      </div>
+      <div *ngIf="isFieldInvalid('apellido')" class="form-error-text">
+        <small>El apellido es obligatorio</small>
+      </div>
     </div>
   </div>
 
@@ -20,24 +35,32 @@
       <div class="uta-input-icon-wrapper">
         <i class="pi pi-user uta-input-icon"></i>
         <input type="text" pInputText formControlName="username" class="uta-form-control" 
-               placeholder="ej: jdoe" 
-               [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched">
+               placeholder="EJ. JUAN.PEREZ"
+               [class.ng-invalid]="isFieldInvalid('username')" [class.ng-dirty]="isFieldInvalid('username')">
       </div>
-      <div *ngIf="form.get('username')?.touched && form.get('username')?.invalid" class="form-error-text">
-        <small>Mínimo 4 caracteres</small>
+      <div *ngIf="isFieldInvalid('username')" class="form-error-text">
+        <small *ngIf="form.get('username')?.errors?.['required']">El usuario es obligatorio</small>
+        <small *ngIf="form.get('username')?.errors?.['minlength']">Mínimo 4 caracteres</small>
       </div>
     </div>
 
     <!-- Password -->
     <div class="uta-form-group">
-      <label class="uta-form-label">Contraseña <span class="text-danger" *ngIf="!usuario">*</span><span class="text-secondary" *ngIf="usuario">(Opcional)</span></label>
-      <div class="uta-password-container">
-        <p-password formControlName="password" [feedback]="false" [toggleMask]="true" styleClass="w-full" 
-                    inputStyleClass="uta-form-control-password" placeholder="******" 
-                    [style]="{'width': '100%'}"></p-password>
+      <label class="uta-form-label">
+        Contraseña 
+        <span class="text-muted" *ngIf="usuario">(Opcional)</span>
+        <span class="text-danger" *ngIf="!usuario">*</span>
+      </label>
+      <div class="uta-input-icon-wrapper">
+        <i class="pi pi-lock uta-input-icon"></i>
+        <p-password formControlName="password" [toggleMask]="true" [feedback]="false"
+                    styleClass="w-full" inputStyleClass="uta-form-control"
+                    placeholder="••••••"
+                    [class.ng-invalid]="isFieldInvalid('password')" [class.ng-dirty]="isFieldInvalid('password')"></p-password>
       </div>
-      <div *ngIf="form.get('password')?.touched && form.get('password')?.invalid" class="form-error-text">
-        <small>Mínimo 6 caracteres</small>
+      <div *ngIf="isFieldInvalid('password')" class="form-error-text">
+        <small *ngIf="form.get('password')?.errors?.['required']">La contraseña es obligatoria</small>
+        <small *ngIf="form.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</small>
       </div>
     </div>
   </div>
@@ -48,12 +71,28 @@
       <label class="uta-form-label">Rol del Sistema <span class="text-danger">*</span></label>
       <p-dropdown [options]="roles" formControlName="rolId" optionLabel="nombre" optionValue="id" 
                   placeholder="Seleccione un rol" styleClass="uta-dropdown-control"
-                  [class.is-invalid]="form.get('rolId')?.invalid && form.get('rolId')?.touched"></p-dropdown>
-      <div *ngIf="form.get('rolId')?.touched && form.get('rolId')?.invalid" class="form-error-text">
+                  [class.ng-invalid]="isFieldInvalid('rolId')" [class.ng-dirty]="isFieldInvalid('rolId')"></p-dropdown>
+      <div *ngIf="isFieldInvalid('rolId')" class="form-error-text">
         <small>Debe asignar un rol</small>
       </div>
     </div>
 
+    <!-- Teléfono -->
+    <div class="uta-form-group">
+      <label class="uta-form-label">Teléfono (10 dígitos)</label>
+      <div class="uta-input-icon-wrapper">
+        <i class="pi pi-phone uta-input-icon"></i>
+        <input type="text" pInputText formControlName="telefono" class="uta-form-control" 
+               placeholder="ej: 0987654321" maxlength="10"
+               [class.is-invalid]="isFieldInvalid('telefono')" [class.ng-dirty]="isFieldInvalid('telefono')">
+      </div>
+      <div *ngIf="isFieldInvalid('telefono')" class="form-error-text">
+        <small>Debe tener exactamente 10 dígitos</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="uta-form-grid">
     <!-- Sucursal -->
     <div class="uta-form-group">
       <label class="uta-form-label">Sucursal Asignada</label>
@@ -63,8 +102,8 @@
   </div>
 
   <!-- Estado -->
-  <div class="uta-form-group mt-2" *ngIf="usuario">
-    <div class="flex align-items-center gap-3 p-3 bg-gray-50 border-round-xl border-1 border-gray-200">
+  <div class="uta-form-group mt-3" *ngIf="usuario">
+    <div class="flex align-items-center">
       <p-checkbox formControlName="activo" [binary]="true" inputId="activo"></p-checkbox>
       <label for="activo" class="uta-form-label-checkbox m-0 cursor-pointer">
         Usuario habilitado para entrar al sistema
@@ -74,11 +113,13 @@
 
   <!-- Buttons -->
   <div class="uta-modal__footer">
-    <button type="button" class="uta-btn uta-btn--outline" (click)="guardado.emit()">Cancelar</button>
-    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || loading">
+    <button type="button" class="uta-btn uta-btn--outline" (click)="onCancelar()">Cancelar</button>
+    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || form.pristine || loading">
       <i class="pi pi-check" *ngIf="!loading"></i>
       <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
       &nbsp;{{ usuario ? 'Guardar Cambios' : 'Crear Usuario' }}
     </button>
   </div>
 </form>
+
+<p-confirmDialog [style]="{width: '450px'}" styleClass="premium-dialog"></p-confirmDialog>

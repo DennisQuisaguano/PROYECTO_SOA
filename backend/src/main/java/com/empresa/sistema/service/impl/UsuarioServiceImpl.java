@@ -58,6 +58,10 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new ValidacionException("La contraseña es requerida");
         }
 
+        if (dto.getPassword().length() < 6) {
+            throw new ValidacionException("La contraseña debe tener al menos 6 caracteres");
+        }
+
         Rol rol = rolRepository.findById(dto.getRolId())
                 .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
 
@@ -103,6 +107,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioMapper.updateEntityFromDto(dto, usuario);
         
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            if (dto.getPassword().length() < 6) {
+                throw new ValidacionException("La nueva contraseña debe tener al menos 6 caracteres");
+            }
             usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
         

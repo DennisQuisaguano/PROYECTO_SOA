@@ -11,12 +11,15 @@ public class UsuarioRequestDTO {
     @Size(min = 4, max = 50)
     private String username;
 
-    @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;
 
-    @NotBlank(message = "El nombre completo es requerido")
-    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El nombre completo solo puede contener letras, tildes y la letra ñ")
-    private String nombreCompleto;
+    @NotBlank(message = "El nombre es requerido")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El nombre solo puede contener letras")
+    private String nombre;
+
+    @NotBlank(message = "El apellido es requerido")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El apellido solo puede contener letras")
+    private String apellido;
 
     @NotBlank(message = "El ID del rol es requerido")
     private String rolId;

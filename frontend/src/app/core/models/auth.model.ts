@@ -8,6 +8,8 @@ export interface AuthResponse {
   userId: string;
   username: string;
   rol: string;
-  sucursalId: string;
+  sucursalId: string | null;
+  nombre: string;
+  apellido: string;
   nombreCompleto: string;
 }

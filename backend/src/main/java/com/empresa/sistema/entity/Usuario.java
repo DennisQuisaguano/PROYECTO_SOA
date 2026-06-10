@@ -21,8 +21,11 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "nombre_completo", nullable = false, length = 150)
-    private String nombreCompleto;
+    @Column(nullable = false, length = 50)
+    private String nombre;
+
+    @Column(nullable = false, length = 50)
+    private String apellido;
 
     @Column(columnDefinition = "TINYINT(1)")
     @Builder.Default
@@ -35,6 +38,9 @@ public class Usuario {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sucursal_id", nullable = true)
     private Sucursal sucursal;
+
+    @Column(length = 10)
+    private String telefono;
 
     @PrePersist
     public void prePersist() {

@@ -51,7 +51,8 @@ public class DataInitializer implements CommandLineRunner {
                     .id("USR001")
                     .username("admin")
                     .password(passwordEncoder.encode("admin123")) // Cambiar tras el primer inicio
-                    .nombreCompleto("Administrador")
+                    .nombre("Administrador")
+                    .apellido("Sistema")
                     .rol(adminRol)
                     .activo(true)
                     .build());

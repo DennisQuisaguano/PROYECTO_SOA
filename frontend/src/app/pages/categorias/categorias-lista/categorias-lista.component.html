@@ -204,7 +204,7 @@
         <button class="uta-modal__close" (click)="mostrarDialog = false"><i class="bi bi-x-lg"></i></button>
       </div>
       <div class="uta-modal__body">
-        <app-categoria-form [categoria]="categoriaSeleccionada" (guardado)="onGuardado()"></app-categoria-form>
+        <app-categoria-form [categoria]="categoriaSeleccionada" (guardado)="onGuardado()" (cancelado)="mostrarDialog = false"></app-categoria-form>
       </div>
     </div>
   </div>

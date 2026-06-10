@@ -43,19 +43,21 @@ CREATE TABLE usuarios (
     id VARCHAR(10) PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    nombre_completo VARCHAR(150) NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
     activo TINYINT(1) DEFAULT 1,
     rol_id VARCHAR(10) NOT NULL,
     sucursal_id VARCHAR(10),
+    telefono VARCHAR(10),
     FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (sucursal_id) REFERENCES sucursales(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 5. categorias
 CREATE TABLE categorias (
     id VARCHAR(10) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT
+    descripcion TEXT,
+    activo TINYINT(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 6. productos
@@ -91,7 +93,8 @@ CREATE TABLE clientes (
     apellido_materno VARCHAR(50),
     email VARCHAR(150),
     telefono VARCHAR(20),
-    direccion TEXT
+    direccion TEXT,
+    activo TINYINT(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 9. configuracion_factura
@@ -110,13 +113,20 @@ CREATE TABLE ventas (
     subtotal DECIMAL(10,2) NOT NULL,
     iva DECIMAL(10,2) NOT NULL,
     total DECIMAL(10,2) NOT NULL,
-    estado ENUM('PENDIENTE', 'COMPLETADA', 'ANULADA') NOT NULL,
+    estado VARCHAR(20) NOT NULL,
     cliente_id VARCHAR(10) NOT NULL,
     sucursal_id VARCHAR(10) NOT NULL,
     cajero_id VARCHAR(10) NOT NULL,
+    cliente_nombre_completo VARCHAR(255) NOT NULL,
+    cliente_cedula VARCHAR(15) NOT NULL,
+    cliente_direccion TEXT,
+    cliente_telefono VARCHAR(20),
+    cliente_email VARCHAR(150),
     FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (sucursal_id) REFERENCES sucursales(id) ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (cajero_id) REFERENCES usuarios(id) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (cajero_id) REFERENCES usuarios(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    INDEX idx_venta_fecha (fecha),
+    INDEX idx_venta_sucursal_fecha (sucursal_id, fecha)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 11. detalle_ventas
@@ -125,7 +135,9 @@ CREATE TABLE detalle_ventas (
     venta_id VARCHAR(10) NOT NULL,
     producto_id VARCHAR(10) NOT NULL,
     cantidad INT NOT NULL,
+    producto_nombre VARCHAR(150) NOT NULL,
     precio_unitario DECIMAL(10,2) NOT NULL,
+    porcentaje_iva DECIMAL(5,2),
     subtotal DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (venta_id) REFERENCES ventas(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT ON UPDATE CASCADE

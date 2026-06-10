@@ -3,22 +3,27 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { Cliente, ClienteRequest } from '../../../core/models/cliente.model';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-cliente-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  providers: [MessageService],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmDialogModule, ButtonModule, InputTextModule],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './cliente-form.component.html',
-  styles: []
+  styleUrl: './cliente-form.component.scss'
 })
 export class ClienteFormComponent implements OnInit {
   @Input() cliente: Cliente | null = null;
   @Output() guardado = new EventEmitter<void>();
+  @Output() cancelado = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   private clienteService = inject(ClienteService);
+  private confirmationService = inject(ConfirmationService);
 
   loading = false;
 
@@ -62,11 +67,20 @@ export class ClienteFormComponent implements OnInit {
     return digitoCalculado === digitoVerificador ? null : { cedulaInvalida: true };
   }
 
+  isFieldInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
   onSubmit() {
     if (this.form.invalid) return;
 
     this.loading = true;
-    const request = this.form.getRawValue() as ClienteRequest;
+    const formValue = this.form.getRawValue();
+    const request: ClienteRequest = {
+      ...formValue,
+      activo: this.cliente ? this.cliente.activo : true
+    } as ClienteRequest;
 
     const obs = this.cliente ?
       this.clienteService.actualizar(this.cliente.id, request) :
@@ -78,5 +92,24 @@ export class ClienteFormComponent implements OnInit {
       },
       error: () => this.loading = false
     });
+  }
+
+  onCancelar() {
+    if (this.form.dirty) {
+      this.confirmationService.confirm({
+        message: 'Hay cambios sin guardar en el cliente. ¿Está seguro que desea salir?',
+        header: 'Confirmar Cancelación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'SÍ, SALIR',
+        rejectLabel: 'CONTINUAR EDITANDO',
+        acceptButtonStyleClass: 'p-button-danger p-button-text',
+        rejectButtonStyleClass: 'p-button-text p-button-secondary',
+        accept: () => {
+          this.cancelado.emit();
+        }
+      });
+    } else {
+      this.cancelado.emit();
+    }
   }
 }

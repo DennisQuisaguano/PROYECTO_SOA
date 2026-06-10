@@ -13,10 +13,14 @@ import { CheckboxModule } from 'primeng/checkbox';
 
 import { InputNumberModule } from 'primeng/inputnumber';
 
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+
 @Component({
   selector: 'app-usuario-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, DropdownModule, InputTextModule, PasswordModule, CheckboxModule, InputNumberModule],
+  imports: [CommonModule, ReactiveFormsModule, ButtonModule, DropdownModule, InputTextModule, PasswordModule, CheckboxModule, InputNumberModule, ConfirmDialogModule],
+  providers: [ConfirmationService],
   templateUrl: './usuario-form.component.html',
   styleUrl: './usuario-form.component.scss'
 })
@@ -24,14 +28,17 @@ export class UsuarioFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private usuarioService = inject(UsuarioService);
   private sucursalService = inject(SucursalService);
+  private confirmationService = inject(ConfirmationService);
 
   @Input() usuario: Usuario | null = null;
   @Output() guardado = new EventEmitter<void>();
+  @Output() cancelado = new EventEmitter<void>();
 
   form: FormGroup = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(4)]],
     password: [''],
-    nombreCompleto: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+    nombre: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+    apellido: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
     rolId: ['', Validators.required],
     sucursalId: [null],
     activo: [true],
@@ -49,17 +56,38 @@ export class UsuarioFormComponent implements OnInit {
     if (this.usuario) {
       this.form.patchValue({
         username: this.usuario.username,
-        nombreCompleto: this.usuario.nombreCompleto,
+        nombre: this.usuario.nombre,
+        apellido: this.usuario.apellido,
         rolId: this.usuario.rolId,
         sucursalId: this.usuario.sucursalId,
-        activo: this.usuario.activo
+        activo: this.usuario.activo,
+        telefono: this.usuario.telefono
       });
-      // La contraseña no es requerida al editar
-      this.form.get('password')?.setValidators(null);
+      
+      // Limpiar validadores para edición (hacerlo opcional)
+      const passwordControl = this.form.get('password');
+      passwordControl?.clearValidators();
+      
+      // Solo si el usuario escribe algo, validar longitud mínima
+      passwordControl?.valueChanges.subscribe(value => {
+        if (value && value.length > 0) {
+          passwordControl.setValidators([Validators.minLength(6)]);
+        } else {
+          passwordControl.clearValidators();
+        }
+        passwordControl.updateValueAndValidity({ emitEvent: false });
+      });
+
     } else {
-      // La contraseña es requerida al crear
+      // Al crear, la contraseña es obligatoria y con longitud mínima
       this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     }
+    this.form.get('password')?.updateValueAndValidity();
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && (control.touched || control.dirty));
   }
 
   cargarRoles() {
@@ -92,6 +120,25 @@ export class UsuarioFormComponent implements OnInit {
         },
         error: () => this.loading = false
       });
+    }
+  }
+
+  onCancelar() {
+    if (this.form.dirty) {
+      this.confirmationService.confirm({
+        message: 'Hay cambios sin guardar. ¿Está seguro que desea salir?',
+        header: 'Confirmar Cancelación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'SÍ, SALIR',
+        rejectLabel: 'CONTINUAR EDITANDO',
+        acceptButtonStyleClass: 'p-button-danger p-button-text',
+        rejectButtonStyleClass: 'p-button-text p-button-secondary',
+        accept: () => {
+          this.cancelado.emit();
+        }
+      });
+    } else {
+      this.cancelado.emit();
     }
   }
 }

@@ -14,6 +14,7 @@ public interface UsuarioMapper {
     @Mapping(source = "rol.nombre", target = "rolNombre")
     @Mapping(source = "sucursal.id", target = "sucursalId")
     @Mapping(source = "sucursal.nombre", target = "sucursalNombre")
+    @Mapping(target = "nombreCompleto", expression = "java(entity.getNombre() + \" \" + entity.getApellido())")
     UsuarioResponseDTO toDto(Usuario entity);
 
     @Mapping(target = "id", ignore = true)

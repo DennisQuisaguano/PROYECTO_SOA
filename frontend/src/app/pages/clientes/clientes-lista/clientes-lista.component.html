@@ -86,14 +86,18 @@
               <td class="text-600">{{ cliente.telefono }}</td>
               <td class="text-600">{{ cliente.email }}</td>
               <td class="text-center">
-                <span class="client-status-badge">Activo</span>
+                <span class="uta-badge" [ngClass]="cliente.activo ? 'uta-badge--green' : 'uta-badge--red'">
+                  <i class="pi" [class.pi-check-circle]="cliente.activo" [class.pi-times-circle]="!cliente.activo" 
+                     style="font-size: 0.75rem; margin-right: 6px;"></i>
+                  {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+                </span>
               </td>
               <td class="text-center" *ngIf="isAdmin">
                 <div class="d-flex gap-2 justify-content-center">
-                  <button class="action-btn btn-edit-client" (click)="editarCliente(cliente)" title="Editar cliente">
+                  <button class="action-btn btn-edit-client" (click)="editarCliente(cliente)" title="Editar / Reactivar">
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  <button class="action-btn btn-delete-client" (click)="eliminarCliente(cliente)" title="Eliminar cliente">
+                  <button *ngIf="cliente.activo" class="action-btn btn-delete-client" (click)="eliminarCliente(cliente)" title="Desactivar cliente">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -123,5 +127,6 @@
 <!-- ==================== DIALOG ==================== -->
 <p-dialog [header]="clienteEditando ? 'Editar Cliente' : 'Nuevo Cliente'" [(visible)]="displayForm" [modal]="true" [style]="{width: '600px'}"
           [styleClass]="'premium-dialog'">
-  <app-cliente-form *ngIf="displayForm" [cliente]="clienteEditando" (guardado)="onGuardado()"></app-cliente-form>
+  <app-cliente-form *ngIf="displayForm" [cliente]="clienteEditando" 
+                    (guardado)="onGuardado()" (cancelado)="displayForm = false"></app-cliente-form>
 </p-dialog>

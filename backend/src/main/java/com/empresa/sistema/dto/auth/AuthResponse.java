@@ -15,5 +15,7 @@ public class AuthResponse {
     private String username;
     private String rol;
     private String sucursalId;
+    private String nombre;
+    private String apellido;
     private String nombreCompleto;
 }

@@ -83,10 +83,9 @@ export class ClientesListaComponent implements OnInit {
 
     // Filter by active state tab
     if (this.estadoFilter === 'ACTIVOS') {
-      // All customers are treated as active since they don't have an active flag
-      filtered = [...this.clientes];
+      filtered = this.clientes.filter(c => c.activo);
     } else if (this.estadoFilter === 'INACTIVOS') {
-      filtered = [];
+      filtered = this.clientes.filter(c => !c.activo);
     }
 
     if (this.searchTerm.trim()) {

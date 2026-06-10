@@ -255,9 +255,9 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   }
 
   filtrarInventarioRemoto() {
-    // REQUERIMIENTO: Solo productos que NO existan en la sucursal actual
+    // REQUERIMIENTO: Solo productos que NO existan en la sucursal actual Y que estén ACTIVOS
     const idsLocales = new Set(this.inventarioLocal.map(i => i.productoId));
-    let filtered = this.inventarioRemotoTotal.filter(i => !idsLocales.has(i.productoId));
+    let filtered = this.inventarioRemotoTotal.filter(i => !idsLocales.has(i.productoId) && i.activo);
 
     if (this.categoriaFiltroRemoto) {
       filtered = filtered.filter(i => i.categoriaId === this.categoriaFiltroRemoto);
@@ -288,25 +288,21 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
   }
 
   filtrarProductos() {
-    if (!this.productosGlobales) return;
+    if (!this.inventarioLocal) return;
 
     const term = this.productSearchTerm.toLowerCase().trim();
     
-    this.productosFiltrados = this.productosGlobales
-      .filter(p => p.nombre.toLowerCase().includes(term) || p.id.toLowerCase().includes(term))
-      .map(p => {
-        const inv = this.inventarioLocal.find(i => i.productoId === p.id);
-        return {
-          productoId: p.id,
-          productoNombre: p.nombre,
-          precioVenta: p.precioVenta,
-          stock: inv ? inv.stock : 0,
-          sucursalId: this.authService.getSucursalId()!,
-          sucursalNombre: this.sucursalNombre,
-          categoriaId: p.categoriaId,
-          categoriaNombre: p.categoriaNombre
-        } as Inventario;
-      });
+    // Filtrar: Solo productos que EXISTAN en el inventario de esta sucursal Y estén ACTIVOS
+    // Se incluyen los de stock 0 LOCALES, pero se ignoran los que no pertenecen a esta sucursal
+    this.productosFiltrados = this.inventarioLocal
+      .filter(inv => 
+        inv.activo && 
+        (inv.productoNombre.toLowerCase().includes(term) || inv.productoId.toLowerCase().includes(term))
+      )
+      .map(inv => ({
+        ...inv,
+        sucursalNombre: this.sucursalNombre
+      } as Inventario));
   }
 
   seleccionarCliente(cliente: Cliente) {
@@ -320,7 +316,7 @@ export class NuevaVentaComponent implements OnInit, OnDestroy {
 
   abrirClienteDialog() {
     this.clienteService.obtenerTodos().subscribe(data => {
-      this.listaClientes = data;
+      this.listaClientes = data.filter(c => c.activo);
       this.filtrarClientes();
       this.displayClienteDialog = true;
     });

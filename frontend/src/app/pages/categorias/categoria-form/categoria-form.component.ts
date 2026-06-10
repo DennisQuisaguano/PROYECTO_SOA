@@ -7,20 +7,26 @@ import { MessageService } from 'primeng/api';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputNumberModule } from 'primeng/inputnumber';
 
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+
 @Component({
   selector: 'app-categoria-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputSwitchModule, InputNumberModule],
+  imports: [CommonModule, ReactiveFormsModule, InputSwitchModule, InputNumberModule, ConfirmDialogModule],
+  providers: [ConfirmationService],
   templateUrl: './categoria-form.component.html',
   styleUrl: './categoria-form.component.scss'
 })
 export class CategoriaFormComponent implements OnInit {
   @Input() categoria: Categoria | null = null;
   @Output() guardado = new EventEmitter<void>();
+  @Output() cancelado = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   private categoriaService = inject(CategoriaService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   loading = false;
 
@@ -40,6 +46,11 @@ export class CategoriaFormComponent implements OnInit {
     }
   }
 
+  isFieldInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
   onSubmit() {
     if (this.form.invalid) return;
 
@@ -57,5 +68,24 @@ export class CategoriaFormComponent implements OnInit {
       },
       error: () => this.loading = false
     });
+  }
+
+  onCancelar() {
+    if (this.form.dirty) {
+      this.confirmationService.confirm({
+        message: 'Hay cambios sin guardar en la categoría. ¿Está seguro que desea salir?',
+        header: 'Confirmar Cancelación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'SÍ, SALIR',
+        rejectLabel: 'CONTINUAR EDITANDO',
+        acceptButtonStyleClass: 'p-button-danger p-button-text',
+        rejectButtonStyleClass: 'p-button-text p-button-secondary',
+        accept: () => {
+          this.cancelado.emit();
+        }
+      });
+    } else {
+      this.cancelado.emit();
+    }
   }
 }

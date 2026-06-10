@@ -32,7 +32,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public List<ClienteResponseDTO> findAll() {
-        return clienteRepository.findAllActive().stream()
+        return clienteRepository.findAll().stream()
                 .map(clienteMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -40,7 +40,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public ClienteResponseDTO findById(String id) {
-        return clienteRepository.findActiveById(id)
+        return clienteRepository.findById(id)
                 .map(clienteMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con id: " + id));
     }
@@ -48,7 +48,7 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public ClienteResponseDTO findByCedula(String cedula) {
-        return clienteRepository.findByCedula(cedula)
+        return clienteRepository.findAnyByCedula(cedula)
                 .map(clienteMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con cédula: " + cedula));
     }
@@ -57,8 +57,8 @@ public class ClienteServiceImpl implements ClienteService {
     @Transactional
     public ClienteResponseDTO create(ClienteRequestDTO dto) {
         validadorCedula.validar(dto.getCedula());
-        if (clienteRepository.findByCedula(dto.getCedula()).isPresent()) {
-            throw new ValidacionException("Ya existe un cliente activo con la cédula ingresada");
+        if (clienteRepository.findAnyByCedula(dto.getCedula()).isPresent()) {
+            throw new ValidacionException("Ya existe un cliente registrado con la cédula ingresada (puede estar inactivo)");
         }
         Cliente cliente = clienteMapper.toEntity(dto);
         cliente.setActivo(true);
@@ -83,17 +83,23 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional
     public ClienteResponseDTO update(String id, ClienteRequestDTO dto) {
-        Cliente cliente = clienteRepository.findActiveById(id)
+        Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con id: " + id));
         
         if (!cliente.getCedula().equals(dto.getCedula())) {
             validadorCedula.validar(dto.getCedula());
-            if (clienteRepository.findByCedula(dto.getCedula()).isPresent()) {
-                throw new ValidacionException("Ya existe un cliente activo con la cédula ingresada");
+            if (clienteRepository.findAnyByCedula(dto.getCedula()).isPresent()) {
+                throw new ValidacionException("Ya existe un cliente registrado con la cédula ingresada");
             }
         }
 
         clienteMapper.updateEntityFromDto(dto, cliente);
+        
+        // Si el DTO trae un estado de activo, lo actualizamos (útil para reactivar)
+        if (dto.getActivo() != null) {
+            cliente.setActivo(dto.getActivo());
+        }
+
         Cliente saved = clienteRepository.save(cliente);
 
         // Notificar via WebSocket

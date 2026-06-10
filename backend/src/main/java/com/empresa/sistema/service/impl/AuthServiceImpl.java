@@ -46,7 +46,9 @@ public class AuthServiceImpl implements AuthService {
                 .username(usuario.getUsername())
                 .rol(rolNombre)
                 .sucursalId(sucursalId)
-                .nombreCompleto(usuario.getNombreCompleto())
+                .nombre(usuario.getNombre())
+                .apellido(usuario.getApellido())
+                .nombreCompleto(usuario.getNombre() + " " + usuario.getApellido())
                 .build();
     }
 }

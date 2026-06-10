@@ -3,7 +3,11 @@
     <label class="form-label-custom">Nombre de Categoría <span class="text-danger">*</span></label>
     <div class="input-row-custom">
       <i class="bi bi-tag field-icon-outside"></i>
-      <input type="text" formControlName="nombre" placeholder="EJ: ELECTRÓNICA" />
+      <input type="text" formControlName="nombre" placeholder="EJ: ELECTRÓNICA" 
+             [class.ng-invalid]="isFieldInvalid('nombre')" [class.ng-dirty]="isFieldInvalid('nombre')" />
+    </div>
+    <div *ngIf="isFieldInvalid('nombre')" class="form-error-text">
+      <small>El nombre de la categoría es obligatorio</small>
     </div>
   </div>
 
@@ -29,11 +33,13 @@
   </div>
 
   <div class="form-buttons-row">
-    <button type="button" class="btn-cancel-custom" (click)="guardado.emit()">Cancelar</button>
-    <button type="submit" class="btn-save-custom" [disabled]="form.invalid || loading">
+    <button type="button" class="btn-cancel-custom" (click)="onCancelar()">Cancelar</button>
+    <button type="submit" class="btn-save-custom" [disabled]="form.invalid || form.pristine || loading">
       <i class="pi pi-check" *ngIf="!loading"></i>
       <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
       Guardar Categoría
     </button>
   </div>
 </form>
+
+<p-confirmDialog [style]="{width: '450px'}" styleClass="premium-dialog"></p-confirmDialog>

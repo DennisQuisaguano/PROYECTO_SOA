@@ -175,7 +175,8 @@
 <p-dialog [header]="usuarioEditando ? 'Configurar Perfil de Usuario' : 'Registrar Nuevo Usuario'" 
           [(visible)]="displayForm" [modal]="true" [style]="{width: '650px'}"
           [styleClass]="'premium-dialog'" [draggable]="false" [resizable]="false">
-  <app-usuario-form *ngIf="displayForm" [usuario]="usuarioEditando" (guardado)="onGuardado()"></app-usuario-form>
+  <app-usuario-form *ngIf="displayForm" [usuario]="usuarioEditando" 
+                    (guardado)="onGuardado()" (cancelado)="displayForm = false"></app-usuario-form>
 </p-dialog>
 
 <!-- ==================== TOAST ==================== -->

@@ -13,18 +13,21 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-producto-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputNumberModule, DropdownModule, AutoCompleteModule, ButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputNumberModule, DropdownModule, AutoCompleteModule, ButtonModule, ConfirmDialogModule],
+  providers: [ConfirmationService],
   templateUrl: './producto-form.component.html',
   styleUrl: './producto-form.component.scss'
 })
 export class ProductoFormComponent implements OnInit {
   @Input() producto: Producto | null = null;
   @Output() guardado = new EventEmitter<void>();
+  @Output() cancelado = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   private productoService = inject(ProductoService);
@@ -32,6 +35,7 @@ export class ProductoFormComponent implements OnInit {
   private sucursalService = inject(SucursalService);
   public authService = inject(AuthService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   categorias: Categoria[] = [];
   categoriasFiltradas: Categoria[] = [];
@@ -84,6 +88,11 @@ export class ProductoFormComponent implements OnInit {
     );
   }
 
+  isFieldInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
   onSubmit() {
     if (this.form.invalid) return;
 
@@ -106,5 +115,24 @@ export class ProductoFormComponent implements OnInit {
       },
       error: () => this.loading = false
     });
+  }
+
+  onCancelar() {
+    if (this.form.dirty) {
+      this.confirmationService.confirm({
+        message: 'Hay cambios sin guardar en el producto. ¿Está seguro que desea salir?',
+        header: 'Confirmar Cancelación',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'SÍ, SALIR',
+        rejectLabel: 'CONTINUAR EDITANDO',
+        acceptButtonStyleClass: 'p-button-danger p-button-text',
+        rejectButtonStyleClass: 'p-button-text p-button-secondary',
+        accept: () => {
+          this.cancelado.emit();
+        }
+      });
+    } else {
+      this.cancelado.emit();
+    }
   }
 }

@@ -59,6 +59,40 @@
     background: #fff;
     box-shadow: 0 0 0 3px rgba(107, 26, 51, 0.1);
   }
+
+  /* Handle PrimeNG Password within input icon wrappers */
+  ::ng-deep {
+    p-password {
+      width: 100%;
+      display: block;
+    }
+
+    .p-password {
+      width: 100%;
+      display: block;
+
+      /* Target the actual inner input element of p-password and reset/style it */
+      input {
+        width: 100% !important;
+        border: none !important;
+        background: transparent !important;
+        padding: 10px 40px 10px 38px !important; /* spacing for left lock icon and right eye icon */
+        font-size: 0.9rem;
+        color: #1e293b;
+        outline: none !important;
+        box-shadow: none !important;
+
+        &::placeholder {
+          color: #94a3b8;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .p-password-panel {
+      display: none !important;
+    }
+  }
 }
 
 .uta-input-icon {
@@ -83,40 +117,6 @@
   &::placeholder {
     color: #94a3b8;
     font-size: 0.85rem;
-  }
-}
-
-/* Password layout overrides */
-.uta-password-container {
-  width: 100%;
-
-  ::ng-deep {
-    .p-password {
-      width: 100%;
-    }
-
-    .uta-form-control-password {
-      width: 100%;
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 0.9rem;
-      color: #1e293b;
-      outline: none;
-      transition: all 0.2s;
-
-      &::placeholder {
-        color: #94a3b8;
-        font-size: 0.85rem;
-      }
-
-      &:focus {
-        border-color: #6B1A33 !important;
-        background: #fff;
-        box-shadow: 0 0 0 3px rgba(107, 26, 51, 0.1);
-      }
-    }
   }
 }
 

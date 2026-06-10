@@ -5,12 +5,12 @@
     <div class="uta-input-icon-wrapper">
       <i class="bi bi-tag uta-input-icon"></i>
       <input class="uta-form-control" 
-             [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
+             [class.is-invalid]="isFieldInvalid('nombre')"
              type="text" 
              formControlName="nombre" 
              placeholder="NOMBRE DESCRIPTIVO DEL PRODUCTO" />
     </div>
-    <div *ngIf="form.get('nombre')?.touched && form.get('nombre')?.invalid" class="form-error-text">
+    <div *ngIf="isFieldInvalid('nombre')" class="form-error-text">
       <small>La descripción es obligatoria (máx. 150 caracteres)</small>
     </div>
   </div>
@@ -28,9 +28,9 @@
         styleClass="w-full"
         inputStyleClass="uta-form-control"
         [forceSelection]="true"
-        [class.is-invalid]="form.get('categoria')?.invalid && form.get('categoria')?.touched">
+        [class.is-invalid]="isFieldInvalid('categoria')">
     </p-autoComplete>
-    <div *ngIf="form.get('categoria')?.touched && form.get('categoria')?.invalid" class="form-error-text">
+    <div *ngIf="isFieldInvalid('categoria')" class="form-error-text">
       <small>Debe seleccionar una categoría válida de la lista</small>
     </div>
   </div>
@@ -43,10 +43,10 @@
         <i class="bi bi-currency-dollar uta-input-icon"></i>
         <p-inputNumber formControlName="precioVenta" mode="decimal" [minFractionDigits]="2"
                        styleClass="w-full border-0" inputStyleClass="uta-form-control-number" 
-                       [class.is-invalid]="form.get('precioVenta')?.invalid && form.get('precioVenta')?.touched"
+                       [class.is-invalid]="isFieldInvalid('precioVenta')"
                        placeholder="0.00"></p-inputNumber>
       </div>
-      <div *ngIf="form.get('precioVenta')?.touched && form.get('precioVenta')?.invalid" class="form-error-text">
+      <div *ngIf="isFieldInvalid('precioVenta')" class="form-error-text">
         <small>El precio debe ser mayor a 0</small>
       </div>
     </div>
@@ -69,20 +69,22 @@
       <i class="bi bi-cash uta-input-icon"></i>
       <p-inputNumber formControlName="costoUnitario" mode="decimal" [minFractionDigits]="2"
                      styleClass="w-full border-0" inputStyleClass="uta-form-control-number" 
-                     [class.is-invalid]="form.get('costoUnitario')?.invalid && form.get('costoUnitario')?.touched"
+                     [class.is-invalid]="isFieldInvalid('costoUnitario')"
                      placeholder="0.00"></p-inputNumber>
     </div>
     <div *ngIf="form.get('costoUnitario')?.touched && form.get('costoUnitario')?.invalid" class="form-error-text">
       <small>El costo debe ser mayor a 0</small>
     </div>
-    <!-- Advertencia de precio menor al costo -->
-    <div *ngIf="form.get('precioVenta')?.value! < form.get('costoUnitario')?.value!" class="mt-1 flex align-items-center" style="color: #f59e0b; font-size: 0.8rem;">
-      <i class="bi bi-exclamation-triangle-fill mr-1"></i>
-      <span>¡Atención! El precio de venta es menor al costo unitario.</span>
+    <!-- Alerta de Margen: Precio < Costo -->
+    <div *ngIf="form.get('precioVenta')?.value !== null && form.get('costoUnitario')?.value !== null && (form.get('precioVenta')?.value || 0) < (form.get('costoUnitario')?.value || 0)" 
+         class="mt-2 p-2 border-round flex align-items-center" 
+         style="background-color: #fffbeb; border: 1px solid #f59e0b; color: #92400e; font-size: 0.85rem;">
+      <i class="pi pi-exclamation-triangle mr-2" style="font-size: 1rem;"></i>
+      <span><b>¡Atención!</b> El precio de venta es menor al costo. Esto generará pérdidas en cada venta.</span>
     </div>
   </div>
 
-  <!-- Sucursal (solo creación y solo si no es Bodeguero) -->
+  <!-- Sucursal -->
   <div class="uta-form-group" *ngIf="!producto && !authService.isBodeguero()">
     <label class="uta-form-label">Sucursal para Stock Inicial</label>
     <p-dropdown [options]="sucursales" formControlName="sucursalId"
@@ -92,11 +94,13 @@
 
   <!-- Buttons -->
   <div class="uta-modal__footer">
-    <button type="button" class="uta-btn uta-btn--outline" (click)="guardado.emit()">Cancelar</button>
-    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || loading">
+    <button type="button" class="uta-btn uta-btn--outline" (click)="onCancelar()">Cancelar</button>
+    <button type="submit" class="uta-btn uta-btn--primary" [disabled]="form.invalid || form.pristine || loading">
       <i class="pi pi-check" *ngIf="!loading"></i>
       <i class="pi pi-spin pi-spinner" *ngIf="loading"></i>
       &nbsp;Guardar Producto
     </button>
   </div>
 </form>
+
+<p-confirmDialog [style]="{width: '450px'}" styleClass="premium-dialog"></p-confirmDialog>

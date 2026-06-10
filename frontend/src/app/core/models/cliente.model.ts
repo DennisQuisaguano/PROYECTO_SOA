@@ -8,6 +8,7 @@ export interface Cliente {
   email: string;
   telefono: string;
   direccion: string;
+  activo: boolean;
 }
 
 export interface ClienteRequest {
@@ -19,4 +20,5 @@ export interface ClienteRequest {
   email: string;
   telefono: string;
   direccion: string;
+  activo?: boolean;
 }

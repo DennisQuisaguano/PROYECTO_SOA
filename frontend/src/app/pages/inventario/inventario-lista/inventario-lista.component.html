@@ -97,10 +97,13 @@
               </td>
               <td class="text-center">
                 <div class="flex gap-2 justify-content-center">
-                  <button *ngIf="authService.isBodeguero()" class="action-btn btn-restock-prod" (click)="abrirReabastecer(inv)" title="Reabastecer Inventario">
+                  <button *ngIf="authService.isBodeguero()" class="action-btn btn-restock-prod" 
+                          (click)="abrirReabastecer(inv)" title="Reabastecer Inventario"
+                          [disabled]="!inv.activo" [class.opacity-50]="!inv.activo" [style.cursor]="!inv.activo ? 'not-allowed' : 'pointer'">
                     <i class="bi bi-box-arrow-in-down"></i>
                   </button>
-                  <button class="action-btn btn-edit-prod" (click)="editarProducto(inv)" title="Editar producto">
+                  <button class="action-btn btn-edit-prod" (click)="editarProducto(inv)" title="Editar producto"
+                          [disabled]="!inv.activo" [class.opacity-50]="!inv.activo" [style.cursor]="!inv.activo ? 'not-allowed' : 'pointer'">
                     <i class="bi bi-pencil-square"></i>
                   </button>
                 </div>

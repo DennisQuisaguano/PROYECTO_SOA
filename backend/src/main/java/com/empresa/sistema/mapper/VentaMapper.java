@@ -19,7 +19,7 @@ public interface VentaMapper {
     @Mapping(source = "sucursal.id", target = "sucursalId")
     @Mapping(source = "sucursal.nombre", target = "sucursalNombre")
     @Mapping(source = "cajero.id", target = "cajeroId")
-    @Mapping(source = "cajero.nombreCompleto", target = "cajeroNombre")
+    @Mapping(target = "cajeroNombre", expression = "java(entity.getCajero().getNombre() + \" \" + entity.getCajero().getApellido())")
     VentaResponseDTO toDto(Venta entity);
 
     @org.mapstruct.AfterMapping
